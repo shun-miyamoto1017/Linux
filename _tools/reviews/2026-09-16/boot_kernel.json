@@ -1,0 +1,196 @@
+{
+  "group": "起動プロセスとカーネル",
+  "status": "途中保存",
+  "files": [
+    {
+      "path": "05_起動プロセスとカーネル/BIOSとUEFI.md",
+      "read_complete": true,
+      "lines_read": 425,
+      "ratings": {
+        "beginner": "要改善",
+        "accuracy": "要改善",
+        "exam": "要改善",
+        "work": "要改善"
+      },
+      "assessment": {
+        "beginner": "MBR構造図とESP比較は具体的だが、BIOSとMBR/GPTを同一視する説明が初心者の誤概念につながる。",
+        "accuracy": "BIOS+GPT不可とESP形式の断定を修正する必要がある。",
+        "exam": "101.2/102.2と202.3の該当テーマを概ね扱うが、BIOS+GPTの理解が不正確。",
+        "work": "起動不能の切分けと復旧例はある。起動モードとディスク形式を独立して確認する手順が必要。"
+      },
+      "exam_scope": "LPIC-1 101.2/102.2、LPIC-2 202.3",
+      "source_urls": [
+        "https://www.lpi.org/our-certifications/exam-101-102-objectives/",
+        "https://www.lpi.org/our-certifications/exam-201-202-objectives/",
+        "https://www.gnu.org/software/grub/manual/grub/grub.html",
+        "https://uefi.org/sites/default/files/resources/UEFI_Spec_2_10_Aug29.pdf"
+      ]
+    },
+    {
+      "path": "05_起動プロセスとカーネル/GRUBの設定と復旧.md",
+      "read_complete": true,
+      "lines_read": 745,
+      "ratings": {
+        "beginner": "要改善",
+        "accuracy": "重大な問題あり",
+        "exam": "要改善",
+        "work": "重大な問題あり"
+      },
+      "assessment": {
+        "beginner": "Legacy/GRUB2の比較と操作順は丁寧だが、UEFI設定の配置を一律化し環境選択を誤らせる。",
+        "accuracy": "UEFIのgrub.cfg生成先とupdate-grubの適用条件が現行ディストリと矛盾。",
+        "exam": "101.2/102.2、202.2/202.3の主要操作は説明済み。世代・ディストリ差の正確化が必要。",
+        "work": "chroot復旧や旧カーネル選択は具体的。誤ったUEFI生成先が復旧を妨げるため優先修正。"
+      },
+      "exam_scope": "LPIC-1 101.2/102.2、LPIC-2 202.2/202.3",
+      "source_urls": [
+        "https://www.lpi.org/our-certifications/exam-101-102-objectives/",
+        "https://www.lpi.org/our-certifications/exam-201-202-objectives/",
+        "https://www.gnu.org/software/grub/manual/grub/grub.html",
+        "https://docs.redhat.com/en/documentation/red_hat_enterprise_linux/9/html/managing_monitoring_and_updating_the_kernel/assembly_reinstalling-grub_assembly_managing-kernel-command-line-parameters-with-uki"
+      ]
+    },
+    {
+      "path": "05_起動プロセスとカーネル/systemctl_サービスの操作と確認.md",
+      "read_complete": true,
+      "lines_read": 651,
+      "ratings": {
+        "beginner": "十分",
+        "accuracy": "要改善",
+        "exam": "要改善",
+        "work": "要改善"
+      },
+      "assessment": {
+        "beginner": "操作と確認を分け、reload/restartやactive/enabled比較と参照先があり追いやすい。",
+        "accuracy": "set-property一時設定の断定、AMIへのfailed状態継承、reload接続保証などを修正する必要がある。",
+        "exam": "101.3/202.1の操作は幅広いが状態と永続化に誤説明が残る。",
+        "work": "障害確認の順序は具体的。永続化・AMI判定・停止影響の説明が運用判断を誤らせる。"
+      },
+      "exam_scope": "LPIC-1 101.3、LPIC-2 202.1",
+      "source_urls": [
+        "https://www.lpi.org/our-certifications/exam-101-102-objectives/",
+        "https://www.lpi.org/our-certifications/exam-201-202-objectives/",
+        "https://www.man7.org/linux/man-pages/man1/systemctl.1.html",
+        "https://www.man7.org/linux/man-pages/man5/systemd.service.5.html"
+      ]
+    },
+    {
+      "path": "05_起動プロセスとカーネル/systemctl_結果画面の見方.md",
+      "read_complete": true,
+      "lines_read": 480,
+      "ratings": {
+        "beginner": "十分",
+        "accuracy": "要改善",
+        "exam": "要改善",
+        "work": "要改善"
+      },
+      "assessment": {
+        "beginner": "status/show/catの違いと各欄の読み方が詳しく、出力逆引きとして役立つ。",
+        "accuracy": "逆依存を停止影響と同一視する説明、cat/show不一致をdrop-inだけに断定する説明は要修正。",
+        "exam": "101.3/202.1に必要な状態語は充実。依存関係の停止伝播を区別できる補足が必要。",
+        "work": "203/EXEC等の調査入口が明確だが、停止前の影響調査手順は不正確。"
+      },
+      "exam_scope": "LPIC-1 101.3、LPIC-2 202.1",
+      "source_urls": [
+        "https://www.lpi.org/our-certifications/exam-101-102-objectives/",
+        "https://www.lpi.org/our-certifications/exam-201-202-objectives/",
+        "https://www.man7.org/linux/man-pages/man1/systemctl.1.html",
+        "https://www.man7.org/linux/man-pages/man5/systemd.unit.5.html"
+      ]
+    },
+    {
+      "path": "05_起動プロセスとカーネル/systemd_Serviceセクションと自作サービス.md",
+      "read_complete": true,
+      "lines_read": 741,
+      "ratings": {
+        "beginner": "要改善",
+        "accuracy": "重大な問題あり",
+        "exam": "要改善",
+        "work": "重大な問題あり"
+      },
+      "assessment": {
+        "beginner": "Typeの時系列図は分かりやすい。一方最小設定例が行末コメントを含み、そのまま利用すると動作しない。",
+        "accuracy": "Restart=alwaysの手動停止挙動、ExecStart絶対パス必須、StartLimit節配置など複数の誤り。",
+        "exam": "202.1のサービス作成・Type選択は充実しているが設定の挙動を正しく説明し直す必要がある。",
+        "work": "手動確認から再起動確認まで流れはあるが、設定例と再起動方針の誤りが構築を妨げる。"
+      },
+      "exam_scope": "LPIC-2 202.1、LPIC-1 101.3の補足",
+      "source_urls": [
+        "https://www.lpi.org/our-certifications/exam-101-102-objectives/",
+        "https://www.lpi.org/our-certifications/exam-201-202-objectives/",
+        "https://www.man7.org/linux/man-pages/man5/systemd.service.5.html",
+        "https://www.man7.org/linux/man-pages/man5/systemd.unit.5.html",
+        "https://www.man7.org/linux/man-pages/man7/systemd.syntax.7.html"
+      ]
+    },
+    {
+      "path": "05_起動プロセスとカーネル/systemd_基本とユニットファイル.md",
+      "read_complete": true,
+      "lines_read": 924,
+      "ratings": {
+        "beginner": "要改善",
+        "accuracy": "要改善",
+        "exam": "要改善",
+        "work": "要改善"
+      },
+      "assessment": {
+        "beginner": "ユニットとプログラムを区別する図は良好。非同期の断定や依存関係の説明が誤解を作る。",
+        "accuracy": "drop-in優先順、%i/%I、Requires失敗伝播、systemctl start待機挙動に誤り。",
+        "exam": "202.1で重要な依存・順序・テンプレートの説明を正確化する必要がある。",
+        "work": "drop-inや自作サービスの場面は具体的だが、設定の適用順・依存挙動を誤るリスクがある。"
+      },
+      "exam_scope": "LPIC-1 101.3、LPIC-2 202.1",
+      "source_urls": [
+        "https://www.lpi.org/our-certifications/exam-101-102-objectives/",
+        "https://www.lpi.org/our-certifications/exam-201-202-objectives/",
+        "https://www.man7.org/linux/man-pages/man5/systemd.unit.5.html",
+        "https://www.man7.org/linux/man-pages/man1/systemctl.1.html"
+      ]
+    }
+  ],
+  "findings": [
+    {
+      "id": "BK-001",
+      "severity": "P2",
+      "axes": [
+        "beginner",
+        "accuracy",
+        "exam",
+        "work"
+      ],
+      "path": "05_起動プロセスとカーネル/BIOSとUEFI.md",
+      "start_line": 376,
+      "end_line": 380,
+      "title": "GPTにUEFIが必須という誤説明",
+      "problem": "380行はGPT使用にUEFIが必要と断定するが、GNU GRUBはBIOS+GPTとBIOS Boot Partitionを明記している。",
+      "impact": "BIOS環境で大容量ディスクの構成や復旧方法を誤判断する。",
+      "suggestion": "ファームウェアとパーティション方式を別軸で示し、BIOS+GPTとbios_grub領域を説明する。",
+      "evidence_urls": [
+        "https://www.gnu.org/software/grub/manual/grub/grub.html"
+      ],
+      "verification": "公式資料確認（実行未検証）"
+    },
+    {
+      "id": "BK-002",
+      "severity": "P1",
+      "axes": [
+        "accuracy",
+        "work"
+      ],
+      "path": "05_起動プロセスとカーネル/GRUBの設定と復旧.md",
+      "start_line": 84,
+      "end_line": 121,
+      "title": "UEFIのgrub.cfg生成先を一律にESPとしない",
+      "problem": "UEFIの主設定をESP内と一律化し、update-grubをBIOS限定と説明。RHEL9のESP側は変更禁止のstubで主設定は/boot/grub2/grub.cfg。Debian系update-grubもUEFIで使用する。",
+      "impact": "指示に従いESPのstubを生成内容で上書きすると将来の更新反映や起動復旧を妨げる。",
+      "suggestion": "RHEL7/8、RHEL9以降、Debian/Ubuntuに分けて主設定・stub・生成コマンドを明示する。",
+      "evidence_urls": [
+        "https://docs.redhat.com/en/documentation/red_hat_enterprise_linux/9/html/managing_monitoring_and_updating_the_kernel/assembly_reinstalling-grub_assembly_managing-kernel-command-line-parameters-with-uki"
+      ],
+      "verification": "公式資料確認（実行未検証）"
+    }
+  ],
+  "limitations": [
+    "現在 18 本中 6 本を全文読解済み。残りは精査中。コマンドの実行検証は未実施。"
+  ]
+}

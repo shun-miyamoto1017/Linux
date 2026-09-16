@@ -1,0 +1,178 @@
+{
+  "group": "shell_permissions",
+  "status": "in_progress",
+  "files": [
+    {
+      "path": "01_シェルとコマンドライン/クォートとエスケープ.md",
+      "read_complete": true,
+      "lines_read": 504,
+      "ratings": {
+        "beginner": "未確認",
+        "accuracy": "未確認",
+        "exam": "未確認",
+        "work": "未確認"
+      },
+      "assessment": {
+        "beginner": "本文全行読了。最終評価整理中。",
+        "accuracy": "本文全行読了。公式根拠照合中。",
+        "exam": "LPIC-1 5.0 当該テーマの範囲と照合中。",
+        "work": "本文全行読了。使用例の妥当性を確認中。"
+      },
+      "exam_scope": "LPIC-1 103/105 当該テーマ",
+      "source_urls": [
+        "https://www.lpi.org/our-certifications/exam-101-102-objectives/"
+      ]
+    },
+    {
+      "path": "01_シェルとコマンドライン/コマンドの連結と制御演算子.md",
+      "read_complete": true,
+      "lines_read": 459,
+      "ratings": {
+        "beginner": "未確認",
+        "accuracy": "未確認",
+        "exam": "未確認",
+        "work": "未確認"
+      },
+      "assessment": {
+        "beginner": "本文全行読了。最終評価整理中。",
+        "accuracy": "本文全行読了。公式根拠照合中。",
+        "exam": "LPIC-1 5.0 当該テーマの範囲と照合中。",
+        "work": "本文全行読了。使用例の妥当性を確認中。"
+      },
+      "exam_scope": "LPIC-1 103/105 当該テーマ",
+      "source_urls": [
+        "https://www.lpi.org/our-certifications/exam-101-102-objectives/"
+      ]
+    },
+    {
+      "path": "01_シェルとコマンドライン/コマンド履歴.md",
+      "read_complete": true,
+      "lines_read": 614,
+      "ratings": {
+        "beginner": "未確認",
+        "accuracy": "未確認",
+        "exam": "未確認",
+        "work": "未確認"
+      },
+      "assessment": {
+        "beginner": "本文全行読了。最終評価整理中。",
+        "accuracy": "本文全行読了。公式根拠照合中。",
+        "exam": "LPIC-1 5.0 当該テーマの範囲と照合中。",
+        "work": "本文全行読了。使用例の妥当性を確認中。"
+      },
+      "exam_scope": "LPIC-1 103/105 当該テーマ",
+      "source_urls": [
+        "https://www.lpi.org/our-certifications/exam-101-102-objectives/"
+      ]
+    },
+    {
+      "path": "01_シェルとコマンドライン/シェルスクリプトの実行方法.md",
+      "read_complete": true,
+      "lines_read": 534,
+      "ratings": {
+        "beginner": "未確認",
+        "accuracy": "未確認",
+        "exam": "未確認",
+        "work": "未確認"
+      },
+      "assessment": {
+        "beginner": "本文全行読了。最終評価整理中。",
+        "accuracy": "本文全行読了。公式根拠照合中。",
+        "exam": "LPIC-1 5.0 当該テーマの範囲と照合中。",
+        "work": "本文全行読了。使用例の妥当性を確認中。"
+      },
+      "exam_scope": "LPIC-1 103/105 当該テーマ",
+      "source_urls": [
+        "https://www.lpi.org/our-certifications/exam-101-102-objectives/"
+      ]
+    },
+    {
+      "path": "01_シェルとコマンドライン/シェルのオプション設定.md",
+      "read_complete": true,
+      "lines_read": 702,
+      "ratings": {
+        "beginner": "未確認",
+        "accuracy": "未確認",
+        "exam": "未確認",
+        "work": "未確認"
+      },
+      "assessment": {
+        "beginner": "本文全行読了。最終評価整理中。",
+        "accuracy": "本文全行読了。公式根拠照合中。",
+        "exam": "LPIC-1 5.0 当該テーマの範囲と照合中。",
+        "work": "本文全行読了。使用例の妥当性を確認中。"
+      },
+      "exam_scope": "LPIC-1 103/105 当該テーマ",
+      "source_urls": [
+        "https://www.lpi.org/our-certifications/exam-101-102-objectives/"
+      ]
+    },
+    {
+      "path": "01_シェルとコマンドライン/シェルの設定ファイル.md",
+      "read_complete": true,
+      "lines_read": 523,
+      "ratings": {
+        "beginner": "未確認",
+        "accuracy": "未確認",
+        "exam": "未確認",
+        "work": "未確認"
+      },
+      "assessment": {
+        "beginner": "本文全行読了。最終評価整理中。",
+        "accuracy": "本文全行読了。公式根拠照合中。",
+        "exam": "LPIC-1 5.0 当該テーマの範囲と照合中。",
+        "work": "本文全行読了。使用例の妥当性を確認中。"
+      },
+      "exam_scope": "LPIC-1 103/105 当該テーマ",
+      "source_urls": [
+        "https://www.lpi.org/our-certifications/exam-101-102-objectives/"
+      ]
+    },
+    {
+      "path": "01_シェルとコマンドライン/シェル変数と環境変数.md",
+      "read_complete": true,
+      "lines_read": 773,
+      "ratings": {
+        "beginner": "未確認",
+        "accuracy": "未確認",
+        "exam": "未確認",
+        "work": "未確認"
+      },
+      "assessment": {
+        "beginner": "本文全行読了。最終評価整理中。",
+        "accuracy": "本文全行読了。公式根拠照合中。",
+        "exam": "LPIC-1 5.0 当該テーマの範囲と照合中。",
+        "work": "本文全行読了。使用例の妥当性を確認中。"
+      },
+      "exam_scope": "LPIC-1 103/105 当該テーマ",
+      "source_urls": [
+        "https://www.lpi.org/our-certifications/exam-101-102-objectives/"
+      ]
+    },
+    {
+      "path": "01_シェルとコマンドライン/パイプとフィルタ.md",
+      "read_complete": true,
+      "lines_read": 795,
+      "ratings": {
+        "beginner": "未確認",
+        "accuracy": "未確認",
+        "exam": "未確認",
+        "work": "未確認"
+      },
+      "assessment": {
+        "beginner": "本文全行読了。最終評価整理中。",
+        "accuracy": "本文全行読了。公式根拠照合中。",
+        "exam": "LPIC-1 5.0 当該テーマの範囲と照合中。",
+        "work": "本文全行読了。使用例の妥当性を確認中。"
+      },
+      "exam_scope": "LPIC-1 103/105 当該テーマ",
+      "source_urls": [
+        "https://www.lpi.org/our-certifications/exam-101-102-objectives/"
+      ]
+    }
+  ],
+  "findings": [],
+  "limitations": [
+    "作業途中の保存。パス名展開とワイルドカードは1〜390行既読、391行以降未読。残り9本未読。WSLはアクセス拒否で使用できなかった。"
+  ]
+}

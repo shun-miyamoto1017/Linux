@@ -1,0 +1,1332 @@
+[
+ {
+  "no": 1,
+  "phase": "Phase1 コア",
+  "pri": "★★★★★",
+  "range": "Linux1",
+  "shudai": "GNUとUnixコマンド(主題103)",
+  "item": "コマンドラインでの作業",
+  "q": 4,
+  "use": "全作業の入口。bash操作/履歴/環境変数"
+ },
+ {
+  "no": 2,
+  "phase": "Phase1 コア",
+  "pri": "★★★★★",
+  "range": "Linux1",
+  "shudai": "GNUとUnixコマンド(主題103)",
+  "item": "基本的なファイル管理",
+  "q": 1,
+  "use": "ls/cp/mv/rm/tar。日常操作の土台"
+ },
+ {
+  "no": 3,
+  "phase": "Phase1 コア",
+  "pri": "★★★★★",
+  "range": "Linux1",
+  "shudai": "GNUとUnixコマンド(主題103)",
+  "item": "ストリーム、パイプ、リダイレクトの使用",
+  "q": 1,
+  "use": "ログ調査・ワンライナーの必須基礎"
+ },
+ {
+  "no": 4,
+  "phase": "Phase1 コア",
+  "pri": "★★★★★",
+  "range": "Linux1",
+  "shudai": "GNUとUnixコマンド(主題103)",
+  "item": "フィルターを使用してのテキストストリーム処理",
+  "q": 1,
+  "use": "grep/awk/sed。障害調査の主力"
+ },
+ {
+  "no": 5,
+  "phase": "Phase1 コア",
+  "pri": "★★★★★",
+  "range": "Linux1",
+  "shudai": "GNUとUnixコマンド(主題103)",
+  "item": "正規表現を使用してのテキストファイル検索",
+  "q": 0,
+  "use": "ログ抽出・設定ファイル検索で毎回使う"
+ },
+ {
+  "no": 6,
+  "phase": "Phase1 コア",
+  "pri": "★★★★★",
+  "range": "Linux1",
+  "shudai": "GNUとUnixコマンド(主題103)",
+  "item": "ファイルの基本的な編集",
+  "q": 1,
+  "use": "vi。踏み台/コンテナ内で唯一使えるエディタ"
+ },
+ {
+  "no": 7,
+  "phase": "Phase1 コア",
+  "pri": "★★★★★",
+  "range": "Linux1",
+  "shudai": "GNUとUnixコマンド(主題103)",
+  "item": "プロセスの作成、監視、終了",
+  "q": 3,
+  "use": "ps/top/kill。重いサーバ診断の第一歩"
+ },
+ {
+  "no": 8,
+  "phase": "Phase1 コア",
+  "pri": "★★★★★",
+  "range": "Linux1",
+  "shudai": "GNUとUnixコマンド(主題103)",
+  "item": "プロセスの実行優先度の変更",
+  "q": 0,
+  "use": "nice/renice。負荷制御の基本"
+ },
+ {
+  "no": 9,
+  "phase": "Phase1 コア",
+  "pri": "★★★★★",
+  "range": "Linux1",
+  "shudai": "デバイス、Linuxファイルシステム、FHS(主題104)",
+  "item": "ファイルのパーミッションと所有権の管理",
+  "q": 3,
+  "use": "権限起因の障害は頻出。chmod/chown/umask"
+ },
+ {
+  "no": 10,
+  "phase": "Phase1 コア",
+  "pri": "★★★★★",
+  "range": "Linux1",
+  "shudai": "デバイス、Linuxファイルシステム、FHS(主題104)",
+  "item": "システムファイルの検索、適切なファイル配置",
+  "q": 6,
+  "use": "find/FHS。設定ファイルの在り処が即分かる"
+ },
+ {
+  "no": 11,
+  "phase": "Phase1 コア",
+  "pri": "★★★★★",
+  "range": "Linux1",
+  "shudai": "デバイス、Linuxファイルシステム、FHS(主題104)",
+  "item": "ハードリンクとシンボリックリンクの作成・変更",
+  "q": 2,
+  "use": "バージョン切替・パス整理で常用"
+ },
+ {
+  "no": 12,
+  "phase": "Phase1 コア",
+  "pri": "★★★★★",
+  "range": "Linux1",
+  "shudai": "デバイス、Linuxファイルシステム、FHS(主題104)",
+  "item": "ファイルシステムのマウントとアンマウント",
+  "q": 3,
+  "use": "EBS/EFS追加時に直結。fstab理解"
+ },
+ {
+  "no": 13,
+  "phase": "Phase1 コア",
+  "pri": "★★★★★",
+  "range": "Linux2",
+  "shudai": "システムの保守と運用管理(主題2.04)",
+  "item": "リソース使用状況の把握",
+  "q": 66,
+  "use": "障害一次切り分けの中核。CPU/MEM/IO/DISK"
+ },
+ {
+  "no": 14,
+  "phase": "Phase1 コア",
+  "pri": "★★★★★",
+  "range": "Linux1",
+  "shudai": "重要なシステムサービス(主題1.09)",
+  "item": "システムのログ",
+  "q": 39,
+  "use": "journald/rsyslog。CloudWatch連携の前提"
+ },
+ {
+  "no": 15,
+  "phase": "Phase1 コア",
+  "pri": "★★★★★",
+  "range": "Linux1",
+  "shudai": "重要なシステムサービス(主題1.09)",
+  "item": "システム時刻の管理",
+  "q": 39,
+  "use": "chrony/NTP。時刻ズレは金融案件で致命的"
+ },
+ {
+  "no": 16,
+  "phase": "Phase1 コア",
+  "pri": "★★★★★",
+  "range": "Linux1",
+  "shudai": "システム管理(主題1.08)",
+  "item": "アカウント管理",
+  "q": 20,
+  "use": "ユーザ棚卸・権限設計。監査対応で必須"
+ },
+ {
+  "no": 17,
+  "phase": "Phase1 コア",
+  "pri": "★★★★★",
+  "range": "Linux1",
+  "shudai": "システム管理(主題1.08)",
+  "item": "ジョブスケジューリング",
+  "q": 12,
+  "use": "cron/systemd timer。バッチ運用の基本"
+ },
+ {
+  "no": 18,
+  "phase": "Phase1 コア",
+  "pri": "★★★★★",
+  "range": "Linux1",
+  "shudai": "Linuxのインストールとパッケージ管理(主題102)",
+  "item": "RPMとYUMパッケージ管理",
+  "q": 1,
+  "use": "RHEL系。パッチ管理業務に直結"
+ },
+ {
+  "no": 19,
+  "phase": "Phase1 コア",
+  "pri": "★★★★★",
+  "range": "Linux1",
+  "shudai": "シェルおよびスクリプト(主題1.06)",
+  "item": "シェル環境のカスタマイズ",
+  "q": 23,
+  "use": "作業効率が恒久的に上がる投資"
+ },
+ {
+  "no": 20,
+  "phase": "Phase1 コア",
+  "pri": "★★★★★",
+  "range": "Linux1",
+  "shudai": "シェルおよびスクリプト(主題1.06)",
+  "item": "シェルスクリプト",
+  "q": 49,
+  "use": "自動化の土台。手順書のコード化"
+ },
+ {
+  "no": 21,
+  "phase": "Phase1 コア",
+  "pri": "★★★★★",
+  "range": "Linux1",
+  "shudai": "ネットワークの基礎(主題1.07)",
+  "item": "インターネットプロトコルの基礎",
+  "q": 52,
+  "use": "VPC/サブネット設計の理論的裏付け"
+ },
+ {
+  "no": 22,
+  "phase": "Phase1 コア",
+  "pri": "★★★★★",
+  "range": "Linux1",
+  "shudai": "ネットワークの基礎(主題1.07)",
+  "item": "基本的なネットワーク構成",
+  "q": 21,
+  "use": "ip/nmcli。EC2のNIC設定で使う"
+ },
+ {
+  "no": 23,
+  "phase": "Phase1 コア",
+  "pri": "★★★★★",
+  "range": "Linux1",
+  "shudai": "ネットワークの基礎(主題1.07)",
+  "item": "基本的なネットワークの問題解決",
+  "q": 50,
+  "use": "疎通不可調査。SG/NACL切り分けと併用"
+ },
+ {
+  "no": 24,
+  "phase": "Phase1 コア",
+  "pri": "★★★★★",
+  "range": "Linux1",
+  "shudai": "ネットワークの基礎(主題1.07)",
+  "item": "クライアント側のDNS設定",
+  "q": 17,
+  "use": "resolv.conf/Route53解決の切り分け"
+ },
+ {
+  "no": 25,
+  "phase": "Phase1 コア",
+  "pri": "★★★★★",
+  "range": "Linux1",
+  "shudai": "システムアーキテクチャ(主題101)",
+  "item": "システムの起動",
+  "q": 8,
+  "use": "systemd。サービス起動不良の調査"
+ },
+ {
+  "no": 26,
+  "phase": "Phase1 コア",
+  "pri": "★★★★★",
+  "range": "Linux1",
+  "shudai": "システムアーキテクチャ(主題101)",
+  "item": "ランレベル/ブートターゲットの変更",
+  "q": 1,
+  "use": "起動モード切替。レスキュー対応"
+ },
+ {
+  "no": 27,
+  "phase": "Phase1 コア",
+  "pri": "★★★★★",
+  "range": "Linux2",
+  "shudai": "システムのセキュリティ(主題2.12)",
+  "item": "OpenSSH サーバーの設定と管理",
+  "q": 21,
+  "use": "踏み台・鍵管理。ほぼ全案件で登場"
+ },
+ {
+  "no": 28,
+  "phase": "Phase1 コア",
+  "pri": "★★★★★",
+  "range": "Linux2",
+  "shudai": "システムのセキュリティ(主題2.12)",
+  "item": "iptablesやfirewalldによるパケットフィルタリング",
+  "q": 50,
+  "use": "OS側FW。SGと二重防御の設計で必要"
+ },
+ {
+  "no": 29,
+  "phase": "Phase2 設計構築",
+  "pri": "★★★★☆",
+  "range": "Linux2",
+  "shudai": "ファイルシステムとストレージ管理(主題2.02)",
+  "item": "ファイルシステムの設定とマウント",
+  "q": 63,
+  "use": "XFS/ext4選定、autofs。構築の中心"
+ },
+ {
+  "no": 30,
+  "phase": "Phase2 設計構築",
+  "pri": "★★★★☆",
+  "range": "Linux2",
+  "shudai": "ファイルシステムとストレージ管理(主題2.02)",
+  "item": "ファイルシステムの管理",
+  "q": 41,
+  "use": "拡張/修復。ディスク逼迫対応の実務"
+ },
+ {
+  "no": 31,
+  "phase": "Phase2 設計構築",
+  "pri": "★★★★☆",
+  "range": "Linux2",
+  "shudai": "ファイルシステムとストレージ管理(主題2.02)",
+  "item": "論理ボリュームマネージャの設定と管理",
+  "q": 34,
+  "use": "LVM。無停止拡張はオンプレ/EC2共通"
+ },
+ {
+  "no": 32,
+  "phase": "Phase2 設計構築",
+  "pri": "★★★★☆",
+  "range": "Linux1",
+  "shudai": "デバイス、Linuxファイルシステム、FHS(主題104)",
+  "item": "パーティションとファイルシステムの作成",
+  "q": 7,
+  "use": "ディスク初期構築の基礎"
+ },
+ {
+  "no": 33,
+  "phase": "Phase2 設計構築",
+  "pri": "★★★★☆",
+  "range": "Linux1",
+  "shudai": "デバイス、Linuxファイルシステム、FHS(主題104)",
+  "item": "ファイルシステムの整合性の維持",
+  "q": 1,
+  "use": "fsck。障害復旧手順に組み込む"
+ },
+ {
+  "no": 34,
+  "phase": "Phase2 設計構築",
+  "pri": "★★★★☆",
+  "range": "Linux1",
+  "shudai": "Linuxのインストールとパッケージ管理(主題102)",
+  "item": "ハードディスクのレイアウト設計",
+  "q": 1,
+  "use": "パーティション設計。基本設計書に直結"
+ },
+ {
+  "no": 35,
+  "phase": "Phase2 設計構築",
+  "pri": "★★★★☆",
+  "range": "Linux2",
+  "shudai": "システムの起動とLinuxカーネル(主題2.01)",
+  "item": "ブートプロセスとGRUB",
+  "q": 30,
+  "use": "起動不能時の復旧。AMI障害対応"
+ },
+ {
+  "no": 36,
+  "phase": "Phase2 設計構築",
+  "pri": "★★★★☆",
+  "range": "Linux2",
+  "shudai": "システムの起動とLinuxカーネル(主題2.01)",
+  "item": "システム起動のカスタマイズ",
+  "q": 32,
+  "use": "systemd unit自作。常駐サービス化"
+ },
+ {
+  "no": 37,
+  "phase": "Phase2 設計構築",
+  "pri": "★★★★☆",
+  "range": "Linux2",
+  "shudai": "システムの起動とLinuxカーネル(主題2.01)",
+  "item": "カーネル実行時における管理とトラブルシューティング",
+  "q": 42,
+  "use": "sysctl/dmesg。性能チューニングで必須"
+ },
+ {
+  "no": 38,
+  "phase": "Phase2 設計構築",
+  "pri": "★★★★☆",
+  "range": "Linux2",
+  "shudai": "システムの起動とLinuxカーネル(主題2.01)",
+  "item": "Linux カーネルの構成要素",
+  "q": 12,
+  "use": "モジュール理解。ドライバ/NW調査の前提"
+ },
+ {
+  "no": 39,
+  "phase": "Phase2 設計構築",
+  "pri": "★★★★☆",
+  "range": "Linux1",
+  "shudai": "システムアーキテクチャ(主題101)",
+  "item": "ハードウェア設定の決定と設定",
+  "q": 2,
+  "use": "デバイス認識確認。オンプレ知識の再整理"
+ },
+ {
+  "no": 40,
+  "phase": "Phase2 設計構築",
+  "pri": "★★★★☆",
+  "range": "Linux2",
+  "shudai": "ネットワーク構成(主題2.03)",
+  "item": "基本的なネットワーク構成",
+  "q": 37,
+  "use": "ルーティング/静的IP。構築手順の定番"
+ },
+ {
+  "no": 41,
+  "phase": "Phase2 設計構築",
+  "pri": "★★★★☆",
+  "range": "Linux2",
+  "shudai": "ネットワーク構成(主題2.03)",
+  "item": "ネットワークの問題解決",
+  "q": 23,
+  "use": "tcpdump/ss。L4切り分けの決定打"
+ },
+ {
+  "no": 42,
+  "phase": "Phase2 設計構築",
+  "pri": "★★★★☆",
+  "range": "Linux2",
+  "shudai": "ネットワーク構成(主題2.03)",
+  "item": "高度なネットワーク構成",
+  "q": 62,
+  "use": "ボンディング/VLAN/高度ルーティング"
+ },
+ {
+  "no": 43,
+  "phase": "Phase2 設計構築",
+  "pri": "★★★★☆",
+  "range": "Linux2",
+  "shudai": "コンテナ(主題2.06)",
+  "item": "コンテナの仕組み",
+  "q": 12,
+  "use": "namespace/cgroup。EKS理解の根っこ"
+ },
+ {
+  "no": 44,
+  "phase": "Phase2 設計構築",
+  "pri": "★★★★☆",
+  "range": "Linux2",
+  "shudai": "コンテナ(主題2.06)",
+  "item": "Dockerコンテナとコンテナイメージの管理",
+  "q": 42,
+  "use": "イメージ最適化・ECR運用に直結"
+ },
+ {
+  "no": 45,
+  "phase": "Phase2 設計構築",
+  "pri": "★★★★☆",
+  "range": "Linux2",
+  "shudai": "システムの保守と運用管理(主題2.04)",
+  "item": "システム構成ツール",
+  "q": 27,
+  "use": "Ansible。構成管理の主戦力"
+ },
+ {
+  "no": 46,
+  "phase": "Phase2 設計構築",
+  "pri": "★★★★☆",
+  "range": "Linux2",
+  "shudai": "システムの保守と運用管理(主題2.04)",
+  "item": "死活監視、リソース監視、運用監視ツール",
+  "q": 18,
+  "use": "監視設計。CloudWatch/Prometheus前提知識"
+ },
+ {
+  "no": 47,
+  "phase": "Phase2 設計構築",
+  "pri": "★★★★☆",
+  "range": "Linux2",
+  "shudai": "システムの保守と運用管理(主題2.04)",
+  "item": "バックアップとリストア",
+  "q": 30,
+  "use": "運用設計の必須項目。RPO/RTO検討"
+ },
+ {
+  "no": 48,
+  "phase": "Phase2 設計構築",
+  "pri": "★★★★☆",
+  "range": "Linux1",
+  "shudai": "セキュリティ(主題1.10)",
+  "item": "セキュリティ管理業務の実施",
+  "q": 14,
+  "use": "権限監査・不要サービス停止"
+ },
+ {
+  "no": 49,
+  "phase": "Phase2 設計構築",
+  "pri": "★★★★☆",
+  "range": "Linux1",
+  "shudai": "セキュリティ(主題1.10)",
+  "item": "ホストのセキュリティ設定",
+  "q": 14,
+  "use": "ハードニング。CIS Benchmarkの下地"
+ },
+ {
+  "no": 50,
+  "phase": "Phase2 設計構築",
+  "pri": "★★★★☆",
+  "range": "Linux1",
+  "shudai": "セキュリティ(主題1.10)",
+  "item": "暗号化によるデータの保護",
+  "q": 22,
+  "use": "SSH鍵/GPG。鍵運用の基礎"
+ },
+ {
+  "no": 51,
+  "phase": "Phase2 設計構築",
+  "pri": "★★★★☆",
+  "range": "Linux1",
+  "shudai": "セキュリティ(主題1.10)",
+  "item": "クラウドセキュリティの基礎",
+  "q": 4,
+  "use": "責任共有モデル。現業務そのもの"
+ },
+ {
+  "no": 52,
+  "phase": "Phase2 設計構築",
+  "pri": "★★★★☆",
+  "range": "Linux2",
+  "shudai": "システムアーキテクチャ(主題2.13)",
+  "item": "クラウドサービス上のシステム構成",
+  "q": 11,
+  "use": "現業務の設計判断に直結"
+ },
+ {
+  "no": 53,
+  "phase": "Phase2 設計構築",
+  "pri": "★★★★☆",
+  "range": "Linux2",
+  "shudai": "システムアーキテクチャ(主題2.13)",
+  "item": "典型的なシステムアーキテクチャ",
+  "q": 12,
+  "use": "3層/マイクロサービス。提案時の共通言語"
+ },
+ {
+  "no": 54,
+  "phase": "Phase2 設計構築",
+  "pri": "★★★★☆",
+  "range": "Linux2",
+  "shudai": "システムアーキテクチャ(主題2.13)",
+  "item": "高可用システムの実現方式",
+  "q": 18,
+  "use": "Multi-AZ設計の理論的裏付け"
+ },
+ {
+  "no": 55,
+  "phase": "Phase2 設計構築",
+  "pri": "★★★★☆",
+  "range": "Linux2",
+  "shudai": "システムアーキテクチャ(主題2.13)",
+  "item": "キャパシティプランニングとスケーラビリティの確保",
+  "q": 18,
+  "use": "サイジング根拠。基本設計書で問われる"
+ },
+ {
+  "no": 56,
+  "phase": "Phase2 設計構築",
+  "pri": "★★★★☆",
+  "range": "Linux2",
+  "shudai": "システムのセキュリティ(主題2.12)",
+  "item": "セキュリティ業務",
+  "q": 29,
+  "use": "脆弱性情報の追跡。CVE対応運用"
+ },
+ {
+  "no": 57,
+  "phase": "Phase2 設計構築",
+  "pri": "★★★★☆",
+  "range": "Linux2",
+  "shudai": "HTTPサーバーとプロキシサーバー(主題2.09)",
+  "item": "OpenSSLとHTTPSの設定",
+  "q": 19,
+  "use": "証明書更新。ALB/CloudFrontでも同概念"
+ },
+ {
+  "no": 58,
+  "phase": "Phase2 設計構築",
+  "pri": "★★★★☆",
+  "range": "Linux2",
+  "shudai": "HTTPサーバーとプロキシサーバー(主題2.09)",
+  "item": "nginxの設定と管理",
+  "q": 26,
+  "use": "Ingress Controllerの実体。EKSで必須"
+ },
+ {
+  "no": 59,
+  "phase": "Phase2 設計構築",
+  "pri": "★★★★☆",
+  "range": "Linux2",
+  "shudai": "HTTPサーバーとプロキシサーバー(主題2.09)",
+  "item": "Apache HTTPサーバーの設定と管理",
+  "q": 97,
+  "use": "既存系で遭遇率高。問題数も多く要計画"
+ },
+ {
+  "no": 60,
+  "phase": "Phase2 設計構築",
+  "pri": "★★★★☆",
+  "range": "Linux3",
+  "shudai": "暗号化(主題325)",
+  "item": "X.509 証明書と公開鍵の基礎",
+  "q": 36,
+  "use": "ACM/TLS理解の土台"
+ },
+ {
+  "no": 61,
+  "phase": "Phase2 設計構築",
+  "pri": "★★★★☆",
+  "range": "Linux3",
+  "shudai": "暗号化(主題325)",
+  "item": "暗号化、署名および認証のX.509 証明書",
+  "q": 23,
+  "use": "CA運用・相互TLS設計"
+ },
+ {
+  "no": 62,
+  "phase": "Phase3 専門",
+  "pri": "★★★☆☆",
+  "range": "Linux3",
+  "shudai": "ホストセキュリティ(主題326)",
+  "item": "ホストの堅牢化",
+  "q": 26,
+  "use": "金融案件のセキュリティ要件対応"
+ },
+ {
+  "no": 63,
+  "phase": "Phase3 専門",
+  "pri": "★★★☆☆",
+  "range": "Linux3",
+  "shudai": "ホストセキュリティ(主題326)",
+  "item": "ユーザの管理と認証",
+  "q": 37,
+  "use": "認証基盤設計。sudo/PAM運用"
+ },
+ {
+  "no": 64,
+  "phase": "Phase3 専門",
+  "pri": "★★★☆☆",
+  "range": "Linux3",
+  "shudai": "ホストセキュリティ(主題326)",
+  "item": "ホストの侵入検知",
+  "q": 29,
+  "use": "AIDE等。監査要件で要求されることあり"
+ },
+ {
+  "no": 65,
+  "phase": "Phase3 専門",
+  "pri": "★★★☆☆",
+  "range": "Linux3",
+  "shudai": "アクセス制御(主題327)",
+  "item": "任意アクセス制御",
+  "q": 29,
+  "use": "ACL。細粒度の権限設計"
+ },
+ {
+  "no": 66,
+  "phase": "Phase3 専門",
+  "pri": "★★★☆☆",
+  "range": "Linux3",
+  "shudai": "アクセス制御(主題327)",
+  "item": "強制アクセス制御",
+  "q": 29,
+  "use": "SELinux。RHEL案件で避けて通れない"
+ },
+ {
+  "no": 67,
+  "phase": "Phase3 専門",
+  "pri": "★★★☆☆",
+  "range": "Linux3",
+  "shudai": "ネットワークセキュリティ(主題328)",
+  "item": "パケットフィルタ",
+  "q": 38,
+  "use": "nftables。FW設計の深掘り"
+ },
+ {
+  "no": 68,
+  "phase": "Phase3 専門",
+  "pri": "★★★☆☆",
+  "range": "Linux3",
+  "shudai": "ネットワークセキュリティ(主題328)",
+  "item": "ネットワークの堅牢化",
+  "q": 44,
+  "use": "NW側ハードニング"
+ },
+ {
+  "no": 69,
+  "phase": "Phase3 専門",
+  "pri": "★★★☆☆",
+  "range": "Linux3",
+  "shudai": "ネットワークセキュリティ(主題328)",
+  "item": "ネットワークの侵入検知",
+  "q": 29,
+  "use": "IDS/IPS。WAFとの役割整理に有用"
+ },
+ {
+  "no": 70,
+  "phase": "Phase3 専門",
+  "pri": "★★★☆☆",
+  "range": "Linux3",
+  "shudai": "ネットワークセキュリティ(主題328)",
+  "item": "仮想プライベートネットワーク(VPN)",
+  "q": 32,
+  "use": "Site-to-Site VPN設計の基礎理論"
+ },
+ {
+  "no": 71,
+  "phase": "Phase3 専門",
+  "pri": "★★★☆☆",
+  "range": "Linux2",
+  "shudai": "システムのセキュリティ(主題2.12)",
+  "item": "OpenVPNの設定と管理",
+  "q": 13,
+  "use": "検証環境や小規模拠点接続で使用"
+ },
+ {
+  "no": 72,
+  "phase": "Phase3 専門",
+  "pri": "★★★☆☆",
+  "range": "Linux2",
+  "shudai": "ネットワーククライアントの管理(主題2.07)",
+  "item": "PAM認証",
+  "q": 37,
+  "use": "認証の差し込み口。SSSD連携の前提"
+ },
+ {
+  "no": 73,
+  "phase": "Phase3 専門",
+  "pri": "★★★☆☆",
+  "range": "Linux2",
+  "shudai": "ネットワーククライアントの管理(主題2.07)",
+  "item": "LDAPクライアントの利用方法",
+  "q": 15,
+  "use": "AD連携。オンプレ経験が活きる"
+ },
+ {
+  "no": 74,
+  "phase": "Phase3 専門",
+  "pri": "★★★☆☆",
+  "range": "Linux2",
+  "shudai": "ドメインネームサーバー(主題2.08)",
+  "item": "BINDの設定と管理",
+  "q": 41,
+  "use": "名前解決の内部構造。Route53理解が深まる"
+ },
+ {
+  "no": 75,
+  "phase": "Phase3 専門",
+  "pri": "★★★☆☆",
+  "range": "Linux2",
+  "shudai": "ドメインネームサーバー(主題2.08)",
+  "item": "ゾーン情報の管理",
+  "q": 24,
+  "use": "レコード設計・移行作業"
+ },
+ {
+  "no": 76,
+  "phase": "Phase3 専門",
+  "pri": "★★★☆☆",
+  "range": "Linux2",
+  "shudai": "ドメインネームサーバー(主題2.08)",
+  "item": "セキュアなDNSサーバーの実現",
+  "q": 18,
+  "use": "DNSSEC。金融要件で問われる可能性"
+ },
+ {
+  "no": 77,
+  "phase": "Phase3 専門",
+  "pri": "★★★☆☆",
+  "range": "Linux3",
+  "shudai": "暗号化(主題325)",
+  "item": "DNS と暗号化",
+  "q": 32,
+  "use": "DoT/DoH。上記とセットで学習効率良"
+ },
+ {
+  "no": 78,
+  "phase": "Phase3 専門",
+  "pri": "★★★☆☆",
+  "range": "Linux2",
+  "shudai": "ファイル共有サービス(主題2.11)",
+  "item": "NFSサーバーの設定と管理",
+  "q": 29,
+  "use": "EFSの実体。K8s PVでも登場"
+ },
+ {
+  "no": 79,
+  "phase": "Phase3 専門",
+  "pri": "★★★☆☆",
+  "range": "Linux3",
+  "shudai": "アクセス制御(主題327)",
+  "item": "ネットワークファイルシステム",
+  "q": 29,
+  "use": "NFS権限。上記とセットで"
+ },
+ {
+  "no": 80,
+  "phase": "Phase3 専門",
+  "pri": "★★★☆☆",
+  "range": "Linux2",
+  "shudai": "システムの保守と運用管理(主題2.04)",
+  "item": "makeによるソースコードからのビルドとインストール",
+  "q": 39,
+  "use": "OSS導入・パッチ適用時に必要"
+ },
+ {
+  "no": 81,
+  "phase": "Phase3 専門",
+  "pri": "★★★☆☆",
+  "range": "Linux2",
+  "shudai": "仮想化サーバー(主題2.05)",
+  "item": "仮想マシンの仕組みとKVM",
+  "q": 15,
+  "use": "ハイパーバイザ理解。EC2の下地"
+ },
+ {
+  "no": 82,
+  "phase": "Phase3 専門",
+  "pri": "★★★☆☆",
+  "range": "Linux2",
+  "shudai": "仮想化サーバー(主題2.05)",
+  "item": "仮想マシンの作成と管理",
+  "q": 28,
+  "use": "検証環境構築で使用"
+ },
+ {
+  "no": 83,
+  "phase": "Phase3 専門",
+  "pri": "★★★☆☆",
+  "range": "Linux3",
+  "shudai": "仮想化(主題330)",
+  "item": "仮想化の概念と理論",
+  "q": 35,
+  "use": "クラウドの原理理解。説明力が上がる"
+ },
+ {
+  "no": 84,
+  "phase": "Phase3 専門",
+  "pri": "★★★☆☆",
+  "range": "Linux3",
+  "shudai": "仮想化(主題330)",
+  "item": "KVM",
+  "q": 60,
+  "use": "上記の実装深掘り"
+ },
+ {
+  "no": 85,
+  "phase": "Phase3 専門",
+  "pri": "★★★☆☆",
+  "range": "Linux3",
+  "shudai": "仮想化(主題330)",
+  "item": "Libvirtと関連ツール",
+  "q": 49,
+  "use": "仮想基盤の運用自動化"
+ },
+ {
+  "no": 86,
+  "phase": "Phase3 専門",
+  "pri": "★★★☆☆",
+  "range": "Linux3",
+  "shudai": "仮想化(主題330)",
+  "item": "クラウド管理ツール",
+  "q": 16,
+  "use": "cloud-init等。AMI/起動テンプレで使用"
+ },
+ {
+  "no": 87,
+  "phase": "Phase3 専門",
+  "pri": "★★★☆☆",
+  "range": "Linux3",
+  "shudai": "高可用クラスタ管理(主題334)",
+  "item": "高可用性の概念と理論",
+  "q": 29,
+  "use": "可用性設計の理論。SLA議論の根拠"
+ },
+ {
+  "no": 88,
+  "phase": "Phase3 専門",
+  "pri": "★★★☆☆",
+  "range": "Linux3",
+  "shudai": "高可用クラスタ管理(主題334)",
+  "item": "ロードバランスクラスタ",
+  "q": 78,
+  "use": "LVS/HAProxy。ALBの内部理解"
+ },
+ {
+  "no": 89,
+  "phase": "Phase3 専門",
+  "pri": "★★★☆☆",
+  "range": "Linux3",
+  "shudai": "高可用クラスタ管理(主題334)",
+  "item": "フェイルオーバークラスタ",
+  "q": 56,
+  "use": "Pacemaker。オンプレHA案件で使用"
+ },
+ {
+  "no": 90,
+  "phase": "Phase3 専門",
+  "pri": "★★★☆☆",
+  "range": "Linux3",
+  "shudai": "高可用クラスタ管理(主題334)",
+  "item": "エンタープライズLinuxディストリビューションの高可用性",
+  "q": 6,
+  "use": "RHEL HA Add-On。金融案件で登場"
+ },
+ {
+  "no": 91,
+  "phase": "Phase3 専門",
+  "pri": "★★★☆☆",
+  "range": "Linux2",
+  "shudai": "HTTPサーバーとプロキシサーバー(主題2.09)",
+  "item": "Squidの設定と管理",
+  "q": 39,
+  "use": "Proxy構成。閉域網からの外部通信"
+ },
+ {
+  "no": 92,
+  "phase": "Phase3 専門",
+  "pri": "★★★☆☆",
+  "range": "Linux2",
+  "shudai": "ネットワーククライアントの管理(主題2.07)",
+  "item": "DHCPサーバーの設定と管理",
+  "q": 27,
+  "use": "オンプレ/検証環境。VPCでは基本不要"
+ },
+ {
+  "no": 93,
+  "phase": "Phase3 専門",
+  "pri": "★★★☆☆",
+  "range": "Linux3",
+  "shudai": "暗号化(主題325)",
+  "item": "暗号化ファイルシステム",
+  "q": 36,
+  "use": "LUKS。EBS暗号化の対比で理解"
+ },
+ {
+  "no": 94,
+  "phase": "Phase3 専門",
+  "pri": "★★★☆☆",
+  "range": "Linux2",
+  "shudai": "システムの保守と運用管理(主題2.04)",
+  "item": "ユーザへの通知",
+  "q": 11,
+  "use": "メンテナンス告知。wall/motd"
+ },
+ {
+  "no": 95,
+  "phase": "Phase3 専門",
+  "pri": "★★★☆☆",
+  "range": "Linux1",
+  "shudai": "Linuxのインストールとパッケージ管理(主題102)",
+  "item": "共有ライブラリの管理",
+  "q": 0,
+  "use": "ldd。依存解決トラブル時に必要"
+ },
+ {
+  "no": 96,
+  "phase": "Phase3 専門",
+  "pri": "★★★☆☆",
+  "range": "Linux1",
+  "shudai": "Linuxのインストールとパッケージ管理(主題102)",
+  "item": "ブートマネージャのインストール",
+  "q": 1,
+  "use": "物理/仮想の復旧作業"
+ },
+ {
+  "no": 97,
+  "phase": "Phase3 専門",
+  "pri": "★★★☆☆",
+  "range": "Linux1",
+  "shudai": "Linuxのインストールとパッケージ管理(主題102)",
+  "item": "仮想化のゲストOSとしてのLinux",
+  "q": 0,
+  "use": "cloud-init。AMI作成で関連"
+ },
+ {
+  "no": 98,
+  "phase": "Phase4 網羅",
+  "pri": "★★☆☆☆",
+  "range": "Linux2",
+  "shudai": "ファイル共有サービス(主題2.11)",
+  "item": "Sambaの設定と管理",
+  "q": 94,
+  "use": "Windows混在環境。FSx理解にも通じる"
+ },
+ {
+  "no": 99,
+  "phase": "Phase4 網羅",
+  "pri": "★★☆☆☆",
+  "range": "Linux3",
+  "shudai": "Sambaの基礎(主題392)",
+  "item": "Sambaの概念とアーキテクチャ",
+  "q": 10,
+  "use": "上記の理論編"
+ },
+ {
+  "no": 100,
+  "phase": "Phase4 網羅",
+  "pri": "★★☆☆☆",
+  "range": "Linux3",
+  "shudai": "Sambaの基礎(主題392)",
+  "item": "Sambaを設定する",
+  "q": 16,
+  "use": "smb.conf設計"
+ },
+ {
+  "no": 101,
+  "phase": "Phase4 網羅",
+  "pri": "★★☆☆☆",
+  "range": "Linux3",
+  "shudai": "Sambaの共有の設定(主題393)",
+  "item": "ファイルサービス",
+  "q": 32,
+  "use": "共有設計"
+ },
+ {
+  "no": 102,
+  "phase": "Phase4 網羅",
+  "pri": "★★☆☆☆",
+  "range": "Linux3",
+  "shudai": "Sambaの共有の設定(主題393)",
+  "item": "Linuxファイルシステムと共有/サービスパーミッション",
+  "q": 18,
+  "use": "権限マッピング"
+ },
+ {
+  "no": 103,
+  "phase": "Phase4 網羅",
+  "pri": "★★☆☆☆",
+  "range": "Linux3",
+  "shudai": "Sambaのユーザとグループの管理(主題394)",
+  "item": "ユーザアカウントとグループアカウントの管理",
+  "q": 27,
+  "use": "AD経験が活きる領域"
+ },
+ {
+  "no": 104,
+  "phase": "Phase4 網羅",
+  "pri": "★★☆☆☆",
+  "range": "Linux3",
+  "shudai": "Sambaのユーザとグループの管理(主題394)",
+  "item": "認証と許可およびWinbind",
+  "q": 45,
+  "use": "AD統合の要"
+ },
+ {
+  "no": 105,
+  "phase": "Phase4 網羅",
+  "pri": "★★☆☆☆",
+  "range": "Linux3",
+  "shudai": "Sambaの基礎(主題392)",
+  "item": "Sambaの保守とトラブルシューティング",
+  "q": 23,
+  "use": "運用時の調査手順"
+ },
+ {
+  "no": 106,
+  "phase": "Phase4 網羅",
+  "pri": "★★☆☆☆",
+  "range": "Linux3",
+  "shudai": "Sambaのドメイン統合(主題395)",
+  "item": "Sambaをドメインメンバーサーバとして設定する",
+  "q": 11,
+  "use": "AD参加。実務で比較的登場"
+ },
+ {
+  "no": 107,
+  "phase": "Phase4 網羅",
+  "pri": "★★☆☆☆",
+  "range": "Linux3",
+  "shudai": "Sambaのドメイン統合(主題395)",
+  "item": "Samba4のAD互換ドメインコントローラ",
+  "q": 25,
+  "use": "AD代替。案件限定"
+ },
+ {
+  "no": 108,
+  "phase": "Phase4 網羅",
+  "pri": "★★☆☆☆",
+  "range": "Linux3",
+  "shudai": "Sambaのドメイン統合(主題395)",
+  "item": "SambaのPDCとBDC",
+  "q": 36,
+  "use": "レガシー構成"
+ },
+ {
+  "no": 109,
+  "phase": "Phase4 網羅",
+  "pri": "★★☆☆☆",
+  "range": "Linux3",
+  "shudai": "Sambaのネームサービス(主題396)",
+  "item": "アクティブディレクトリの名前解決",
+  "q": 10,
+  "use": "AD DNS。オンプレ知識の補強"
+ },
+ {
+  "no": 110,
+  "phase": "Phase4 網羅",
+  "pri": "★★☆☆☆",
+  "range": "Linux3",
+  "shudai": "Sambaのネームサービス(主題396)",
+  "item": "NetBIOSとWINS",
+  "q": 29,
+  "use": "レガシー。優先度低"
+ },
+ {
+  "no": 111,
+  "phase": "Phase4 網羅",
+  "pri": "★★☆☆☆",
+  "range": "Linux3",
+  "shudai": "LinuxおよびWindowsクライアントの管理(主題397)",
+  "item": "CIFS連携",
+  "q": 27,
+  "use": "マウント運用"
+ },
+ {
+  "no": 112,
+  "phase": "Phase4 網羅",
+  "pri": "★★☆☆☆",
+  "range": "Linux3",
+  "shudai": "LinuxおよびWindowsクライアントの管理(主題397)",
+  "item": "Windowsクライアントの操作",
+  "q": 27,
+  "use": "混在環境の検証"
+ },
+ {
+  "no": 113,
+  "phase": "Phase4 網羅",
+  "pri": "★★☆☆☆",
+  "range": "Linux3",
+  "shudai": "Sambaの共有の設定(主題393)",
+  "item": "プリントサービス",
+  "q": 13,
+  "use": "クラウド案件ではほぼ不要"
+ },
+ {
+  "no": 114,
+  "phase": "Phase4 網羅",
+  "pri": "★★☆☆☆",
+  "range": "Linux3",
+  "shudai": "Sambaの基礎(主題392)",
+  "item": "国際化",
+  "q": 5,
+  "use": "文字コード。トラブル時のみ"
+ },
+ {
+  "no": 115,
+  "phase": "Phase4 網羅",
+  "pri": "★★☆☆☆",
+  "range": "Linux2",
+  "shudai": "ネットワーククライアントの管理(主題2.07)",
+  "item": "OpenLDAPサーバーの設定",
+  "q": 101,
+  "use": "問題数最多。認証基盤案件時に着手"
+ },
+ {
+  "no": 116,
+  "phase": "Phase4 網羅",
+  "pri": "★★☆☆☆",
+  "range": "Linux3",
+  "shudai": "OpenLDAPの設定(主題390)",
+  "item": "OpenLDAPのレプリケーション",
+  "q": 30,
+  "use": "冗長化。案件限定"
+ },
+ {
+  "no": 117,
+  "phase": "Phase4 網羅",
+  "pri": "★★☆☆☆",
+  "range": "Linux3",
+  "shudai": "OpenLDAPの設定(主題390)",
+  "item": "ディレクトリの保護",
+  "q": 47,
+  "use": "ACL設計"
+ },
+ {
+  "no": 118,
+  "phase": "Phase4 網羅",
+  "pri": "★★☆☆☆",
+  "range": "Linux3",
+  "shudai": "OpenLDAPの設定(主題390)",
+  "item": "OpenLDAPサーバのパフォーマンスチューニング",
+  "q": 15,
+  "use": "大規模時のみ"
+ },
+ {
+  "no": 119,
+  "phase": "Phase4 網羅",
+  "pri": "★★☆☆☆",
+  "range": "Linux3",
+  "shudai": "認証のバックエンドとしてのOpenLDAP(主題391)",
+  "item": "PAMおよびNSSとLDAPの統合",
+  "q": 18,
+  "use": "認証統合の実装"
+ },
+ {
+  "no": 120,
+  "phase": "Phase4 網羅",
+  "pri": "★★☆☆☆",
+  "range": "Linux3",
+  "shudai": "認証のバックエンドとしてのOpenLDAP(主題391)",
+  "item": "アクティブディレクトリおよびKerberosとLDAPの統合",
+  "q": 9,
+  "use": "AD連携の深掘り"
+ },
+ {
+  "no": 121,
+  "phase": "Phase4 網羅",
+  "pri": "★★☆☆☆",
+  "range": "Linux3",
+  "shudai": "ホストセキュリティ(主題326)",
+  "item": "FreeIPA のインストレーションとSambaの統合",
+  "q": 28,
+  "use": "統合認証基盤。案件限定"
+ },
+ {
+  "no": 122,
+  "phase": "Phase4 網羅",
+  "pri": "★★☆☆☆",
+  "range": "Linux2",
+  "shudai": "電子メールサービス(主題2.10)",
+  "item": "Postfixの設定と管理",
+  "q": 50,
+  "use": "SES利用が主流。優先度低"
+ },
+ {
+  "no": 123,
+  "phase": "Phase4 網羅",
+  "pri": "★★☆☆☆",
+  "range": "Linux2",
+  "shudai": "電子メールサービス(主題2.10)",
+  "item": "Dovecotの設定と管理",
+  "q": 20,
+  "use": "受信側。ほぼ登場しない"
+ },
+ {
+  "no": 124,
+  "phase": "Phase4 網羅",
+  "pri": "★★☆☆☆",
+  "range": "Linux1",
+  "shudai": "重要なシステムサービス(主題1.09)",
+  "item": "メール配送エージェント(MTA)の基本",
+  "q": 15,
+  "use": "アラートメール送信時に最低限"
+ },
+ {
+  "no": 125,
+  "phase": "Phase4 網羅",
+  "pri": "★★☆☆☆",
+  "range": "Linux3",
+  "shudai": "高可用クラスタストレージ(主題335)",
+  "item": "DRBD / cLVM",
+  "q": 37,
+  "use": "オンプレHA限定"
+ },
+ {
+  "no": 126,
+  "phase": "Phase4 網羅",
+  "pri": "★★☆☆☆",
+  "range": "Linux3",
+  "shudai": "高可用クラスタストレージ(主題335)",
+  "item": "クラスタファイルシステム",
+  "q": 34,
+  "use": "GFS2等。案件限定"
+ },
+ {
+  "no": 127,
+  "phase": "Phase4 網羅",
+  "pri": "★★☆☆☆",
+  "range": "Linux3",
+  "shudai": "仮想化(主題330)",
+  "item": "Xen",
+  "q": 57,
+  "use": "レガシー。旧EC2の基盤知識として"
+ },
+ {
+  "no": 128,
+  "phase": "Phase4 網羅",
+  "pri": "★★☆☆☆",
+  "range": "Linux3",
+  "shudai": "仮想化(主題330)",
+  "item": "その他の仮想化ソリューション",
+  "q": 57,
+  "use": "網羅目的"
+ },
+ {
+  "no": 129,
+  "phase": "Phase4 網羅",
+  "pri": "★★☆☆☆",
+  "range": "Linux2",
+  "shudai": "システムの起動とLinuxカーネル(主題2.01)",
+  "item": "Linuxカーネルのコンパイル",
+  "q": 37,
+  "use": "実務でまず行わない。知識として"
+ },
+ {
+  "no": 130,
+  "phase": "Phase4 網羅",
+  "pri": "★★☆☆☆",
+  "range": "Linux1",
+  "shudai": "Linuxのインストールとパッケージ管理(主題102)",
+  "item": "Debianパッケージ管理",
+  "q": 4,
+  "use": "Ubuntu利用時のみ。RHEL中心なら後回し"
+ },
+ {
+  "no": 131,
+  "phase": "Phase4 網羅",
+  "pri": "★★☆☆☆",
+  "range": "Linux1",
+  "shudai": "システム管理(主題1.08)",
+  "item": "ローカライゼーションと国際化",
+  "q": 6,
+  "use": "タイムゾーン/文字コード設定時"
+ },
+ {
+  "no": 132,
+  "phase": "Phase4 網羅",
+  "pri": "★★☆☆☆",
+  "range": "Linux1",
+  "shudai": "オープンソースの文化(主題1.11)",
+  "item": "オープンソースの概念とライセンス",
+  "q": 20,
+  "use": "OSS採用判断時の知識"
+ },
+ {
+  "no": 133,
+  "phase": "Phase4 網羅",
+  "pri": "★★☆☆☆",
+  "range": "Linux1",
+  "shudai": "オープンソースの文化(主題1.11)",
+  "item": "オープンソースのコミュニティとエコシステム",
+  "q": 5,
+  "use": "教養レベル"
+ }
+]
