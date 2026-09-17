@@ -14,7 +14,6 @@
 
 ## 目次
 
-- [まずこれだけ](#まずこれだけ)
 - [systemctl status の結果画面の見方](#systemctl-status-の結果画面の見方)
 - [systemctl show の結果画面の見方](#systemctl-show-の結果画面の見方)
 - [systemctl cat の結果画面の見方](#systemctl-cat-の結果画面の見方)
@@ -23,24 +22,6 @@
 - [systemctl list-dependencies の結果画面の見方](#systemctl-list-dependencies-の結果画面の見方)
 - [出力の読み違いでよくあるもの](#出力の読み違いでよくあるもの)
 - [参考リンク](#参考リンク)
-
----
-
-## まずこれだけ
-
-**「何を知りたいか」から、開くコマンドを選びます。**
-
-| 知りたいこと | 打つコマンド | この節を読む |
-|:--|:--|:--|
-| **いま動いているか。落ちたなら直前のログは** | **`systemctl status <名前>`** | [systemctl status の結果画面の見方](#systemctl-status-の結果画面の見方) |
-| **設定値が実際にいくつで効いているか** | **`systemctl show <名前>`** | [systemctl show の結果画面の見方](#systemctl-show-の結果画面の見方) |
-| **どのファイルが読まれ、何が上書きされているか** | **`systemctl cat <名前>`** | [systemctl cat の結果画面の見方](#systemctl-cat-の結果画面の見方) |
-| **いま読み込まれているユニットの一覧** | **`systemctl list-units`** | [systemctl list-units の結果画面の見方](#systemctl-list-units-の結果画面の見方) |
-| **インストール済みで、自動起動が有効か** | **`systemctl list-unit-files`** | [systemctl list-unit-files の結果画面の見方](#systemctl-list-unit-files-の結果画面の見方) |
-| **止めたら何が巻き添えになるか** | **`systemctl list-dependencies <名前>`** | [systemctl list-dependencies の結果画面の見方](#systemctl-list-dependencies-の結果画面の見方) |
-
-> **出力が途中で切れるときは `--no-pager` と `-l`（`--full`）を付けてください。**
-> ページャーが効いていたり、長い名前が `…` で省略されていたりすると、**肝心の語が読めません**。
 
 ---
 

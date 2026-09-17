@@ -14,27 +14,11 @@
 
 ## 目次
 
-- [まずこれだけ](#まずこれだけ)
 - [modules dep 依存関係のファイル](#modules-dep-依存関係のファイル)
 - [depmod 依存関係を作り直す](#depmod-依存関係を作り直す)
 - [DKMS カーネル更新に追随する仕組み](#dkms-カーネル更新に追随する仕組み)
 - [結果画面の見方](#結果画面の見方)
-- [つまずきポイント](#つまずきポイント)
-- [クラウド実務メモ](#クラウド実務メモ)
 - [参考リンク](#参考リンク)
-
----
-
-## まずこれだけ
-
-| 知りたいこと | 答え |
-|:--|:--|
-| **依存関係が書いてあるファイル** | **`/lib/modules/$(uname -r)/modules.dep`** |
-| **その書式** | **`モジュール名: 依存しているモジュール 依存しているモジュール …`** |
-| **誰が作るか** | **`depmod`** |
-| **誰が使うか** | **`modprobe`**（実際に読むのは `modules.dep.bin`） |
-| **消すとどうなるか** | **`modprobe` だけが使えなくなる。**`depmod` で復旧する |
-| **カーネル更新に追随させる仕組み** | **DKMS**（Dynamic Kernel Module Support） |
 
 ---
 
@@ -159,8 +143,6 @@ $ sudo modprobe xfs                                  # modprobe が使えるよ�
 
 ---
 
----
-
 ## depmod 依存関係を作り直す
 
 ### 意味
@@ -202,8 +184,6 @@ $ sudo depmod -n | head                              # 書き込まずに結果�
 
 - `depmod` は **`modules.dep` 以外にも** `modules.alias` / `modules.symbols` / `modules.devname` などをまとめて作り直します
 - **書き込み先は `/lib/modules/(バージョン)/`** なので、`root` 権限が必要です
-
----
 
 ---
 
@@ -341,8 +321,6 @@ $ sudo dnf install kernel-devel-$(uname -r)          # RHEL系：カーネルヘ
 
 ---
 
----
-
 ## 結果画面の見方
 
 ### dkms status の見方
@@ -390,8 +368,6 @@ $ ls /var/lib/dkms/                                  # DKMSが管理している
 
 ---
 
----
-
 ### modules dep の見方
 
 ```bash
@@ -404,44 +380,6 @@ kernel/fs/xfs/xfs.ko: kernel/lib/libcrc32c.ko
 | **コロンの左** | そのモジュール自身のパス（`/lib/modules/(バージョン)/` からの相対） | 実体がどこにあるか |
 | **コロンの右** | **依存しているモジュール**（スペース区切り） | **先に読み込まれるもの** |
 | **コロンの右が空** | 依存なし | 単独で読み込める |
-
----
-
----
-
-## つまずきポイント
-
-| 症状 | 原因 | 対処 |
-|:--|:--|:--|
-| **`modprobe: FATAL: Module xxx not found`** | 一覧（`modules.dep`）に載っていない。`.ko` を手でコピーしただけ | **`sudo depmod`** を実行してから、もう一度 `modprobe` |
-| **`modules.dep` を消してしまった** | `modprobe` が依存を解決できず、致命的なエラーになる | **`sudo depmod`** で作り直す。`insmod` / `rmmod` / `lsmod` は消えても使える |
-| **`modules.dep` を手で直したが反映されない** | このファイルは生成物。`modprobe` は `.bin` のほうを読む | 手で直さず **`depmod`** で作り直す |
-| **カーネル更新後に独自ドライバが消えた** | 新しいバージョンのディレクトリに、そのモジュールが無い | **DKMS に登録する**。応急処置は `dkms install -m … -k $(uname -r)` |
-| **`dkms status` が `broken`** | **カーネルヘッダが入っていない**、またはコンパイルエラー | ヘッダを入れて `dkms build`。`/var/lib/dkms/(名前)/(版)/build/make.log` を読む |
-| **`dkms status` に今のカーネルの行が無い** | そのカーネル向けにビルドされていない | `sudo dkms autoinstall`、または `dkms install -k $(uname -r)` |
-| **ディスクイメージを別サーバに移したらドライバが動かない** | カーネルのバージョンが違う | DKMS に登録しておけば、起動後に自動でビルドし直される |
-| **`depmod` が書き込みエラーになる** | 書き込み先は `/lib/modules/(バージョン)/` | `sudo` を付ける |
-
----
-
-## クラウド実務メモ
-
-| 場面 | 何に効くか |
-|:--|:--|
-| **GPU インスタンス（NVIDIA ドライバ）** | 典型的な **DKMS の対象**。`dkms status` が `installed` かを、カーネル更新のたびに確認する |
-| **カスタム AMI の作成** | AMI 化の前に `dkms status \| grep $(uname -r)` を確認しておくと、起動不能を防げる |
-| **カーネル更新後に NIC が落ちる** | 新カーネル向けのドライバが無い。GRUB で旧カーネルを選んで起動し、DKMS で作り直す |
-| **`.ko` を手で配って動かない** | `depmod` を忘れている。構成管理で配布するなら、**必ず `depmod` を後続タスクに入れる** |
-| **セキュアブート有効のインスタンス** | DKMS でビルドしたモジュールにも署名が要る。`/etc/dkms/framework.conf` で署名鍵を設定する |
-
-**補足**
-
-- カーネルヘッダが入っていないと DKMS のビルドは失敗します。**更新時にヘッダも一緒に入る構成**にしておくのが安全です
-
-```bash
-$ sudo apt install linux-headers-$(uname -r)         # Debian系：カーネルヘッダを入れる
-$ sudo dnf install kernel-devel-$(uname -r)          # RHEL系：カーネルヘッダを入れる
-```
 
 ---
 

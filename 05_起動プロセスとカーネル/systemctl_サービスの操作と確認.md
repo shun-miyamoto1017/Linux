@@ -15,7 +15,6 @@
 
 ## 目次
 
-- [まずこれだけ](#まずこれだけ)
 - [systemctl の書式](#systemctl-の書式)
 - [サブコマンド一覧](#サブコマンド一覧)
 - [よく使うオプション](#よく使うオプション)
@@ -27,33 +26,7 @@
 - [daemon-reload が必要なとき](#daemon-reload-が必要なとき)
 - [ターゲットとシステム全体の操作](#ターゲットとシステム全体の操作)
 - [journalctl と組み合わせる](#journalctl-と組み合わせる)
-- [つまずきポイント](#つまずきポイント)
-- [クラウド実務メモ](#クラウド実務メモ)
 - [参考リンク](#参考リンク)
-
----
-
-## まずこれだけ
-
-| やりたいこと | コマンド |
-|:--|:--|
-| **状態を見る** | **`systemctl status nginx`** |
-| **起動する / 止める** | **`sudo systemctl start nginx`** / **`sudo systemctl stop nginx`** |
-| **再起動する** | **`sudo systemctl restart nginx`** |
-| **設定だけ読み直させる** | **`sudo systemctl reload nginx`** |
-| **自動起動を有効にして今すぐ起動** | **`sudo systemctl enable --now nginx`** |
-| **設定ファイルを見る** | **`systemctl cat nginx`** |
-| **systemd が認識している値を見る** | **`systemctl show nginx -p Type --value`** |
-| **失敗しているものを探す** | **`systemctl --failed`** |
-| **ユニットファイルを編集したあと** | **`sudo systemctl daemon-reload`** |
-
-**`.service` は省略できます。** `systemctl status nginx` は `systemctl status nginx.service` と同じです。
-`.timer` や `.socket` など**別の種類を指したいときだけ、拡張子まで書きます**。
-
-```bash
-$ systemctl status nginx             # nginx.service のことになる
-$ systemctl status backup.timer      # timer を見たいので拡張子が要る
-```
 
 ---
 
@@ -558,82 +531,6 @@ $ journalctl -u nginx -b -1 --no-pager       # 1つ前の起動時のログを�
 
 **`systemctl restart` の直後に落ちるサービス**は、`status` のログ 10 行では足りません。
 **`journalctl -u サービス名 -n 100` まで広げる**と、原因のメッセージが見つかることが多いです。
-
----
-
-## つまずきポイント
-
-| 症状 | 原因 | 対処 |
-|:--|:--|:--|
-| **設定を変えたのに反映されない** | **`daemon-reload` をしていない** | `sudo systemctl daemon-reload` → `restart` |
-| `Unit not found` と言われる | 名前の打ち間違い、または未インストール | `systemctl list-unit-files \| grep 名前` で確認する |
-| **`enable` したのに起動していない** | **`enable` は次回起動からの設定** | `--now` を付ける、または `start` も実行する |
-| **`start` したのに次の再起動で消える** | **`enable` していない** | `sudo systemctl enable サービス名` |
-| `Unit is masked` で起動できない | **`mask` されている** | `sudo systemctl unmask サービス名` |
-| `reload` がエラーになる | ユニットに **`ExecReload=` が無い** | `restart` か `reload-or-restart` を使う |
-| **`status` の出力が途中で切れる** | ページャーと省略表示 | **`--no-pager --full`** を付ける |
-| `status` のログが少なすぎる | 既定は 10 行 | `-n 50` にするか `journalctl -u` を使う |
-| `active` なのにアプリが応答しない | **`Type=simple` は起動直後に active になる** | ポートやヘルスチェックで確かめる |
-| **`static` を「停止中」と読む** | `static` は **enable の設定を持たない**という意味 | 稼働状態は `Active:` 行で見る |
-| 直したのに `start` できない | **`start-limit-hit` でカウンタが残っている** | `sudo systemctl reset-failed` してから `start` |
-| `/usr/lib` のユニットを直したら消えた | **パッケージ更新で上書きされた** | **`systemctl edit`** で `/etc` 配下に置く |
-| **`ExecStart` のリダイレクトが効かない** | systemd はシェルを経由しない | `/bin/sh -c '...'` を使う |
-| ユーザーのサービスが見つからない | システム側を見ている | **`--user`** を付ける |
-
----
-
-## クラウド実務メモ
-
-**EC2 で「サービスが上がってこない」ときの順番**
-
-```text
-① systemctl --failed          … そもそも失敗しているものがあるか
-        ↓
-② systemctl status サービス名  … Process / Main PID の終了コード
-        ↓
-③ journalctl -u サービス名 -b  … 今回の起動でのログ全体
-        ↓
-④ systemctl cat サービス名     … ExecStart / User / WorkingDirectory の確認
-```
-
-**`203/EXEC` と `217/USER` が出たら、ほぼ設定ミス**です。パスとユーザーを確認します。
-
-**cloud-init との関係**
-
-EC2 の初回起動処理は `cloud-init` が systemd ユニットとして実行します。
-
-```bash
-$ systemctl status cloud-init --no-pager     # cloud-initの状態を確認する
-$ sudo cloud-init status --long              # cloud-init自身の進捗を確認する
-$ sudo journalctl -u cloud-final --no-pager  # ユーザーデータ実行時のログを確認する
-```
-
-**ユーザーデータのスクリプトが動かないときは、`cloud-final.service` のログ**を見ます。
-
-**コンテナでは systemd は基本的に動いていません**
-
-```text
-EC2 / 仮想マシン … PID 1 は systemd     → systemctl が使える
-一般的なコンテナ … PID 1 はアプリ自身   → systemctl は使えない
-```
-
-コンテナ内で `systemctl` を実行すると、次のように失敗します。
-
-```text
-System has not been booted with systemd as init system (PID 1). Can't operate.
-```
-
-**ECS / EKS ではプロセス管理はオーケストレータの仕事**なので、
-`Restart=always` に相当することは、**タスク定義や Pod の `restartPolicy`** が担当します。
-
-**AMI を作る前の確認**
-
-```bash
-$ systemctl list-unit-files --state=enabled --no-pager   # 自動起動するものを棚卸しする
-$ systemctl --failed --no-pager                          # 失敗を残したままAMI化しない
-```
-
-**AMI に failed 状態を焼き込むと、そこから起動した全インスタンスに引き継がれます。**
 
 ---
 

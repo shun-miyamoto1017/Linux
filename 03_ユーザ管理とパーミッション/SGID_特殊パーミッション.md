@@ -14,7 +14,6 @@
 
 ## 目次
 
-- [まずこれだけ](#まずこれだけ)
 - [特殊パーミッションとは](#特殊パーミッションとは)
 - [なぜ SGID が必要なのか](#なぜ-sgid-が必要なのか)
 - [SGID の効果](#sgid-の効果)
@@ -24,34 +23,10 @@
   - [SUID](#suid)
   - [SGID](#sgid)
   - [スティッキービット](#スティッキービット)
-- [手を動かして確かめる](#手を動かして確かめる)
 - [三つの特殊パーミッションの比較](#三つの特殊パーミッションの比較)
 - [標準で SUID / SGID が付いているコマンド](#標準で-suid--sgid-が付いているコマンド)
 - [特殊パーミッションを棚卸しする](#特殊パーミッションを棚卸しする)
-- [つまずきポイント](#つまずきポイント)
-- [クラウド実務メモ](#クラウド実務メモ)
 - [参考リンク](#参考リンク)
-
----
-
-## まずこれだけ
-
-| やりたいこと | コマンド |
-|:--|:--|
-| ディレクトリのグループを引き継がせる | `chmod g+s ディレクトリ` |
-| 実行時に所有ユーザの権限を借りる | `chmod u+s ファイル` |
-| 他人のファイルを消させない | `chmod +t ディレクトリ` |
-| **特殊パーミッション込みで見る** | `ls -ld ディレクトリ` |
-| 数値でまとめて指定する | `chmod 2775 ディレクトリ` |
-| SGID が立っているものを探す | `find / -perm -2000` |
-
-**特殊パーミッションは 3 つだけです。**
-
-| 名前 | 記号 | 数値 | 主な用途 |
-|:--|:-:|:-:|:--|
-| **SUID** | `u+s` | `4000` | 実行ファイルを**所有ユーザ**の権限で動かす |
-| **SGID** | `g+s` | `2000` | ディレクトリ配下のファイルに**所有グループ**を継承させる |
-| **スティッキービット** | `+t` | `1000` | ディレクトリ内で**他人のファイルを削除させない** |
 
 ---
 
@@ -68,7 +43,7 @@
 |:--|:--|:--|:--|
 | `4000` | SUID（Set User ID） | 実行時、**所有ユーザ**の権限で動く | 効果なし（Linux では無視される） |
 | `2000` | SGID（Set Group ID） | 実行時、**所有グループ**の権限で動く | 配下に作られるファイルが**所有グループを継承**する |
-| `1000` | スティッキービット | 効果なし（現在の Linux では無視される） | 自分が所有するファイルしか削除・改名できなくなる |
+| `1000` | スティッキービット | 効果なし（現在の Linux では無視される） | ファイルの所有者・ディレクトリの所有者・root 以外は削除・改名できなくなる |
 
 **このノートで主に扱うのは SGID です。** 実務で使う場面のほとんどは
 「ディレクトリに対する SGID」で、チーム共有フォルダのグループを統一する用途です。
@@ -100,7 +75,7 @@ SGID を立てたフォルダなら、誰が作っても「フォルダ自身が
 
 **補足** … 「グループが揃う」ことと「メンバーが書き込める」ことは別問題です。
 SGID はグループを揃えるだけで、パーミッションのビットは `umask` が決めます。
-共有ディレクトリでは `chmod 2775` と `umask 002` をセットで使います（→ [クラウド実務メモ](#クラウド実務メモ)）。
+共有ディレクトリでは `chmod 2775` と `umask 002` をセットで使います。
 
 ---
 
@@ -327,115 +302,6 @@ root に対する防御ではありません。
 
 ---
 
-## 手を動かして確かめる
-
-SGID の効果を、同じユーザ・同じプライマリグループのまま、
-「SGID なしのフォルダ」と「SGID ありのフォルダ」の比較で確認します。
-
-### Step 1 … テスト用グループを作り、自分を所属させる
-
-```bash
-$ sudo groupadd devteam            # devteam という新規グループを作る（管理者権限が必要）
-$ sudo usermod -aG devteam systemi # 既存の所属を保ったまま devteam に追加する
-```
-
-`usermod` は既存ユーザの情報を変更するコマンドです。オプションの意味は次のとおりです。
-
-| オプション | 意味 |
-|:--|:--|
-| `-a` | append。**既存のグループ所属を消さずに追加**する |
-| `-G` | 所属させる補助グループを指定する |
-
-**補足 … `-a` を忘れると所属グループが吹き飛ぶ**
-
-`-a` を付けずに `-G` だけで実行すると、**指定したグループだけに置き換えられます**。
-`sudo` グループから外れて管理者権限を失う、という事故が起きるため、必ず `-aG` とセットで使います。
-
-**補足 … `/etc/group` は更新されてもシェルには即反映されない**
-
-`usermod -aG` はファイル（`/etc/group`）を更新しますが、
-**すでにログイン中のシェルはログイン時点の古いグループ情報を保持したまま**です。
-そのため `groups` を実行しても、すぐには新しいグループが出てきません。
-
----
-
-### Step 2 … 現在のシェルにグループ情報を反映させる
-
-```bash
-$ newgrp devteam                   # 指定グループの情報を今のシェルに反映させる
-$ groups                           # 所属グループを確認する
-devteam adm cdrom sudo dip plugdev users systemi docker
-```
-
-**補足** … `groups` の出力は「一番左 = 現在のプライマリグループ、それ以降 = 所属している他のグループ」という並びです。
-
-`newgrp` は副作用として、**そのシェルの中では指定グループが一時的なプライマリグループになります**。
-検証が終わったら元に戻しておきます。戻さないと、この後の比較で正しい結果が得られません。
-
-```bash
-$ newgrp systemi                   # 元のプライマリグループに戻す
-```
-
----
-
-### Step 3 … 比較用に「SGID なし」のフォルダを作る
-
-```bash
-$ mkdir test_normal                 # SGID なしの比較用ディレクトリを作る
-$ touch test_normal/file1.txt      # touch は本来更新日時を変えるコマンドだが、無ければ新規作成される
-$ ls -l test_normal/file1.txt       # 作られたファイルのグループを確認する
--rw-r--r-- 1 systemi systemi 0  8月 31 09:26 test_normal/file1.txt
-```
-
-**補足** … 4 列目（グループ）が自分のプライマリグループ `systemi` になっています。
-これが SGID なしの基準となる挙動です。
-
----
-
-### Step 4 … SGID 付きのフォルダを作る
-
-```bash
-$ mkdir test_sgid                   # SGID を付ける検証用ディレクトリを作る
-$ chgrp devteam test_sgid          # chgrp = change group。所有グループを変更する
-$ chmod g+s test_sgid              # chmod = change mode。g に対して s（SGID）を追加する
-$ ls -ld test_sgid                  # グループと SGID(s) が付いたか確認する
-drwxr-sr-x 2 systemi devteam 4096  8月 31 09:23 test_sgid
-```
-
-**補足** … `chgrp` は、自分がすでにそのグループのメンバーなら `sudo` は不要です。
-所属していないグループへ変更する場合は管理者権限が要ります。
-
----
-
-### Step 5 … 効果を確認する
-
-```bash
-$ touch test_sgid/file2.txt         # SGID ディレクトリの中にファイルを作る
-$ ls -l test_sgid/file2.txt         # グループが devteam を引き継いだか確認する
--rw-r--r-- 1 systemi devteam 0  8月 31 09:27 test_sgid/file2.txt
-```
-
-**最終比較**
-
-| | `file1.txt`（test_normal） | `file2.txt`（test_sgid） |
-|:--|:--|:--|
-| 作った人 | systemi | systemi（同じ人） |
-| 作成時のプライマリグループ | systemi | systemi（変えていない） |
-| できたファイルのグループ | `systemi` | **`devteam`** |
-
-同じ人が、同じプライマリグループのまま作成しているにもかかわらず、
-**置いたフォルダによって結果のグループが変わりました**。これが SGID の効果そのものです。
-
----
-
-### Step 6 … 後片付け
-
-```bash
-$ rm -r test_normal test_sgid      # フォルダと中身をまとめて削除（元に戻せないので対象をよく確認する）
-```
-
----
-
 ## 三つの特殊パーミッションの比較
 
 | | SUID | SGID | スティッキービット |
@@ -473,10 +339,10 @@ root 権限で不正に操作されるとセキュリティ上問題があるた
 
 ```bash
 $ ls -l /usr/bin/passwd /usr/bin/mount /usr/bin/su /usr/bin/crontab   # 4文字目・7文字目の s を見る
--rwsr-xr-x. 1 root root   64152 /usr/bin/passwd
--rwsr-xr-x. 1 root root   59976 /usr/bin/mount
--rwsr-xr-x. 1 root root   52880 /usr/bin/su
--rwxr-sr-x. 1 root crontab 43352 /usr/bin/crontab    ← こちらは SGID
+-rwsr-xr-x. 1 root root     64152  2月  1  2026 /usr/bin/passwd
+-rwsr-xr-x. 1 root root     59976  2月  1  2026 /usr/bin/mount
+-rwsr-xr-x. 1 root root     52880  2月  1  2026 /usr/bin/su
+-rwxr-sr-x. 1 root crontab  43352  2月  1  2026 /usr/bin/crontab    ← こちらは SGID
 ```
 
 > **`/etc/passwd` と `/etc/shadow` の違い**
@@ -530,99 +396,6 @@ $ find / -perm /6000 -type f 2>/dev/null   # SUID か SGID のファイルを一
 ```bash
 $ find / -perm /6000 -type f 2>/dev/null | sort > /var/log/suid_baseline.txt # 初回の一覧を基準として保存する
 $ find / -perm /6000 -type f 2>/dev/null | sort | diff /var/log/suid_baseline.txt - # 次回以降は基準との差分を見る
-```
-
----
-
-## つまずきポイント
-
-| 症状 | 原因 | 対処 |
-|:--|:--|:--|
-| SGID を付けたのに既存ファイルのグループが変わらない | SGID は**これから作られるもの**にしか効かない | `chgrp -R devteam ディレクトリ` で既存分を揃える |
-| `mv` で持ち込んだファイルだけグループが違う | 同一ファイルシステム内の `mv` はファイルを作り直さないため、元のグループを保つ | `cp` で持ち込むか、移動後に `chgrp` する |
-| グループは揃ったのに他のメンバーが書き込めない | SGID はグループを揃えるだけ。ビットは `umask` が決める（`umask 022` なら `644`） | ディレクトリを `chmod 2775`、`umask 002` を併用する |
-| `ls -ld` に大文字の `S` が出る | グループの実行権がないまま SGID だけ立っている | `chmod g+x ディレクトリ`（ディレクトリに実行権は必須） |
-| `chmod 775` を実行してもディレクトリの SGID が外れない | GNU coreutils はディレクトリの SUID / SGID を数値指定から保護する | `chmod g-s ディレクトリ`、または `chmod =775` |
-| `chmod 755` を実行したらファイルの SGID が消えた | ファイルは 3 桁指定で特殊ビットが落ちる | 残したいなら `chmod 2755` か `chmod g+s` を使う |
-| `groups` に追加したグループが出てこない | 実行中のシェルがログイン時のグループ情報を保持している | `newgrp グループ名`、または再ログイン |
-| `usermod -G` で他の所属グループが消えた | `-a` がないと指定グループへ**置き換え**になる | 必ず `-aG` で実行する |
-| シェルスクリプトに SUID / SGID が効かない | Linux カーネルはスクリプトの set-user-ID / set-group-ID を無視する | `sudo` のルール設定で必要な操作だけ許可する |
-| `/tmp` にある他人のファイルが消せない | スティッキービットによる正常な動作 | 削除できるのは所有者・ディレクトリ所有者・root のみ |
-
----
-
-## クラウド実務メモ
-
-**共有ディレクトリは `2775` と `umask 002` をセットで設定する**
-
-SGID だけではグループが揃うだけで、書き込み権は付きません。
-既定の `umask 022` では新規ファイルが `644`（グループは読み取りのみ）になるため、
-メンバー同士で編集できません。`umask 002` と組み合わせて初めて共同編集が成立します。
-
-```bash
-$ sudo mkdir -p /srv/shared         # 共有ディレクトリを作る
-$ sudo chgrp devteam /srv/shared    # 所有グループを共同作業グループにする
-$ sudo chmod 2775 /srv/shared             # 2=SGID、775=グループにも書き込みを許可
-$ echo 'umask 002' | sudo tee /etc/profile.d/shared_umask.sh   # 全ユーザに適用
-$ touch /srv/shared/a.txt && ls -l /srv/shared/a.txt # 作成してすぐ結果を確認する
--rw-rw-r-- 1 systemi devteam 0  8月 31 11:30 /srv/shared/a.txt
-```
-
-**`mv` と `cp` で結果が変わる**
-
-同一ファイルシステム内の `mv` は実体を作り直さないため、**元のグループのまま**移動します。
-`cp` は新規作成なので SGID が効きます。共有フォルダへの持ち込み手順を書くときは要注意です。
-
-```bash
-$ touch outside.txt && mv outside.txt demo/ # 外で作ったファイルを移動で持ち込む
-$ ls -l demo/outside.txt                  # グループは元のまま（SGID が効いていない）
--rw-r--r-- 1 systemi systemi 0  8月 31 11:22 demo/outside.txt
-
-$ touch outside2.txt && cp outside2.txt demo/ # 今度はコピーで持ち込む
-$ ls -l demo/outside2.txt                 # 新規作成扱いなので devteam を継承する
--rw-r--r-- 1 systemi devteam 0  8月 31 11:22 demo/outside2.txt
-```
-
-**EFS ではアクセスポイントでも所有グループを統一できる**
-
-Amazon EFS は POSIX パーミッションをそのまま扱えるため SGID も機能しますが、
-**アクセスポイント**を使えば、クライアント側の設定に依存せず UID / GID を強制できます。
-複数の EC2 やコンテナからマウントする構成では、こちらのほうが確実です。
-
-```bash
-$ aws efs create-access-point \
-    --file-system-id fs-0123456789abcdef0 \
-    --posix-user 'Uid=1000,Gid=1003' \
-    --root-directory 'Path=/shared,CreationInfo={OwnerUid=1000,OwnerGid=1003,Permissions=0775}'
-```
-
-**外部から持ち込むファイルシステムは `nosuid` でマウントする**
-
-ユーザがファイルを置ける領域や、外部から受け取ったボリュームに SUID バイナリが混ざっていると、
-権限昇格の踏み台になります。`/etc/fstab` のマウントオプションで無効化しておきます。
-
-```bash
-# /etc/fstab
-/dev/nvme1n1  /data  ext4  defaults,nosuid,nodev  0 2
-```
-
-**コンテナでは特権の昇格そのものを禁止する**
-
-イメージ内に SUID バイナリが残っていても、`no-new-privileges` を付ければ昇格できなくなります。
-
-```bash
-$ docker run --rm --security-opt=no-new-privileges myapp:latest # 特権昇格を禁止してコンテナを起動する
-```
-
-Kubernetes では `securityContext.allowPrivilegeEscalation: false` が同じ役割を持ちます。
-
-**棚卸しはベースラインとの差分で見る**
-
-SUID / SGID の一覧は「ゼロにする」ものではなく（`sudo` や `mount` には必要）、
-**増えていないことを確認する**ものです。構築完了時の一覧を保存し、定期的に `diff` を取ります。
-
-```bash
-$ find / -perm /6000 -type f 2>/dev/null | sort > /var/log/suid_baseline.txt   # 構築完了時の一覧を基準として保存する
 ```
 
 ---

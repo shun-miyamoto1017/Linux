@@ -17,7 +17,6 @@
 
 ## 目次
 
-- [まずこれだけ](#まずこれだけ)
 - [3階層の考え方](#3階層の考え方)
 - [PEという単位](#peという単位)
 - [コマンドの命名規則](#コマンドの命名規則)
@@ -28,45 +27,7 @@
   - [lvcreate 論理ボリュームを作る](#lvcreate-論理ボリュームを作る)
 - [LVのデバイスファイル](#lvのデバイスファイル)
 - [情報を見る display系](#情報を見る-display系)
-- [手を動かして確かめる](#手を動かして確かめる)
-- [つまずきポイント](#つまずきポイント)
-- [クラウド実務メモ](#クラウド実務メモ)
 - [参考リンク](#参考リンク)
-
----
-
-## まずこれだけ
-
-| 層 | 略語 | 何か |
-|:--|:--|:--|
-| **物理ボリューム** | **PV** | **ハードディスク・パーティションなどの物理的な記憶デバイス**を LVM が扱うデータ領域にしたもの |
-| **ボリュームグループ** | **VG** | **PV を 1 つ以上束ねた仮想的な領域** |
-| **論理ボリューム** | **LV** | **VG の一部を自由に切り出したもの**。**仮想的なパーティション** |
-
-**やりたいこと早見表**
-
-| やりたいこと | コマンド |
-|:--|:--|
-| **PV を作る** | **`pvcreate /dev/sdb1`** |
-| **VG を作る** | **`vgcreate vg1 /dev/sdb1 /dev/sdc1`** |
-| **LV を作る** | **`lvcreate -L 100M -n lv1 vg1`** |
-| **LV を増やす** | **`lvextend -L +1G /dev/vg1/lv1`** |
-| **LV を減らす** | **`lvreduce -L -1G /dev/vg1/lv1`** |
-| **LV を消す** | **`lvremove /dev/vg1/lv1`** |
-| **VG から PV を外す** | **`vgreduce vg1 /dev/sdc1`** |
-| **PV の印を消す** | **`pvremove /dev/sdc1`** |
-| **スナップショットを作る** | **`lvcreate -s -L 1024M -n sn /dev/vg1/lv1`** |
-
-> **下 5 行（増やす・減らす・消す・外す・スナップショット）の詳しい手順**は
-> [LVM_サイズ変更とスナップショット](./LVM_サイズ変更とスナップショット.md) にあります。
-
-**押さえる 3 点**
-
-| 論点 | 結論 |
-|:--|:--|
-| **`remove` と `reduce`** | **`remove` はそのものを消す、`reduce` は中身を減らす**。`vgremove` は VG を消す、`vgreduce` は VG から PV を外す |
-| **`extend` と `expand`** | **正しいのは `extend`**。`lvexpand` / `vgexpand` / `pvexpand` は**存在しない** |
-| **`lvreduce` の注意** | **先にファイルシステムを縮小しておく**。忘れるとデータが壊れる |
 
 ---
 
@@ -125,6 +86,35 @@
 
 **LVM 自体は冗長化しません。** ディスクが 1 本壊れれば、その PV を含む VG は壊れます。
 冗長化は [RAIDの基礎とレベル](./RAIDの基礎とレベル.md) の担当です。
+
+**「LVM のメリットはどれか」への答え**
+
+| 選択肢 | 正誤 | 理由 |
+|:--|:-:|:--|
+| **動的に各領域をリサイズすることができる** | **○** | **これが LVM を使う理由** |
+| ハードディスクの障害に備えることができる | ✕ | **LVM を利用してもデータが冗長化されることはない**。それは **RAID1 / RAID5** |
+| 転送速度を高速化することができる | ✕ | **LVM で速くなることはない**。それは **RAID0 / RAID5** |
+| ファイルシステムを自動的に作成することができる | ✕ | **LV の上のファイルシステムは別途構築する**（`mkfs`）。LVM は面倒を見ない |
+
+**3 階層の対応関係で誤答になるもの**
+
+| 説明 | 正誤 | 理由 |
+|:--|:-:|:--|
+| **ボリュームグループに、後から物理ボリュームを加えることができる** | **○** | **VG は 1 つ以上の PV で構成され、後から追加・削除できる**（`vgextend` / `vgreduce`） |
+| **論理ボリュームは、物理エクステントを最小単位として切り出される** | **○** | **PE が LVM における領域の最小単位**。LV は「PE 1000 個分」のように切り出される |
+| ボリュームグループは、複数の論理ボリューム領域から構成される | ✕ | **VG を構成するのは LV ではなく PV**。LV は VG の一部を使って作る仮想的なパーティション |
+| 論理ボリュームと物理ボリュームの間には、一対一対応の関係がある | ✕ | **LVM は PE 単位で管理する**ので**対応関係は決まっていない**。1 つの PV に複数の LV が入ることも、1 つの LV が複数の PV にまたがることもある |
+| 物理ボリュームは、後から自由にリサイズすることができる | ✕ | **PV はハードディスクやパーティションそのもの**なので、**ハードウェア上の制限内でしか扱えない**。自由にリサイズはできない |
+| 物理エクステントは、物理的な記憶デバイスの領域のことである | ✕ | **PE は LVM による領域管理の最小単位**。**物理的な記憶デバイスの領域は物理ボリューム（PV）** |
+
+```text
+  PV ─────────┬──── LV      1つの PV に複数の LV が入ることもある
+              └──── LV
+  PV ──┐
+       ├────────── LV       1つの LV が複数の PV にまたがることもある
+  PV ──┘
+        ▲ 一対一ではない。PE 単位で自由に割り当てられる
+```
 
 ---
 
@@ -246,15 +236,43 @@ $ sudo vgdisplay vg1                   # VG の PE 情報を見る
 ## 作る手順
 
 ```text
-  ① pvcreate   デバイスを PV にする
+  ① fdisk      パーティションを作り、タイプを 8e（Linux LVM）にする
         ▼
-  ② vgcreate   PV を束ねて VG を作る
+  ② pvcreate   デバイスを PV にする
         ▼
-  ③ lvcreate   VG から LV を切り出す
+  ③ vgcreate   PV を束ねて VG を作る
         ▼
-  ④ mkfs       LV にファイルシステムを作る
+  ④ lvcreate   VG から LV を切り出す
         ▼
-  ⑤ mount      使えるようにする
+  ⑤ mkfs       LV にファイルシステムを作る
+        ▼
+  ⑥ mount      使えるようにする
+```
+
+**前後を空欄にして問われる 2 つ**
+
+**「LVM を構成する手順」の穴埋めでは、
+`pvcreate` の前にくる `fdisk` と、`mount` の前にくる `mkfs` が問われます。**
+
+| 位置 | 作業 | まぎらわしい誤答 |
+|:--|:--|:--|
+| **`pvcreate` の前** | **`fdisk` コマンドによるパーティションの作成** | **`mkdir` によるディレクトリの作成**（マウントポイントは `mount` の直前） |
+| **`mount` の前** | **`mkfs` コマンドによるファイルシステムの作成** | **`fdisk` によるパーティションの作成**（それは最初） |
+
+```text
+$ fdisk /dev/sdc
+Command (m for help): t                    ← パーティションタイプを変える
+8  AIX            4f  QNX4.x 3rd part  8e  Linux LVM       ← これを選ぶ
+```
+
+**`fdisk` でパーティションタイプを `8e`（Linux LVM）に設定します。**
+**RAID の `fd`（Linux raid autodetect）と取り違えない**よう注意します
+（[ソフトウェアRAIDの管理_mdadm](./ソフトウェアRAIDの管理_mdadm.md)）。
+
+```bash
+$ sudo mkfs -t ext3 /dev/vg1/lv1       # ⑤ LV にファイルシステムを作る
+$ sudo mkdir /mnt/lv1                  # マウントポイントを用意する
+$ sudo mount /dev/vg1/lv1 /mnt/lv1     # ⑥ マウントする
 ```
 
 ### pvcreate 物理ボリュームを作る
@@ -363,16 +381,46 @@ $ sudo mount /dev/VolGroup00/LogVol02 /home   # VG名/LV名 の順に書く
 | `VolGroup00-LogVol02` | ✕ | **`mount` の第一引数にはデバイスファイルを指定する必要がある** |
 | `LogVol02-VolGroup00` | ✕ | 同上 |
 
-> **実体は `/dev/mapper/VG名-LV名` へのシンボリックリンク**です。
-> `ls -l /dev/vg1/lv1` を見ると `../dm-0` などを指しているのが分かります。
-> **試験で問われるのは `/dev/VG名/LV名` の形**です。
+**同じ LV を指す名前が 3 つある**
+
+**LVM の仮想的なブロックデバイスは、デバイスマッパー（Device mapper）と呼ばれる機能によって実現**されています。
+**そのため、1 つの LV に対して次の 3 つの名前が使えます。**
+
+| 形式 | どういう名前か |
+|:--|:--|
+| **`/dev/VG名/LV名`** | **LVM が用意する名前**。試験で問われるのは基本これ |
+| **`/dev/mapper/VG名-LV名`** | **デバイスマッパーが用意する名前**。`/etc/fstab` でよく見る |
+| **`/dev/dm-`数字** | **カーネル内で扱われる名前**。**数字部分が変動する**ので、通常ユーザが直接使うことはない |
+
+```text
+  /dev/vg1/lv1  ─┐
+                 ├─▶  同じ LV を指す
+  /dev/mapper/vg1-lv1 ─┤
+                 │
+  /dev/dm-0     ─┘     ← 番号は起動のたびに変わりうる
+```
 
 ```bash
-$ ls -l /dev/vg1/                      # 実体を確かめる
+$ ls -l /dev/vg1/                      # LVM が用意する名前の実体を見る
 lrwxrwxrwx 1 root root 7 Sep 16 10:00 lv1 -> ../dm-0
-$ ls -l /dev/mapper/                   # こちらの名前でも同じものを指す
+$ ls -l /dev/mapper/                   # デバイスマッパー側の名前でも同じものを指す
 lrwxrwxrwx 1 root root 7 Sep 16 10:00 vg1-lv1 -> ../dm-0
 ```
+
+**「アクセスできるデバイス名の形式を 3 つ」への答え**
+
+| 形式 | 正誤 | 理由 |
+|:--|:-:|:--|
+| **`/dev/VG/LV`** | **○** | **LVM が用意する名前** |
+| **`/dev/mapper/VG-LV`** | **○** | **デバイスマッパーが用意する名前。区切りはハイフン** |
+| **`/dev/dm-1`** | **○** | **カーネル内で扱われる名前** |
+| `/dev/mapper/VG/LV` | ✕ | **`/dev/mapper` 配下はスラッシュではなくハイフンで繋ぐ** |
+| `/dev/mapper-VG-LV` | ✕ | **`mapper` はディレクトリ**。ハイフンで繋がらない |
+| `lvm-1` | ✕ | **このようなデバイス名は無い** |
+
+> **`/dev/VG名/LV名` はどの環境でも使えます**が、
+> **デバイスマッパーを利用するアプリケーションによっては、
+> デバイスマッパーが用意するデバイス名とは別のデバイス名が用意されることもあります。**
 
 ---
 
@@ -461,121 +509,6 @@ $ sudo lvs                             # LV を1行ずつ
 
 **実務では `pvs` / `vgs` / `lvs` のほうがよく使います。**
 **試験で問われるのは `display` 系**です。
-
----
-
-## 手を動かして確かめる
-
-**① ループバックデバイスで PV と VG を作る**
-
-```bash
-$ for i in 1 2; do dd if=/dev/zero of=p$i.img bs=1M count=200; done   # 200MBを2つ
-$ sudo losetup -f --show p1.img        # ループバックデバイスに割り当てる
-/dev/loop0
-$ sudo losetup -f --show p2.img        # 2つ目も同様に割り当てる
-/dev/loop1
-$ sudo pvcreate /dev/loop0 /dev/loop1  # PV にする
-  Physical volume "/dev/loop0" successfully created.
-  Physical volume "/dev/loop1" successfully created.
-$ sudo vgcreate vg1 /dev/loop0 /dev/loop1   # VG にまとめる
-  Volume group "vg1" successfully created
-```
-
-**② PE の数を確かめる**
-
-```bash
-$ sudo vgdisplay vg1 | grep -E "PE|VG Size"   # PE 関連の行だけ抜き出す
-  VG Size               392.00 MiB
-  PE Size               4.00 MiB
-  Total PE              98
-  Alloc PE / Size       0 / 0
-  Free  PE / Size       98 / 392.00 MiB
-```
-
-**読み取れること**
-
-| 観察 | 意味 |
-|:--|:--|
-| **`VG Size` が 392MiB** | **200MB × 2 = 400MB から、メタデータぶんが引かれている** |
-| **`PE Size` が 4.00 MiB** | **既定の PE サイズ** |
-| **`Total PE` が 98** | **392 ÷ 4 = 98。計算が合う** |
-| **`Free PE` が 98** | **まだ LV を作っていないので全部空き** |
-
-**③ 片方の PV だけ見る**
-
-```bash
-$ sudo pvdisplay /dev/loop0 | grep -E "PV Name|VG Name|Total PE|Free PE"   # 主要な行だけ
-  PV Name               /dev/loop0
-  VG Name               vg1
-  Total PE              49
-  Free PE               49
-```
-
-**2 つの PV がそれぞれ 49 PE を持ち、合計 98 PE** になっていることが確認できます。
-
-**④ 後片付け**
-
-```bash
-$ sudo vgremove vg1                    # VG を消す
-$ sudo pvremove /dev/loop0 /dev/loop1  # PV の印を消す
-$ sudo losetup -d /dev/loop0 /dev/loop1   # ループバックを外す
-```
-
-> **このノートの `pvcreate` / `vgcreate` / `pvdisplay` / `vgdisplay` の出力はサンドボックスの実測値**です。
-> **`lvcreate` 以降はカーネルに device-mapper が無いため実行できませんでした**
-> （`Required device-mapper target(s) not detected in your kernel.`）。
-> **`lvcreate` 以降の出力例は Ping-t の解説にあるもの**を使っています。
-
----
-
-## つまずきポイント
-
-| 症状 | 原因 | 対処 |
-|:--|:--|:--|
-| **`lvexpand` が `command not found`** | **`expand` ではなく `extend`** | **`lvextend`** |
-| **`pvcreate` が 2 回目でエラーになる** | **すでに PV になっている** | 状態を `pvdisplay` で確かめてから。自動化では専用モジュールを使う |
-| **`Insufficient free space`** | **VG に空きが無い** | **`vgdisplay` の `Free PE` を確認**する。`vgextend` で PV を足す |
-| **`/dev/LV名/VG名` でマウントできない** | **VG と LV の順番が逆** | **`/dev/VG名/LV名`**。ディレクトリ側が VG |
-| **`lvcreate -L 100M` なのに 128MB になる** | **PE の倍数に切り上げられた** | 仕様。**既定の PE は 4MB** |
-| **`vgremove` できない** | **中に LV が残っている** | **先に `lvremove`** |
-
----
-
-## クラウド実務メモ
-
-**① EBS + LVM は「止めずに増やす」ための定番構成**
-
-```text
-  【LVM なし】
-    EBS を拡張 → growpart → resize2fs      … 1本の上限まで
-
-  【LVM あり】
-    EBS を足す → pvcreate → vgextend → lvextend -r   … 何本でも足せる
-```
-
-**新しい EBS をアタッチしたあとの手順**
-
-```bash
-$ sudo pvcreate /dev/nvme2n1                    # ① PV にする
-$ sudo vgextend vg_data /dev/nvme2n1            # ② VG に足す
-$ sudo lvextend -r -l +100%FREE /dev/vg_data/lv_data   # ③ LV とFSを一気に広げる
-$ df -h /data                                   # ④ 確認する
-```
-
-**サービスを止めずに、数十秒で終わります。**
-
-**② LVM を使うかどうかの判断**
-
-| 状況 | LVM を使うか |
-|:--|:--|
-| **データ領域が育つ見込みがある** | **使う**。あとから足せる |
-| **スナップショットでバックアップを取りたい** | **使う** |
-| **ルートボリュームだけの小さなインスタンス** | **使わなくてよい**。EBS の拡張 + `growpart` で足りる |
-| **コンテナホスト** | **使わないことが多い**。ノードは使い捨てにする |
-| **オートスケールで使い捨てる** | **使わない**。構成が複雑になるだけ |
-
-**「このサーバは何年も生きるか？」がいちばんの判断軸**です。
-**使い捨てのインスタンスに LVM を入れると、構成管理が面倒になるだけ**になります。
 
 ---
 

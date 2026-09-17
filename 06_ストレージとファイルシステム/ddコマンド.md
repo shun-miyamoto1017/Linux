@@ -16,7 +16,6 @@
 
 ## 目次
 
-- [まずこれだけ](#まずこれだけ)
 - [dd とは何をするコマンドか](#dd-とは何をするコマンドか)
 - [cp との違い](#cp-との違い)
 - [書式とオペランド](#書式とオペランド)
@@ -31,35 +30,7 @@
 - [特殊なデバイスファイル](#特殊なデバイスファイル)
 - [業務で使う場面](#業務で使う場面)
 - [dd は危険なコマンド](#dd-は危険なコマンド)
-- [手を動かして確かめる](#手を動かして確かめる)
-- [つまずきポイント](#つまずきポイント)
-- [クラウド実務メモ](#クラウド実務メモ)
 - [参考リンク](#参考リンク)
-
----
-
-## まずこれだけ
-
-| やりたいこと | コマンド |
-|:--|:--|
-| ファイルをコピーする | `dd if=input.txt of=output.txt` |
-| **5MB のダミーファイルを作る** | **`dd if=/dev/zero of=testfile bs=1M count=5`** |
-| ディスクを丸ごとイメージ化する | `dd if=/dev/sda of=/backup/disk.img bs=4M status=progress` |
-| イメージをディスクへ書き戻す | `dd if=/backup/disk.img of=/dev/sda bs=4M status=progress` |
-| ISO を USB へ書き込む | `dd if=ubuntu.iso of=/dev/sdb bs=4M status=progress` |
-| ディスクの先頭 1MB だけ取り出す | `dd if=/dev/sda of=first1M.bin bs=1M count=1` |
-
-**覚え方**
-
-| オペランド | 何の略か | 意味 |
-|:--|:--|:--|
-| `if=` | **I**nput **F**ile | 読み込み元 |
-| `of=` | **O**utput **F**ile | 書き込み先 |
-| `bs=` | **B**lock **S**ize | 一度に読み書きするバイト数 |
-| `count=` | count | **入力ブロックを何回コピーするか** |
-
-**作られるファイルのサイズ ＝ `bs` × `count`** です。
-`bs=1M count=5` なら 1MB のかたまりを 5 回コピーするので 5MB になります。
 
 ---
 
@@ -192,7 +163,7 @@ $ dd if=input.txt | gzip > out.gz    # 読み出した結果をそのまま圧�
 **例文**
 
 ```bash
-$ dd if=/dev/zero of=testfile bs=1M count=5    # 1MB を 5 回 = 5MB のファイルを作る
+$ dd if=/dev/zero of=testfile bs=1M count=5    # 1MiB を 5 回 = 5MiB のファイルを作る
 5+0 records in
 5+0 records out
 5242880 bytes (5.2 MB, 5.0 MiB) copied, 0.00302971 s, 1.7 GB/s
@@ -440,9 +411,9 @@ $ dd if=input.txt of=output.txt 2>/dev/null    # 標準エラー出力を捨て�
 **例文**
 
 ```bash
-$ dd if=/dev/zero of=testfile bs=1M count=100      # 100MB の空ファイルを作る
-$ dd if=/dev/urandom of=random.bin bs=1M count=10  # 10MB のランダムデータを作る
-$ dd if=/dev/sda of=/dev/null bs=1M count=1024     # 読み出し速度だけを測る（書き込まない）
+$ dd if=/dev/zero of=testfile bs=1M count=100      # 100MiB の空ファイルを作る
+$ dd if=/dev/urandom of=random.bin bs=1M count=10  # 10MiB のランダムデータを作る
+$ dd if=/dev/sda of=/dev/null bs=1M count=1024     # 1GiB ぶん読んで速度だけを測る（書き込まない）
 ```
 
 **補足 … `/dev/zero` と `/dev/null` の違い**
@@ -501,7 +472,7 @@ $ dd if=/backup/disk.img of=/dev/sda bs=4M status=progress    # イメージを�
 ### 4. 検証用のダミーファイルを作る
 
 ```bash
-$ dd if=/dev/zero of=testfile bs=1M count=100    # 約 100MB のファイルを作る
+$ dd if=/dev/zero of=testfile bs=1M count=100    # 100MiB のファイルを作る
 $ ls -lh testfile                                # サイズを確認する
 -rw-r--r-- 1 root root 100M Aug 31 15:20 testfile
 ```
@@ -563,124 +534,6 @@ dd: failed to open 'output.txt': File exists
 **4. `of=` を打った直後に指を止めて読み返す**
 
 現場では、この一拍が最も効きます。
-
----
-
-## 手を動かして確かめる
-
-危険のない範囲で、`dd` の基本を確かめる手順です。
-
-**1. 練習用ディレクトリを作る**
-
-```bash
-$ mkdir -p ~/dd-practice             # 練習用のディレクトリを作る（-p で親ごと作る）
-$ cd ~/dd-practice                   # そこへ移動する
-```
-
-**2. 入力ファイルを作る**
-
-```bash
-$ echo "Hello dd!" > input.txt       # 中身のあるファイルを作る
-$ cat input.txt                      # 中身を確認する
-Hello dd!
-```
-
-**3. `dd` でコピーする**
-
-```bash
-$ dd if=input.txt of=output.txt      # dd でコピーする
-0+1 records in
-0+1 records out
-10 bytes copied, 2.5175e-05 s, 397 kB/s
-
-$ cat output.txt                     # 同じ中身になっていることを確認する
-Hello dd!
-```
-
-**4. `bs` と `count` でサイズを作り分ける**
-
-```bash
-$ dd if=/dev/zero of=t5m bs=1M count=5     # 1MB × 5回
-$ dd if=/dev/zero of=t10m bs=1M count=10   # 1MB × 10回
-$ ls -lh t5m t10m                          # サイズの違いを確認する
--rw-r--r-- 1 root root 5.0M Aug 31 15:15 t5m
--rw-r--r-- 1 root root  10M Aug 31 15:15 t10m
-```
-
-`bs` と `count` を掛けた値がサイズになる、という感覚をここで掴んでおきます。
-
-**5. 後片付け**
-
-```bash
-$ cd ~                               # 練習ディレクトリの外へ出る
-$ rm -r ~/dd-practice                # 練習用ディレクトリごと削除する
-```
-
----
-
-## つまずきポイント
-
-| 症状 | 原因 | 対処 |
-|:--|:--|:--|
-| `dd: unrecognized operand '-i'` | `-i` `-o` のようなオプション形式で書いた | `if=` `of=` の形で書く |
-| `dd: unrecognized operand` が出る | `if = input.txt` のように `=` の前後にスペースを入れた | スペースを入れない |
-| 作ったファイルが思ったサイズでない | `M`（1024 系）と `MB`（1000 系）を混同した | 1024 系なら `M`、1000 系なら `MB` |
-| `count=100` にしたのに 100 バイトにならない | `count` は**ブロック数**であってバイト数ではない | バイト指定なら `count=100B` |
-| ディスクのコピーが極端に遅い | `bs` を省略して既定の 512 バイトで動いていた | `bs=4M` などを付ける |
-| 既存ファイルの一部を書き換えたら後ろが消えた | `conv=notrunc` を付けていない | `conv=notrunc` を付ける |
-| 進捗が全く見えない | `status=progress` を付けていない | 付ける。古い環境なら `kill -USR1` |
-| リダイレクトしたのにサマリが画面に出る | サマリは標準エラー出力へ出るため | `status=none` または `2>/dev/null` |
-| **別のディスクを消してしまった** | `if` と `of` を取り違えた | **復旧手段はない。** 実行前に `lsblk` で確認する習慣をつける |
-
----
-
-## クラウド実務メモ
-
-**クラウドでは `dd` の出番は多くありません**
-
-AWS や Google Cloud では、ディスクのバックアップはマネージドの機能を使います。
-
-| 用途 | オンプレでの手段 | クラウドでの手段 |
-|:--|:--|:--|
-| ディスクのバックアップ | `dd` でイメージ化 | AWS: **EBS スナップショット** / Google Cloud: **Persistent Disk スナップショット** / Azure: **マネージドディスクのスナップショット** |
-| ディスクの複製 | `dd` でコピー | スナップショットから新しいボリュームを作成 |
-| OS イメージの配布 | ISO を `dd` で書き込み | AMI / カスタムイメージ |
-
-スナップショットは**増分バックアップで、稼働中のボリュームに対して取得できる**ため、
-`dd` のようにアンマウントを気にする必要がありません。
-
-**それでも `dd` を使う場面**
-
-| 場面 | 内容 |
-|:--|:--|
-| ディスク性能の測定 | `dd if=/dev/zero of=test bs=1M count=1024 oflag=direct` で書き込み速度を測る |
-| 容量逼迫のテスト | ダミーファイルでディスクを埋め、監視アラートの発報を確認する |
-| オンプレからの移行 | 物理サーバのディスクをイメージ化し、`VM Import/Export` などへ渡す |
-| 障害調査 | パーティションテーブルやブートセクタを取り出して中身を確認する |
-| ボリューム暗号化前の準備 | 領域を `/dev/zero` や `/dev/urandom` で埋める |
-
-**性能測定の注意**
-
-`oflag=direct` を付けないと OS のページキャッシュに書いただけで終わり、
-**実際のディスク性能ではなくメモリの速度を測ってしまいます**。
-
-```bash
-$ dd if=/dev/zero of=testfile bs=1M count=1024 oflag=direct    # キャッシュを通さず測る
-```
-
-読み出し側を測るときは、事前にキャッシュを落とします。
-
-```bash
-$ sync                                          # 未書き込みのデータを書き出す
-$ echo 3 | sudo tee /proc/sys/vm/drop_caches    # ページキャッシュを破棄する
-$ dd if=testfile of=/dev/null bs=1M             # 読み出し速度を測る
-```
-
-**EC2 での注意**
-
-gp3 / gp2 ボリュームには **IOPS とスループットの上限**があります。
-`dd` で測った値がカタログスペックに届かない場合、ディスクの問題ではなく
-**インスタンスタイプ側の EBS 帯域上限**に当たっていることがあります。
 
 ---
 

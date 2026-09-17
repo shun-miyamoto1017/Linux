@@ -1,0 +1,21 @@
+# OS / エディタ
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Obsidian
+.obsidian/
+.trash/
+
+# Ping-t の画面キャプチャは公開しない（著作権）
+pingt-*
+**/pingt-*
+
+# 一時ファイル
+*.tmp
+~$*
+
+# push しない作業用ディレクトリ
+_deploy/
+_to_delete/
+_tools/
