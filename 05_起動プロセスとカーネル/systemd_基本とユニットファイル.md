@@ -784,4 +784,4 @@ $ ls /etc/systemd/system/multi-user.target.wants/ | head -5   # enable済みの�
 
 ---
 
-[← このフォルダの目次にもどる](./00_このフォルダにあるもの.md) ｜ [全体の目次にもどる](../README.md)
+[← 全体の目次にもどる](../README.md)

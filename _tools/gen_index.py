@@ -69,6 +69,8 @@ RENAME = {
  114: "国際化（Samba）",
 }
 
+# 2026-09-17 … 各フォルダの目次ファイル（00_このフォルダにあるもの.md）は作らない。
+# 定数は「作らない対象の名前」として、削除チェックのためだけに残す。
 INDEX_NAME = "00_このフォルダにあるもの.md"
 
 
@@ -1546,41 +1548,37 @@ SHOUSEKI = [
   "08_ネットワーク/ネットワーク設定ファイル.md"),
 ]
 
-# ---- 各フォルダの目次 ------------------------------------------------
+# ---- 学習項目の進捗（_tools の中だけに置く。push しない） ----------------
+# 2026-09-17 変更 … 各フォルダの「00_このフォルダにあるもの.md」は作らない。
+# 進捗表はリポジトリ本体には置かず、手元用に _tools/progress.md へ書き出す。
+PL = ["# 学習項目の進捗\n",
+      "> `gen_index.py` の生成物。**push しない**（`_tools/` は `.gitignore` 対象）。\n",
+      "状態の見かた … ✅ 一通り扱った ／ 🔶 一部だけ扱った ／ ⬜ まだ書いていない\n"]
+_done = _part = _todo = 0
 for tname, tdesc, nos in THEMES:
     nos = sorted(nos)
     q = sum(rows[n]["q"] for n in nos)
     notes = NOTES.get(tname, [])
-    L = [f"# {tname[3:]}\n", f"> {tdesc}\n",
-         f"Ping-t の学習項目 **{len(nos)} 件 / {q} 問** をこのフォルダで扱う。\n"]
-
-    L.append("## ノート一覧\n")
-    if notes:
-        L.append("| ノート | 内容 |")
-        L.append("|:--|:--|")
-        for e in notes:
-            f, desc, _, _ = note_items(e)
-            L.append(f"| {link(f[:-3], './' + f)} | {desc} |")
-    else:
-        L.append("まだノートがありません。")
-    L.append("")
-
-    L.append("## 学習項目の進捗\n")
-    L.append("Ping-t の学習項目と、それを扱うノートの対応。\n")
-    L.append("状態の見かた … ✅ 一通り扱った ／ 🔶 一部だけ扱った ／ ⬜ まだ書いていない\n")
-    L.append("| 状態 | 学習の順番 | 学習項目 | 何に使うか | 問題数 | 扱っているノート |")
-    L.append("|:-:|:--|:--|:--|---:|:--|")
+    PL.append(f"\n## {tname}\n")
+    PL.append(f"> {tdesc}\n")
+    PL.append(f"学習項目 **{len(nos)} 件 / {q} 問**、ノート **{len(notes)} 本**\n")
+    PL.append("| 状態 | 学習の順番 | 学習項目 | 何に使うか | 問題数 | 扱っているノート |")
+    PL.append("|:-:|:--|:--|:--|---:|:--|")
     for n in nos:
         r = rows[n]
         full = [note_items(e)[0] for e in notes if n in note_items(e)[2]]
         part = [note_items(e)[0] for e in notes if n in note_items(e)[3]]
         mark = "✅" if full else ("🔶" if part else "⬜")
+        if full:   _done += 1
+        elif part: _part += 1
+        else:      _todo += 1
         covering = full + part
-        cov = "、".join(link(f[:-3], "./" + f) for f in covering) if covering else "—"
-        L.append(f"| {mark} | {PH[r['phase']]} {r['pri']} | {title(n)} | "
-                 f"{r['use']} | {r['q']} | {cov} |")
-    L += ["\n---\n", link("← 全体の目次にもどる", "../README.md")]
-    write(f"{tname}/{INDEX_NAME}", "\n".join(L) + "\n")
+        cov = "、".join(f[:-3] for f in covering) if covering else "—"
+        PL.append(f"| {mark} | {PH[r['phase']]} {r['pri']} | {title(n)} | "
+                  f"{r['use']} | {r['q']} | {cov} |")
+PL.insert(3, f"**✅ {_done} ／ 🔶 {_part} ／ ⬜ {_todo}**\n")
+write("_tools/progress.md", "\n".join(PL) + "\n")
+
 
 # ---- ルート README --------------------------------------------------
 # README は「どのフォルダに何が入っているか」の概要だけを書く。
@@ -1600,8 +1598,10 @@ Ping-t の **Linux 1・2・3** を、業務中にぱっと引けるリファレ�
 
 for tname, tdesc, nos in THEMES:
     notes = NOTES.get(tname, [])
-    L.append(f"| {link('📁 ' + tname, './' + tname + '/' + INDEX_NAME)} "
-             f"| {tdesc} | {len(notes)} |")
+    # ノートが 1 本も無いフォルダは、GitHub 上に存在しない（空ディレクトリは追跡されない）。
+    # リンクにすると 404 になるので、そのときは文字のまま置く。
+    cell = link('📁 ' + tname, './' + tname + '/') if notes else f"📁 {tname}"
+    L.append(f"| {cell} | {tdesc} | {len(notes)} |")
 
 L.append("""
 ---
@@ -1610,7 +1610,8 @@ L.append("""
 
 for tname, tdesc, nos in THEMES:
     notes = NOTES.get(tname, [])
-    L.append(f"\n### {link(tname, './' + tname + '/' + INDEX_NAME)}\n")
+    head = link(tname, './' + tname + '/') if notes else tname
+    L.append(f"\n### {head}\n")
     L.append(f"> {tdesc}\n")
     if notes:
         for e in notes:

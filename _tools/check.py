@@ -25,7 +25,7 @@ SKIP = {"_tools", "_deploy", "_to_delete"}   # 検査しないフォルダ
 
 LINE_LIMIT = 1000            # ノート 1 本の行数の目安（README のルール）
 LINE_WARN = 900              # ここを超えたら「次の追記で超える」ので早めに知らせる
-INDEX_LIKE = "00_このフォルダにあるもの.md"   # 自動生成の目次は行数の対象外
+INDEX_LIKE = "00_このフォルダにあるもの.md"   # 2026-09-17 廃止。あったら警告する（作らないルール）
 long_notes = []              # 目安を超えたノート
 near_notes = []              # 目安に近づいたノート（LINE_WARN 超〜LINE_LIMIT 以下）
 
@@ -134,6 +134,19 @@ for f in target_files():
             near_notes.append((f.name, n_lines))
             mark = "  ← そろそろ"
     print(f"{f.name:36s} {n_lines:5d}行  コマンド{tot:4d}  コメント無し{nc:3d}{mark}")
+
+# --- 廃止したフォルダ目次が残っていないか ---------------------------------
+# 2026-09-17 … 各フォルダの「00_このフォルダにあるもの.md」は作らないルールにした。
+stale_index = sorted(
+    str(f.relative_to(root))
+    for f in root.rglob(INDEX_LIKE)
+    if not (set(f.parts) & SKIP)
+)
+if stale_index:
+    print("\n=== 廃止したフォルダ目次が残っています（作らないルール） ===")
+    for f in stale_index:
+        print(f"  {f}")
+    print("  → 削除してください。生成は gen_index.py から外してあります。")
 
 if miss_lines:
     print("\n=== コメントの無いコマンド行 ===")

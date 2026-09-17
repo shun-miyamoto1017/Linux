@@ -533,4 +533,4 @@ $ sudo udevadm control --log-priority=debug          # 再起動せずにログ�
 
 ---
 
-[← このフォルダの目次にもどる](./00_このフォルダにあるもの.md) ｜ [全体の目次にもどる](../README.md)
+[← 全体の目次にもどる](../README.md)

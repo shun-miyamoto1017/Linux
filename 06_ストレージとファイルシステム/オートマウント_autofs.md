@@ -423,4 +423,4 @@ $ sudo /etc/init.d/autofs reload                  # SysVinit 系での読み直�
 
 ---
 
-[← このフォルダの目次にもどる](./00_このフォルダにあるもの.md) ｜ [全体の目次にもどる](../README.md)
+[← 全体の目次にもどる](../README.md)

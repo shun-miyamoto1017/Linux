@@ -393,4 +393,4 @@ kernel/fs/xfs/xfs.ko: kernel/lib/libcrc32c.ko
 
 ---
 
-[← このフォルダの目次にもどる](./00_このフォルダにあるもの.md) ｜ [全体の目次にもどる](../README.md)
+[← 全体の目次にもどる](../README.md)

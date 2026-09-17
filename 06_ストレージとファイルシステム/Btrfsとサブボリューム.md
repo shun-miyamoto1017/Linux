@@ -446,4 +446,4 @@ GlobalReserve, single: total=16.00MiB, used=0.00B
 
 ---
 
-[← このフォルダの目次にもどる](./00_このフォルダにあるもの.md) ｜ [全体の目次にもどる](../README.md)
+[← 全体の目次にもどる](../README.md)

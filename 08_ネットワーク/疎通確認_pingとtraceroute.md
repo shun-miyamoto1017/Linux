@@ -464,4 +464,4 @@ $ timeout 2 bash -c '</dev/tcp/10.0.0.5/3306' && echo OPEN || echo CLOSED   # 2�
 
 ---
 
-[← このフォルダの目次にもどる](./00_このフォルダにあるもの.md) ｜ [全体の目次にもどる](../README.md)
+[← 全体の目次にもどる](../README.md)

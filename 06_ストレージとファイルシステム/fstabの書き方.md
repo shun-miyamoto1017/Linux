@@ -732,4 +732,4 @@ UUID=...  /data  xfs  defaults,noatime  0 2
 
 ---
 
-[← このフォルダの目次にもどる](./00_このフォルダにあるもの.md) ｜ [全体の目次にもどる](../README.md)
+[← 全体の目次にもどる](../README.md)

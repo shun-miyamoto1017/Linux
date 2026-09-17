@@ -436,4 +436,4 @@ luksdata    UUID=6c4aa457-4fde-451e-8ab3-e60dac096de5      none            luks
 
 ---
 
-[← このフォルダの目次にもどる](./00_このフォルダにあるもの.md) ｜ [全体の目次にもどる](../README.md)
+[← 全体の目次にもどる](../README.md)

@@ -420,4 +420,4 @@ $ find / -perm /6000 -type f 2>/dev/null | sort | diff /var/log/suid_baseline.tx
 
 ---
 
-[← このフォルダの目次にもどる](./00_このフォルダにあるもの.md) ｜ [全体の目次にもどる](../README.md)
+[← 全体の目次にもどる](../README.md)

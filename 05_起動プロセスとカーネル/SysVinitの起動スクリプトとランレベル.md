@@ -747,4 +747,4 @@ Redirecting to /bin/systemctl status sshd.service    # systemctl へ転送され
 
 ---
 
-[← このフォルダの目次にもどる](./00_このフォルダにあるもの.md) ｜ [全体の目次にもどる](../README.md)
+[← 全体の目次にもどる](../README.md)
