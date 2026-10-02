@@ -108,7 +108,7 @@ $ wc -L nlt.txt                       # いちばん長い行の表示幅
 ```bash
 $ LC_ALL=en_US.UTF-8 wc -m ja.txt     # 文字数（あ・い・う・改行）
 4 ja.txt
-$ LC_ALL=en_US.UTF-8 wc -L ja.txt     # 表示幅（全角3文字 × 2桁）
+$ LC_ALL=en_US.UTF-8 wc -L ja.txt     # 表示幅（全角3文字 × 幅2）
 6 ja.txt
 ```
 

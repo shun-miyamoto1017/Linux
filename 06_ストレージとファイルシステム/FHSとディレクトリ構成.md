@@ -379,7 +379,7 @@ bin  boot  dev  etc  home  lib  lib64  media  mnt  opt  proc  root  run  sbin  s
   /usr/sbin       ← 管理用コマンド          （ライブラリではない）
 ```
 
-この 3 つのうち、**共有ライブラリが入るのは `/usr/lib` だけ**です。
+この 5 つのうち、**共有ライブラリが入るのは `/usr/lib` だけ**です。
 `/usr/bin` は一般ユーザ用コマンド、`/usr/sbin` は管理用コマンドで、いずれもライブラリではありません。
 
 ---

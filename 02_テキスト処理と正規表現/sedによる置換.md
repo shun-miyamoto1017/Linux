@@ -528,7 +528,7 @@ $ sed -f fix.sed -i.bak nginx.conf    # ファイルからスクリプトを読�
 | **CRLF を LF にする** | `sed -i 's/\r$//' file.txt` |
 | **特定の範囲だけ抜き出す** | `sed -n '/^\[main\]/,/^\[/p' config.ini` |
 
-**コメントを外す／付ける書き方が実務で最も使います。**
+**コメントを外す／付ける書き方は、実務でいちばんよく使います。**
 
 ```text
    s/^#\(PermitRootLogin\)/\1/

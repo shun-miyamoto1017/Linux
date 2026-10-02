@@ -119,7 +119,7 @@ $ sudo iwconfig wlan0 essid "pubcafe" key s:j8EfDx24   # 複数の設定を続�
 |:--|:-:|:--|
 | **`iwconfig wlan0 essid "pubcafe"`** | **○** | **`essid` に続けて識別名を書く** |
 | `iwconfig wlan0 "pubcafe"` | ✕ | **`essid` という指定をせず直接識別名を書くことはできない** |
-| `iwconfig wlan0 "pubcafe" key "s:pubcafe"` | ✕ | **識別子の前に `essid` が無い**（`key` の書き方自体は正しい） |
+| `iwconfig wlan0 "pubcafe" key "s:pubcafe"` | ✕ | **識別名の前に `essid` が無い**（`key` の書き方自体は正しい） |
 | `iwconfig wlan0 id=pubcafe` | ✕ | **`id=値` のような形式では書けない** |
 | `iwconfig wlan0 wep s:pubcafe` | ✕ | **`wep` / `pw` というキーワードは無い**。正しくは `key` |
 

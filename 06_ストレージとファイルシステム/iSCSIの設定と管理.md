@@ -18,7 +18,7 @@
 
 - [iSCSIとは](#iscsiとは)
 - [イニシエータとターゲット](#イニシエータとターゲット)
-- [識別子の3つ](#識別子の3つ)
+- [3つの識別子](#3つの識別子)
 - [iscsiadm コマンド](#iscsiadm-コマンド)
   - [3つのモード](#3つのモード)
   - [ターゲットを探す discovery](#ターゲットを探す-discovery)
@@ -103,7 +103,7 @@ $ sudo systemctl enable iscsid         # 起動時に自動で立ち上げる
 
 ---
 
-## 識別子の3つ
+## 3つの識別子
 
 **iSCSI と SCSI には、似た名前の識別子が 3 つ出てきます。**
 
@@ -152,8 +152,10 @@ $ sudo /usr/lib/udev/scsi_id --page=0x83 --whitelisted --device=/dev/sda   # WWI
 **`scsi_id` は `/usr/lib/udev/` にあるので、PATH が通っていない**ことが多いです。
 
 ```bash
-$ whereis scsi_id                      # PATH に無くても whereis なら見つかる
-scsi_id: /usr/lib/udev/scsi_id
+$ whereis scsi_id                      # whereis の探索先に /usr/lib/udev は入っていないので見つからない
+scsi_id:
+$ find /usr/lib -name scsi_id          # パスが分からないときは find で探す
+/usr/lib/udev/scsi_id
 ```
 
 `whereis` については [コマンドの場所を探す](./コマンドの場所を探す.md) にあります。
@@ -416,7 +418,8 @@ node.startup = manual
 
 ## 2つのデーモンの役割
 
-**`iscsid` と `iscsi` という、名前の似た 2 つのデーモンがあります。**
+**`iscsid` と `iscsi` という、名前の似た 2 つの仕組みがあります。**
+**常駐するのは `iscsid` のほうだけ**で、`iscsi` は起動時に一度だけ動いて終わる `oneshot` 型のサービスです（`systemctl status` では `active (exited)` になります）。
 
 | デーモン | 役割 |
 |:--|:--|
@@ -488,7 +491,7 @@ $ sudo mkfs -t ext4 /dev/sdc && sudo mount /dev/sdc /mnt/iscsi    # ④
 | **`iscsi`** / **`iscsictl`** / **`iscsi_id`** | **存在しないコマンド** |
 | `iscsiadm.conf` | **存在しない設定ファイル**（正しくは `iscsid.conf`） |
 
-**紛らわしい 3 つを並べる**
+**紛らわしい 4 つを並べる**
 
 ```text
   iscsid     デーモン    （イニシエータの土台）

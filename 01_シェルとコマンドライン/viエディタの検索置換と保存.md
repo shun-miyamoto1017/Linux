@@ -161,7 +161,7 @@ daemon:x:2:2:daemon:/sbin:/sbin/nologin
 :%s/文字列1/文字列2/g
 ```
 
-**4 つの部品**でできています。
+**5 つの部品**でできています。
 
 ```text
    :  %   s  /ping-t/hoge/  g

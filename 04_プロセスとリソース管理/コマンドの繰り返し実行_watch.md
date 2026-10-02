@@ -207,7 +207,7 @@ $ watch 'ps aux | grep nginx'         # 正しい。パイプごと watch に渡
 
 ```bash
 $ watch 'date; uptime'                # 2つのコマンドを続けて実行する
-$ watch "ls -l /var/log | tail -5"    # 変数を展開したいときはダブルクォート
+$ watch "ls -l /var/log | tail -5"    # パイプを含むときも全体を囲む
 ```
 
 **補足 … 変数はいつ展開されるか**

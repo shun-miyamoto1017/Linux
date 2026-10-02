@@ -424,7 +424,7 @@ exec grep -E "$@"
 | やりたいこと | コマンド |
 |:--|:--|
 | **ログからエラーを抜く** | `grep -i error /var/log/messages` |
-| **設定の有効行だけ見る** | `grep -v '^#' nginx.conf \| grep -v '^$'` |
+| **設定の有効行だけ見る** | `grep -v '^#' httpd.conf \| grep -v '^$'` |
 | **設定がどこに書かれているか探す** | `grep -rn 'ServerName' /etc/httpd/` |
 | **エラーの前後を見る** | `grep -C 5 'ERROR' app.log` |
 | **特定のIPのアクセスを数える** | `grep -cF '203.0.113.1' access.log` |

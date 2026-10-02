@@ -231,13 +231,13 @@ $ systemctl show nginx -p DropInPaths --value    # 適用されている drop-in
 /etc/systemd/system/nginx.service.d/override.conf
 ```
 
-**ユーザー単位のユニット**もあります（`--user` で操作します）。
+**ユーザ単位のユニット**もあります（`--user` で操作します）。
 
 | ディレクトリ | 用途 |
 |:--|:--|
-| `~/.config/systemd/user/` | そのユーザーが作る設定 |
-| `/etc/systemd/user/` | 管理者が全ユーザー向けに置く設定 |
-| `/usr/lib/systemd/user/` | パッケージが提供するユーザー向け設定 |
+| `~/.config/systemd/user/` | そのユーザが作る設定 |
+| `/etc/systemd/user/` | 管理者が全ユーザ向けに置く設定 |
+| `/usr/lib/systemd/user/` | パッケージが提供するユーザ向け設定 |
 
 ### どのファイルが何を上書きしているか調べる
 
@@ -384,7 +384,7 @@ man:nginx(8)
 
 | セクション | 主な内容 |
 |:--|:--|
-| 1 | 一般ユーザー向けコマンド |
+| 1 | 一般ユーザ向けコマンド |
 | 5 | **設定ファイルの書式** |
 | 8 | **管理者向けコマンド・デーモン** |
 
@@ -530,7 +530,7 @@ $ systemctl show nginx -p After --value          # 起動順序の指定を確�
 |:--|:--|
 | **`Type=`** | **`exec`**（前面で動き続けるアプリ）。古い環境なら `simple` |
 | **`ExecStart=`** | **絶対パスで書く**（systemd は `PATH` を使わない） |
-| **`User=`** | **専用ユーザーを作って指定する**（root で常駐させない） |
+| **`User=`** | **専用ユーザを作って指定する**（root で常駐させない） |
 | **`Restart=`** | **`on-failure`**、`RestartSec=` は 5〜10 秒 |
 
 ---
@@ -673,7 +673,7 @@ ExecStart=
 ExecStart=/usr/local/bin/nginx-wrapper
 ```
 
-**この「空行でリセット」は `Environment=` や `ExecStartPre=` でも同じ**です。
+**この「空の値でリセット」は `Environment=` や `ExecStartPre=` でも同じ**です。
 
 ### 元に戻す
 
@@ -717,12 +717,12 @@ WantedBy=multi-user.target
 
 | 記号 | 展開される内容 |
 |:--|:--|
-| **`%i`** | **`@` の後ろの文字列**（エスケープを解除した形） |
-| `%I` | `%i` と同じだが、エスケープを解除しない |
+| **`%i`** | **`@` の後ろの文字列**（エスケープされたまま。`/` は `-` のまま） |
+| **`%I`** | **`%i` と同じだが、エスケープを解除した形**（`-` が `/` に戻り、人が読める実際の値になる） |
 | **`%n`** | **ユニット名の全体**（`myapp@web01.service`） |
 | `%N` | 拡張子を除いたユニット名 |
 | `%H` | ホスト名 |
-| `%u` | 実行ユーザー名 |
+| `%u` | 実行ユーザ名 |
 
 ```bash
 $ sudo systemctl enable --now myapp@web01   # web01 用のインスタンスを有効化して起動する
@@ -731,7 +731,7 @@ $ systemctl status 'myapp@*' --no-pager     # インスタンスをまとめて�
 ```
 
 **実際の例**では、`getty@tty1.service`（仮想コンソール）や
-`user@1000.service`（ユーザーセッション）が同じ仕組みで動いています。
+`user@1000.service`（ユーザセッション）が同じ仕組みで動いています。
 
 ---
 
@@ -743,9 +743,9 @@ $ systemctl status 'myapp@*' --no-pager     # インスタンスをまとめて�
 | ターゲット | 意味 | 旧ランレベル |
 |:--|:--|:-:|
 | `poweroff.target` | 電源を切る | 0 |
-| **`rescue.target`** | **シングルユーザーモード**（最小限＋root シェル） | 1 |
-| **`multi-user.target`** | **CUI のマルチユーザー**。**サーバの既定** | 3 |
-| **`graphical.target`** | **GUI 付きマルチユーザー** | 5 |
+| **`rescue.target`** | **シングルユーザモード**（最小限＋root シェル） | 1 |
+| **`multi-user.target`** | **CUI のマルチユーザ**。**サーバの既定** | 3 |
+| **`graphical.target`** | **GUI 付きマルチユーザ** | 5 |
 | `reboot.target` | 再起動する | 6 |
 | `emergency.target` | 緊急モード（ほぼ何も起動しない） | — |
 | `basic.target` | 基本的な初期化が済んだ状態 | — |

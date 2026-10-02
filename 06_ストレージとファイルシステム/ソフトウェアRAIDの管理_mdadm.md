@@ -17,7 +17,7 @@
 
 - [全体の流れ](#全体の流れ)
 - [事前準備 パーティションタイプを fd にする](#事前準備-パーティションタイプを-fd-にする)
-- [mdadm の3つのモード](#mdadm-の3つのモード)
+- [mdadm の6つのモード](#mdadm-の6つのモード)
 - [Create モード 作る](#create-モード-作る)
   - [よく使うオプション](#よく使うオプション)
   - [書き方の間違い探し](#書き方の間違い探し)
@@ -105,7 +105,7 @@ Device     Boot Start   End Sectors Size Id Type
 
 ---
 
-## mdadm の3つのモード
+## mdadm の6つのモード
 
 **`mdadm` コマンドは多くの機能を持っているためにモードが複数あり、機能が分類されています。**
 
@@ -237,7 +237,7 @@ $ sudo mdadm -C /dev/md0 -l 1 -n 2 /dev/sda1 /dev/sdb1   # 2台でRAID1を作る
 | 書き方 | 成立するか | どこが違うか |
 |:--|:-:|:--|
 | **`mdadm -C /dev/md0 -l 1 -n 2 /dev/sda1 /dev/sdb1`** | **○** | **`-l 1` で RAID1、`-n 2` で 2 台。デバイスも 2 つ** |
-| `mdadm -C /dev/md0 -l 2 -n 1 /dev/sda1 /dev/sdb1` | ✕ | **値が逆**。これだと **RAID2 を 1 台で**という意味になる |
+| `mdadm -C /dev/md0 -l 2 -n 1 /dev/sda1 /dev/sdb1` | ✕ | **値が逆**。しかも **`mdadm` は RAID2 に対応していない**ので `mdadm: invalid raid level: 2` で弾かれる（実測） |
 | `mdadm --create /dev/md0 -l 1 -x 2 /dev/sda1 /dev/sdb1` | ✕ | **`-x` は予備デバイス数**。構成デバイス数の指定ではない |
 | `mdadm --create /dev/md0 -l 2 -x 1 /dev/sda1 /dev/sdb1` | ✕ | **`-x` が誤りのうえ、数字も逆** |
 | `mdadm create /dev/md0 --level=1 --raid-devices=2 /dev/sda1 /dev/sdb1` | ✕ | **`create` と書いている**。Create モードは **`-C` か `--create`** |

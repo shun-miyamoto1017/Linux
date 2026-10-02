@@ -162,7 +162,7 @@ Ping-t（LPIC）で問われるのは上の「`/usr/src/linux` が慣例」と�
 
 | ディレクトリ | 名前の由来 | 覚え方 |
 |:--|:--|:--|
-| **`fs/`** | **f**ile **s**ystem | **「ファイルシステム」**。「同期（sync）」ではない |
+| **`fs/`** | **f**ile **s**ystem | **「ファイルシステム」**。`fs` は file system の略 |
 | **`mm/`** | **m**emory **m**anagement | **「メモリ管理」**。「モジュール管理」ではない |
 | **`include/`** | include | **「インクルードファイル」**＝ほかのファイルから呼び出すコードのまとまり |
 | **`arch/`** | **arch**itecture | **「アーキテクチャ固有のコード」**（i386、x86_64 など） |
@@ -339,7 +339,7 @@ $ grep -n "nomodeset" /usr/src/linux/Documentation/admin-guide/kernel-parameters
 
 ---
 
-### 設定の 4 つのやり方
+### 設定の 6 つのやり方
 
 | ターゲット | 見た目 | 何が要るか | 使いどころ |
 |:--|:--|:--|:--|

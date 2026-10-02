@@ -234,7 +234,7 @@ $ grep -n "set root" /boot/grub/grub.cfg | head      # grub.cfg でどう指定�
 | **`GRUB_DISABLE_RECOVERY`** | 復旧用エントリを出さない | `true` |
 | **`GRUB_TIMEOUT_STYLE`** | メニューの出し方（`menu` / `hidden` / `countdown`） | `menu` |
 | **`GRUB_HIDDEN_TIMEOUT`** | **メニューを表示せずに待つ秒数**（古い書き方。`GRUB_TIMEOUT_STYLE=hidden` に相当） | `0` |
-| **`GRUB_HIDDEN_TIMEOUT_QUIET`** | **待ち時間のカウントダウンを表示するか**（`true` で非表示） | `true` |
+| **`GRUB_HIDDEN_TIMEOUT_QUIET`** | **待ち時間のカウントダウンを隠すか**（`true` で非表示） | `true` |
 | `GRUB_DISABLE_SUBMENU` | 世代違いのカーネルをサブメニューにまとめない | `true` |
 | `GRUB_GFXMODE` | グラフィカルメニューの解像度 | `1024x768` |
 
@@ -546,8 +546,8 @@ exec /sbin/init                                      # 通常の起動に戻す�
 
 | 世代 | 足す行 | 書き方 |
 |:--|:--|:--|
-| **GRUB2** | **`linux` で始まる行** | `linux /boot/vmlinuz-… root=/dev/sda1 ro **1**` |
-| **GRUB Legacy** | **`kernel` で始まる行** | `kernel /boot/vmlinuz-… root=/dev/sda1 ro **1**` |
+| **GRUB2** | **`linux` で始まる行** | `linux /boot/vmlinuz-… root=/dev/sda1 ro 1`（末尾の **1** がランレベル） |
+| **GRUB Legacy** | **`kernel` で始まる行** | `kernel /boot/vmlinuz-… root=/dev/sda1 ro 1`（末尾の **1** がランレベル） |
 
 > **`linux` 行（GRUB2）と `kernel` 行（GRUB Legacy）は、同じ役割の項目**です。
 > どちらも「**このカーネルイメージを、このオプションで起動する**」という指定で、名前が世代で変わっただけです。
@@ -565,15 +565,8 @@ exec /sbin/init                                      # 通常の起動に戻す�
                                              ランレベル1（シングルユーザ）で起動する
 ```
 
-**`linux` 行に書ける起動オプション**
-
-| 起動オプション | 説明 |
-|:--|:--|
-| **`init=<PATH>`** | **`init` の代わりに、指定したコマンドを実行する** |
-| **`root=<DEVICE>`** | **ルートファイルシステムを設定する** |
-| **数字（`0`〜`6`）** | **指定したランレベルで起動する** |
-| **`single`** | **シングルユーザモードで起動する**（`1` と同じ意味） |
-| **`nosmp`** ／ **`maxcpus=0`** | **マルチプロセッサマシンを、シングルプロセッサマシンとして動作させる** |
+**`linux` 行に書けるオプションは、上の「復旧でよく使うパラメータ」の表と同じ**です。
+この場面でよく足すのは `init=<PATH>` / `root=<DEVICE>` / 数字（`0`〜`6`）/ `single` / `nosmp`（`maxcpus=0`）です。
 
 > **`run level 3` のような書き方はありません。** `run level` というオプションは存在しないので、**数字だけを置く**と覚えてください。
 

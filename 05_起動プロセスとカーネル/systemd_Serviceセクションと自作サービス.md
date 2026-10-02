@@ -41,6 +41,8 @@
 
 ```ini
 [Service]
+Type=forking
+PIDFile=/run/nginx.pid
 ExecStartPre=/usr/sbin/nginx -t
 ExecStart=/usr/sbin/nginx
 ExecReload=/bin/kill -s HUP $MAINPID
@@ -56,7 +58,7 @@ ExecReload=/bin/kill -s HUP $MAINPID
 | 記号 | 意味 |
 |:--|:--|
 | **`-`** | **失敗しても無視して続行する**（`ExecStartPre=-/bin/rm -f /run/app.pid`） |
-| `+` | 権限制限を無視して full privilege で実行する |
+| `+` | 権限制限を無視して完全な権限で実行する |
 | `@` | 引数の 0 番目（プロセス名）を明示する |
 | `!` | 一部の権限設定を無視する |
 
@@ -64,7 +66,7 @@ ExecReload=/bin/kill -s HUP $MAINPID
 
 | 設定 | 意味 |
 |:--|:--|
-| **`User=`** / **`Group=`** | **実行するユーザー / グループ**。省略すると root |
+| **`User=`** / **`Group=`** | **実行するユーザ / グループ**。省略すると root |
 | **`WorkingDirectory=`** | **実行時のカレントディレクトリ** |
 | **`Environment=`** | **環境変数を直接指定する**（複数行可） |
 | **`EnvironmentFile=`** | **環境変数をファイルから読む**（`-` を付けると無いとき無視） |
@@ -90,7 +92,7 @@ NG   export APP_ENV=production      ← export は書かない
 NG   APP_PORT=$BASE_PORT            ← 変数展開はされない
 ```
 
-**`User=` に存在しないユーザーを書くと `217/USER` で失敗**します。自作時の頻出ミスです。
+**`User=` に存在しないユーザを書くと `217/USER` で失敗**します。自作時の頻出ミスです。
 
 ### ログの出力先
 
@@ -318,7 +320,7 @@ exec … そのプロセスで目的の実行ファイルを開始する
 
 ```text
 実行ファイルが存在しない（203/EXEC）
-User= のユーザーが存在しない（217/USER）
+User= のユーザが存在しない（217/USER）
 ```
 
 といった**起動前の問題を、確実に失敗として検出できます**。
@@ -524,11 +526,11 @@ always     … 何があっても動かし続けたい常駐プロセス
 ### ① 実行できることを先に確かめる
 
 ```bash
-$ sudo -u myapp /usr/bin/python3 /opt/myapp/app.py --port 8000   # サービスと同じユーザーで手動実行する
+$ sudo -u myapp /usr/bin/python3 /opt/myapp/app.py --port 8000   # サービスと同じユーザで手動実行する
 ```
 
 **ここで動かないものは、systemd に載せても動きません。**
-**必ず `User=` に指定する予定のユーザーで試します**（権限の問題を先に潰すため）。
+**必ず `User=` に指定する予定のユーザで試します**（権限の問題を先に潰すため）。
 
 ### ② ユニットファイルを作る
 
@@ -596,7 +598,7 @@ $ journalctl -u myapp -n 50 --no-pager       # ログを50行分見る
 | 終了コード | 原因 |
 |:--|:--|
 | **`203/EXEC`** | **`ExecStart=` のパスが違う、実行権限が無い** |
-| **`217/USER`** | **`User=` のユーザーが存在しない** |
+| **`217/USER`** | **`User=` のユーザが存在しない** |
 | **`200/CHDIR`** | **`WorkingDirectory=` が存在しない** |
 | `1/FAILURE` | プログラム自身がエラー終了した（ログを見る） |
 

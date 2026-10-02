@@ -398,7 +398,7 @@ $ cat /sys/block/sda/queue/scheduler                 # ディスクのI/Oスケ�
 
 | 書き方 | 何が起きるか |
 |:--|:--|
-| **`sysctl -w kernel.shmmax`** | **エラー。**`-w` は変更用なので、**値が必要**<br>`error: "kernel.shmmax" must be of the form name=value` |
+| **`sysctl -w kernel.shmmax`** | **エラー。**`-w` は変更用なので、**値が必要**<br>メッセージの文言は procps のバージョンで変わる（例 `error: "kernel.shmmax" must be of the form name=value` / `sysctl: command line(0): invalid syntax, continuing...`） |
 | **`sysctl -w kernel.shmmax 68719476736`** | **エラー。**区切りは**スペースではなくイコール（`=`）** |
 | **`sysctl kernel.shmmax 68719476736`** | 変更にならない。変更には **`-w`** が要る |
 | `sysctl -l` | **存在しないオプション** |
@@ -418,9 +418,9 @@ $ cat /sys/block/sda/queue/scheduler                 # ディスクのI/Oスケ�
 | **表示** | **`cat /proc/sys/kernel/shmall`** |
 | **変更** | **`echo '2097152' > /proc/sys/kernel/shmall`** |
 
-**2 つの落とし穴**
+**3 つの落とし穴と、正しい書き方**
 
-| 間違い | 何が起きるか |
+| 書き方 | 何が起きるか |
 |:--|:--|
 | **`cat /proc/sys/kernel.shmmax`** | **エラー。**パスにするときは**ドットをスラッシュに置き換える** |
 | **`echo /proc/sys/kernel/shmmax`** | **「`/proc/sys/kernel/shmmax`」という文字列が画面に出るだけ。**`echo` は引数をそのまま表示するコマンドで、ファイルの中身は読まない |
@@ -552,19 +552,27 @@ $ sysctl -a --pattern "net.ipv4.tcp_.*mem"           # 正規表現で項目を�
 
 **OS 起動時に自動実行されるスクリプトの中で `sysctl` がこのファイルを読み込み、設定が反映されます。**
 
-**`--system` が読む順序**（上から順に読み、**あとに読んだほうが勝つ**）
+**`--system` が読む場所**（優先度の高いディレクトリから並べたもの）
 
 ```text
-  1. /etc/sysctl.d/*.conf
-  2. /run/sysctl.d/*.conf
-  3. /usr/local/lib/sysctl.d/*.conf
-  4. /usr/lib/sysctl.d/*.conf
-  5. /lib/sysctl.d/*.conf
-  6. /etc/sysctl.conf          ← 最後。ここに書くと他をすべて上書きする
+  /etc/sysctl.d/*.conf
+  /run/sysctl.d/*.conf
+  /usr/local/lib/sysctl.d/*.conf
+  /usr/lib/sysctl.d/*.conf
+  /lib/sysctl.d/*.conf
+  /etc/sysctl.conf
 ```
 
-> **ファイル名の先頭の数字は、読む順番を決めるためのものです。**
-> `99-` のように大きい数字にしておくと、ほかの設定より**あとに読まれる＝勝つ**ので、意図した値になります。
+**勝ち負けの決まり方は 2 段階です。ここを取り違えると事故になります。**
+
+| 場合 | どちらが勝つか |
+|:--|:--|
+| **同じファイル名が複数のディレクトリにある** | **上に書いたディレクトリが勝つ**（`/etc/sysctl.d/90-x.conf` があれば `/usr/lib/sysctl.d/90-x.conf` は読まれない） |
+| **ファイル名が違う** | **ディレクトリに関係なく、全部をファイル名の辞書順に並べて、あとに来たほうが勝つ** |
+
+> **`man sysctl` に「All configuration files are sorted in lexicographic order, regardless of the directory they reside in.」と明記されています**（実機で確認）。
+> つまり `/etc/sysctl.d/01-a.conf` より `/usr/lib/sysctl.d/50-b.conf` のほうが**あとに読まれて勝ちます**。
+> だから `99-` のように大きい数字を頭に付けて、ほかの設定よりあとに読ませるのが定石です。
 
 **例文**
 
@@ -599,7 +607,7 @@ $ sudo sysctl -p /etc/sysctl.d/99-ipforward.conf     # そのファイルだけ�
 | **`net.core.somaxconn`** | **接続待ちキューの長さ** | Web サーバの高負荷対策 |
 | **`net.ipv4.tcp_tw_reuse`** | TIME_WAIT のソケットを再利用するか | 短い接続が大量に発生する環境 |
 | **`kernel.pid_max`** | プロセス ID の上限 | コンテナを大量に動かすホスト |
-| **`kernel.dmesg_restrict`** | **一般ユーザに `dmesg` を許すか**（`1` で禁止） | セキュリティ要件 |
+| **`kernel.dmesg_restrict`** | **一般ユーザに `dmesg` を禁止するか**（`1` で禁止） | セキュリティ要件 |
 | **`net.bridge.bridge-nf-call-iptables`** | ブリッジを通る通信に iptables を適用するか | **Kubernetes の必須設定** |
 
 **例文**

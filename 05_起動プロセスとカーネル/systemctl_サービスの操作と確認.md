@@ -46,7 +46,7 @@ $ systemctl status nginx.service --no-pager --full
 
 **オプションは前でも後ろでも構いません。** `systemctl --no-pager status nginx` でも同じです。
 
-**参照するだけなら一般ユーザーで実行できます**（`status` / `show` / `cat` / `list-*`）。
+**参照するだけなら一般ユーザで実行できます**（`status` / `show` / `cat` / `list-*`）。
 **状態を変えるものは root 権限が必要**です（`start` / `stop` / `enable` / `mask` など）。
 
 ```bash
@@ -140,7 +140,7 @@ $ sudo systemctl restart nginx       # 変更なので sudo が要る
 | **`-n 行数` / `--lines=行数`** | **`status` に出すログの行数を変える**（既定は 10 行） |
 | **`-o 形式` / `--output=形式`** | `status` のログ表示形式（`short` `cat` `json` など） |
 | **`--now`** | **`enable` / `disable` と同時に `start` / `stop` もする** |
-| **`--user`** | **ユーザー単位の systemd を対象にする**（既定はシステム全体の `--system`） |
+| **`--user`** | **ユーザ単位の systemd を対象にする**（既定はシステム全体の `--system`） |
 | **`-H ホスト` / `--host=`** | SSH 経由でリモートホストの systemd を操作する |
 | **`-M 名前` / `--machine=`** | コンテナ内の systemd を操作する |
 | **`-q` / `--quiet`** | 結果の表示を抑える（終了コードだけ欲しいとき） |
@@ -185,10 +185,11 @@ $ sudo systemctl try-restart nginx   # 動いているときだけ再起動す�
 | 反映されるもの | すべての設定 | **アプリが再読込に対応した設定だけ** |
 | 前提 | なし | **ユニットに `ExecReload=` がある**こと |
 
-**`reload` に対応していないサービスで実行するとエラーになります。**
+**`reload` に対応していないサービス**（`ExecReload=` が無いユニット）**で実行するとエラーになります。**
+配布パッケージの `nginx` には `ExecReload=` があるので、下は自作の `myapp.service` を例にしています。
 
 ```text
-Failed to reload nginx.service: Job type reload is not applicable for unit nginx.service.
+Failed to reload myapp.service: Job type reload is not applicable for unit myapp.service.
 ```
 
 **どちらでもよいなら `reload-or-restart`** を使うと、対応状況を気にせず済みます。
@@ -240,7 +241,8 @@ start   … いますぐ起動する                             ← いまの�
 
 **`enable` が実際にしていること**
 
-`[Install]` セクションの `WantedBy=` を見て、**シンボリックリンクを1つ作るだけ**です。
+`[Install]` セクションの `WantedBy=` を見て、**対象ごとにシンボリックリンクを作るだけ**です。
+`WantedBy=` に複数のターゲットが書かれていれば、その数だけリンクができます（`Also=` があればそちらも）。
 
 ```bash
 $ sudo systemctl enable nginx        # 自動起動を有効にする
@@ -438,9 +440,9 @@ $ sudo systemctl isolate rescue.target           # いますぐレスキュー�
 | ターゲット | 意味 | 旧ランレベル |
 |:--|:--|:--|
 | `poweroff.target` | 電源断 | 0 |
-| **`rescue.target`** | **シングルユーザーモード**（最小限＋root シェル） | 1 |
-| **`multi-user.target`** | **CUI でのマルチユーザー**。**サーバの既定** | 3 |
-| **`graphical.target`** | **GUI 付きマルチユーザー** | 5 |
+| **`rescue.target`** | **シングルユーザモード**（最小限＋root シェル） | 1 |
+| **`multi-user.target`** | **CUI でのマルチユーザ**。**サーバの既定** | 3 |
+| **`graphical.target`** | **GUI 付きマルチユーザ** | 5 |
 | `reboot.target` | 再起動 | 6 |
 | `emergency.target` | 緊急モード（ファイルシステムは読み取り専用） | — |
 

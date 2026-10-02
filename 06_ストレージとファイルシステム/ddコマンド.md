@@ -29,6 +29,13 @@
 - [実行結果の読み方](#実行結果の読み方)
 - [特殊なデバイスファイル](#特殊なデバイスファイル)
 - [業務で使う場面](#業務で使う場面)
+- [データを確実に消す](#データを確実に消す)
+  - [rm では消えない](#rm-では消えない)
+  - [mkfs で消えるかどうかは discard 次第](#mkfs-で消えるかどうかは-discard-次第)
+  - [dd で全領域を上書きする](#dd-で全領域を上書きする)
+  - [zero と urandom の使い分け](#zero-と-urandom-の使い分け)
+  - [shred という専用コマンド](#shred-という専用コマンド)
+  - [SSD では上書きが効かない](#ssd-では上書きが効かない)
 - [dd は危険なコマンド](#dd-は危険なコマンド)
 - [参考リンク](#参考リンク)
 
@@ -192,8 +199,8 @@ $ dd if=/dev/sda of=disk.img bs=4M             # 4MB ずつ読み書きする。
 **例文**
 
 ```bash
-$ dd if=/dev/zero of=testfile bs=1M count=5    # 1MB × 5回 = 5MB
-$ dd if=/dev/sda of=first1M.bin bs=1M count=1  # ディスクの先頭 1MB だけ取り出す
+$ dd if=/dev/zero of=testfile bs=1M count=5    # 1MiB × 5回 = 5MiB
+$ dd if=/dev/sda of=first1M.bin bs=1M count=1  # ディスクの先頭 1MiB だけ取り出す
 $ dd if=/dev/sda of=mbr.bin bs=512 count=1     # 先頭 512 バイト（MBR）だけ取り出す
 ```
 
@@ -487,6 +494,260 @@ $ dd if=/dev/sda of=first1M.bin bs=1M count=1    # 先頭 1MB を取り出す
 ```
 
 パーティションテーブルの破損調査や、ブートローダの退避で使います。
+
+---
+
+## データを確実に消す
+
+**ディスクを廃棄・返却・譲渡するとき、「ファイルを消しただけ」では中身が残ります。**
+ここは `dd` の代表的な用途であり、情報漏えい事故の定番の原因でもあります。
+
+64MiB のループバックファイルシステムを作り、実際に何が残るか測りました。
+
+```bash
+$ dd if=/dev/zero of=disk.img bs=1M count=64 status=none   # 64MiB のイメージを作る
+$ mkfs.ext4 -q -F disk.img                                 # ext4 を作る
+$ mkdir mnt && mount -o loop disk.img mnt                  # マウントする
+$ dd if=/dev/zero of=mnt/pad.bin bs=1M count=20 status=none   # データ領域を先へ押し出す
+```
+
+### rm では消えない
+
+```bash
+$ echo "極秘: この文字列は消えたか SECRET-STRING-12345" > mnt/secret.txt   # 機密ファイルを作る
+$ umount mnt                                                               # アンマウントする
+$ strings -t d disk.img | grep "SECRET-STRING"                             # イメージを直接検索する
+```
+
+```text
+29429766  SECRET-STRING-12345
+```
+
+**先頭から 29,429,766 バイト目に、そのまま残っています。**
+ここでファイルを削除して、もう一度検索します。
+
+```bash
+$ mount -o loop disk.img mnt                # マウントし直す
+$ rm mnt/secret.txt                         # ファイルを削除する
+$ umount mnt                                # アンマウントする
+$ strings -t d disk.img | grep "SECRET-STRING"   # もう一度検索する
+```
+
+```text
+29429766  SECRET-STRING-12345
+```
+
+**まったく同じ位置に、まったく同じ内容で残っています。**
+
+```text
+   rm がやっていること
+     ・ディレクトリエントリからファイル名を外す
+     ・inode を未使用としてマークする
+        ↓
+   データブロックの中身には一切触らない
+        → 上書きされるまで、そのまま読める
+```
+
+**ファイル削除ツールや `rm -rf` では、ディスクの廃棄要件を満たせません。**
+
+### mkfs で消えるかどうかは discard 次第
+
+**「ファイルシステムを作り直せば消える」と言われますが、条件によります。** 実測します。
+
+まず `-E nodiscard` を付けた場合。
+
+```bash
+$ mkfs.ext4 -q -F -E nodiscard disk.img     # discard を抑止してファイルシステムを作り直す
+$ strings -t d disk.img | grep "SECRET-STRING"   # 検索する
+```
+
+```text
+29429766  SECRET-STRING-12345
+```
+
+**残っています。** `mkfs` は管理情報（スーパーブロック・inode テーブルなど）を書き直すだけで、
+データ領域には手を付けないからです。
+
+ところが、**既定のまま実行すると消えました。**
+
+```bash
+$ mkfs.ext4 -F disk.img | grep -i discard   # 既定で実行して出力を見る
+```
+
+```text
+Discarding device blocks:     0/16384           done                            
+```
+
+```bash
+$ strings -t d disk.img | grep "SECRET-STRING"   # 検索する
+$ echo "exit=$?"                                 # 見つからなければ 1
+```
+
+```text
+exit=1
+```
+
+**`Discarding device blocks` が走っているのが原因**です。
+ループバックファイルの場合、discard は穴あけ（punch hole）として実装されるため、
+実際にデータが消えます。ファイルサイズの見え方でも確認できます。
+
+```bash
+$ du -h --apparent-size disk.img            # 見かけのサイズ
+$ du -h disk.img                            # 実際に使っているサイズ
+```
+
+```text
+64M	disk.img
+4.2M	disk.img
+```
+
+**64MiB のはずが、実使用は 4.2MiB。**
+中身が無い部分に実領域を割り当てない「**スパースファイル**」になっています。
+
+```text
+   discard が効く環境（SSD、シンプロビジョニング、ループバックファイル）
+        → mkfs でもデータが消えることがある
+   discard が効かない環境（従来型の HDD、-E nodiscard 指定時）
+        → mkfs ではデータは残る
+```
+
+**「mkfs すれば安全」とは言えません。**
+環境によって結果が変わるので、**確実に消したいなら次の上書きを行ってください。**
+
+### dd で全領域を上書きする
+
+**唯一確実なのは、全領域を別のデータで塗りつぶすこと**です。
+
+```bash
+$ dd if=/dev/zero of=/dev/sdc1 bs=1M        # ゼロで全領域を埋める
+$ dd if=/dev/urandom of=/dev/sdc1 bs=1M     # 乱数で全領域を埋める
+```
+
+**`if=` / `of=` を使わず、リダイレクトでも書けます。**
+
+```bash
+$ dd bs=1M count=64 < /dev/urandom > disk.img    # リダイレクト形式で乱数を書き込む
+$ od -A d -t x1 -N 32 disk.img                   # 先頭を覗いて確認する
+```
+
+```text
+0000000 8a be bb c7 57 6b 28 8e a3 44 73 c8 ff eb 55 89
+0000016 9d d6 da 04 42 ea 39 68 9b a5 e5 5a 5b 8b e2 2e
+```
+
+**乱数で埋まっています。** 機密文字列も、もちろん消えています。
+
+```bash
+$ strings -t d disk.img | grep "SECRET-STRING"   # 検索する
+$ echo "exit=$?"                                 # 見つからなければ 1
+```
+
+```text
+exit=1
+```
+
+**上書き後はファイルシステムの管理情報も潰れる**ので、マウントできなくなります。
+
+```bash
+$ mount -o loop disk.img mnt                # マウントしてみる
+```
+
+```text
+mount: /tmp/w20/erase/mnt: wrong fs type, bad option, bad superblock on /dev/loop0,
+       missing codepage or helper program, or other error.
+       dmesg(1) may have more information after failed mount system call.
+（終了ステータス 32）
+```
+
+**`bad superblock` は正常な反応**です。再利用するなら `mkfs` からやり直してください。
+
+**デバイス全体を消すときは、パーティションではなくデバイスを指定します。**
+
+```bash
+$ dd if=/dev/zero of=/dev/sdc bs=1M status=progress   # パーティションテーブルごと消す
+```
+
+`/dev/sdc1` を消してもパーティションテーブルと MBR は残ります。
+**丸ごと消すなら数字なしの `/dev/sdc`** です。
+
+### zero と urandom の使い分け
+
+**速度が大きく違います。** 512MiB を読み出して測りました。
+
+```bash
+$ dd if=/dev/zero of=/dev/null bs=1M count=512       # ゼロの生成速度を測る
+$ dd if=/dev/urandom of=/dev/null bs=1M count=512    # 乱数の生成速度を測る
+```
+
+```text
+/dev/zero      536870912 bytes (537 MB, 512 MiB) copied, 0.0173133 s, 31.0 GB/s
+/dev/urandom   536870912 bytes (537 MB, 512 MiB) copied, 1.46211 s, 367 MB/s
+```
+
+**31.0 GB/s 対 367 MB/s。約 84 倍の差**があります。
+`/dev/urandom` は乱数を生成する処理が入るぶん、どうしても遅くなります。
+
+| 用途 | 使うもの |
+|:--|:--|
+| 社内で再利用するディスクの消去 | **`/dev/zero`**（速い。これで十分） |
+| 外部へ返却・廃棄するディスク | `/dev/urandom`（パターンが残らない） |
+| ダミーファイルを作りたいだけ | **`/dev/zero`** |
+
+**1TB のディスクを乱数で埋めると、計算上 45 分以上かかります。**
+時間の見積もりを誤ると、作業窓に収まりません。
+
+### shred という専用コマンド
+
+**消去専用のコマンドもあります。**
+
+```bash
+$ shred --help | grep -E '^ +-[nuvz],'      # 主要なオプションを確認する
+```
+
+```text
+  -n, --iterations=N  overwrite N times instead of the default (3)
+  -v, --verbose  show progress
+  -z, --zero     add a final overwrite with zeros to hide shredding
+```
+
+| オプション | 意味 |
+|:--|:--|
+| `-n N` | **N 回上書きする**（既定 3 回） |
+| `-z` | 最後にゼロで上書きし、消去の痕跡を隠す |
+| `-u` | 上書き後にファイルを削除する |
+| `-v` | 進捗を表示する |
+
+```bash
+$ shred -vzn 1 /dev/sdc1                    # 1回上書きしてゼロで仕上げる
+```
+
+**現代のディスクでは 1 回の上書きで十分**というのが一般的な見解です。
+既定の 3 回は磁気ディスク時代の名残で、時間がかかるだけのことが多くなっています。
+
+### SSD では上書きが効かない
+
+**重要な注意です。**
+
+```text
+   SSD はウェアレベリングにより、書き込み先の物理ブロックを内部で入れ替える
+        ↓
+   論理アドレスを上書きしても、元のデータが入った物理ブロックは残る
+        ↓
+   dd や shred での上書きは、SSD では確実な消去にならない
+```
+
+**SSD の消去にはデバイス側の機能を使います。**
+
+```bash
+$ hdparm -I /dev/sda | grep -i "erase"      # Secure Erase に対応しているか確認する
+$ nvme format /dev/nvme0n1 --ses=1          # NVMe の Secure Erase
+```
+
+**暗号化しておくのが最も確実**です。
+LUKS で暗号化してあれば、**鍵を破棄するだけでデータは復元不能**になります。
+クラウドの EBS / マネージドディスクが「削除すれば安全」と言えるのも、同じ理屈（暗号消去）です。
+
+> 暗号化の詳細は [ディスクの暗号化 dm-cryptとLUKS](./ディスクの暗号化_dm-cryptとLUKS.md) を参照してください。
 
 ---
 
