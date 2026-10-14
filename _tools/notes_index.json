@@ -1,5 +1,5 @@
 {
- "generated": "2026-10-14 17:20 JST",
+ "generated": "2026-10-14 22:17 JST",
  "note_count": 136,
  "notes": [
   {
@@ -13168,230 +13168,10 @@
    ]
   },
   {
-   "path": "20_オフラインRPM取得実務/RHEL7_CVE対応RPM99個_依存関係確認とオフライン更新準備.md",
-   "theme": "20_オフラインRPM取得実務",
-   "title": "RHEL 7.9：社内リポジトリ接続機で不足依存RPMを集めて持ち帰る",
-   "lead": "**このフォルダは「解説」と「手順書」に分かれています。** | 種類 | ノート | 何が書いてあるか | |:--|:--|:--| | 解説 | [ローカルリポジトリの仕組み](./ローカルリポジトリの仕組み.md) | **なぜこの手順になるのか**。`createrepo` と目次、`clean all`、`--assumeno`、**署名検証の落とし穴**、エラータ、yum と dnf の違い | | 手順書 | [手順書 RHEL 7.9 openssh の更新](./手順書_RHEL7_openssh更新.md) | `yum` でローカルリポジトリから openssh を更新",
-   "lines": 1000,
-   "sections": [
-    "目次",
-    "この手順書でやること",
-    "最初に知っておくこと",
-    "NEVRA（名前と版の正式な書き方）",
-    "なぜ「別システム」が必要なのか",
-    "1. 手元のWindowsでRPMをまとめる",
-    "2. TeraTermで別システムにログインする",
-    "3. 作業フォルダと変数を用意する",
-    "LANG=C は exit したら元に戻るのか",
-    "4. WinSCPでアーカイブを送る",
-    "5. アーカイブを展開する",
-    "6. 社内リポジトリを確認する",
-    "7. 足りない依存を下見する",
-    "7.1 持ち込んだRPMだけで足りるか見る",
-    "7.2 社内リポジトリで何を足せばよいか調べる",
-    "7.3 ログの読み方",
-    "7.4 確認用のまとめログを作って持ち帰る",
-    "7.5 黙って外されたRPMがないか確認する",
-    "7.6 /tmp に残るファイルの注意",
-    "8. 足りないRPMの正体を調べる",
-    "見つからないときはグロブで探す",
-    "9. 足りないRPMを取得する",
-    "取得したら必ず7に戻る",
-    "参考 --resolve でまとめて取る場合",
-    "10. 持ち帰り用にまとめる",
-    "11. WinSCPで持ち帰る",
-    "12. 対象サーバーへ渡す",
-    "よく出るメッセージ早見表",
-    "やってはいけないこと",
-    "記録表",
-    "下見のラウンド記録",
-    "追加したRPMの台帳",
-    "保存されるファイル",
-    "完了条件",
-    "公式参照",
-    "この文書の検証範囲",
-    "変更履歴"
-   ],
-   "commands": [
-    "cat",
-    "cd",
-    "date",
-    "diff",
-    "echo",
-    "export",
-    "grep",
-    "hostname",
-    "locale",
-    "localectl",
-    "ls",
-    "mkdir",
-    "mv",
-    "printenv",
-    "repoquery",
-    "rm",
-    "rpm",
-    "sha256sum",
-    "tail",
-    "tar",
-    "uname",
-    "wc",
-    "which",
-    "whoami",
-    "yum",
-    "yumdownloader"
-   ],
-   "terms": [
-    "-E",
-    "-R",
-    "-c",
-    "-f",
-    "-q",
-    "-qp",
-    "-t",
-    "-x",
-    "-z",
-    ".repo",
-    ".rpm",
-    ".sha256",
-    ".tar.gz",
-    ".zip",
-    "/etc/locale.conf",
-    "/etc/profile.d/lang.sh",
-    "/etc/yum.repos.d/internal-rhel7.repo",
-    "/opt",
-    "/rpm",
-    "/tmp/yum_save_tx.*.yumtx",
-    "/var/tmp",
-    "1.0.2k",
-    "26.el7_9",
-    "Available:",
-    "Epoch:Version-Release",
-    "Error:",
-    "Examining",
-    "Excluding",
-    "Get-FileHash",
-    "Hash",
-    "Installed:",
-    "LANG",
-    "LANG=C",
-    "LC_*",
-    "LC_ALL",
-    "LC_MESSAGES",
-    "Marking",
-    "Obsoleting",
-    "REPO_ID",
-    "Removing",
-    "Repo-baseurl",
-    "Repo-id",
-    "Repo-pkgs",
-    "Requires:",
-    "Skipped",
-    "Skipping",
-    "access.redhat.com/solutions/",
-    "alwaysprompt",
-    "alwaysprompt=0",
-    "assumeno",
-    "assumeyes",
-    "assumeyes=1",
-    "check_deps.sh",
-    "createrepo",
-    "depcheck_log.tar.gz",
-    "diff",
-    "dir",
-    "dnf",
-    "dryrun_01.txt",
-    "dryrun_01_repo.txt",
-    "el7",
-    "exclude",
-    "exit",
-    "export",
-    "final-inventory.tsv",
-    "for",
-    "glibc",
-    "gpgcheck=0",
-    "grep",
-    "hostname",
-    "includepkgs",
-    "install",
-    "internal-rhel7",
-    "ja_JP.UTF-8",
-    "krb5-libs",
-    "lang.sh",
-    "libcrypto.so.10",
-    "libselinux",
-    "locale",
-    "localinstall",
-    "localpkg_gpgcheck",
-    "ls",
-    "mktemp",
-    "openssl",
-    "openssl-libs",
-    "openssl-libs-1:1.0.2k-26.el7_9.x86_64",
-    "original-inventory.tsv",
-    "rc=0",
-    "replacing",
-    "repodata/",
-    "repolist.txt",
-    "repoquery",
-    "rpm",
-    "rpm.tar.gz",
-    "rpm/",
-    "rpm_final.tar.gz",
-    "rpm_final.tar.gz.sha256",
-    "sha256sum",
-    "sudo",
-    "summary_01.txt",
-    "summary_02.txt",
-    "tar",
-    "tar.gz",
-    "tsflags",
-    "tsflags=test",
-    "unzip",
-    "which",
-    "x86_64",
-    "yum",
-    "yum-utils",
-    "yum.8",
-    "yum.conf",
-    "yumdownloader",
-    "zlib"
-   ],
-   "headline": [
-    "1.",
-    "10.",
-    "11.",
-    "12.",
-    "2.",
-    "3.",
-    "4.",
-    "5.",
-    "6.",
-    "7.",
-    "7.1",
-    "7.2",
-    "7.3",
-    "7.4",
-    "7.5",
-    "7.6",
-    "7.9",
-    "8.",
-    "9.",
-    "LANG=C",
-    "NEVRA",
-    "RHEL",
-    "RHEL7",
-    "Requires:",
-    "access.redhat.com/solutions/",
-    "alwaysprompt=0",
-    "exit",
-    "tmp"
-   ]
-  },
-  {
    "path": "20_オフラインRPM取得実務/ローカルリポジトリの仕組み.md",
    "theme": "20_オフラインRPM取得実務",
    "title": "ローカルリポジトリの仕組み",
-   "lead": "**このフォルダは「解説」と「手順書」に分かれています。** | 種類 | ノート | 何が書いてあるか | |:--|:--|:--| | **解説** | **このノート（ローカルリポジトリの仕組み）** | **なぜこの手順になるのか**。`createrepo` と目次、`clean all`、`--assumeno`、**署名検証の落とし穴**、エラータ、yum と dnf の違い | | 手順書 | [手順書 RHEL 7.9 openssh の更新](./手順書_RHEL7_openssh更新.md) | `yum` でローカルリポジトリから openssh を更新する通し手順（",
+   "lead": "**このフォルダは「解説」と「手順書」に分かれています。** | 種類 | ノート | 何が書いてあるか | |:--|:--|:--| | 解説 | [オフラインRPM適用の考え方](./解説_オフラインRPM適用の考え方.md) | **なぜこの手順になるのか。**判定を対象サーバーでしかできない理由、NEVRA と版比較、下見の仕組み、落とし穴8件、`LANG=C` の有効範囲 | | 解説 | [下見ログの読み方](./解説_下見ログの読み方.md) | `yum install --assumeno` のログを1行ずつ読む。`Error:` の塊、計画の表、`Transaction ",
    "lines": 823,
    "sections": [
     "目次",
@@ -13465,6 +13245,7 @@
     "6afedf8f",
     "Error:",
     "Installed:",
+    "LANG=C",
     "OK",
     "Problem:",
     "RPM-GPG-KEY-PQC-redhat-release",
@@ -13552,7 +13333,7 @@
    "path": "20_オフラインRPM取得実務/依存チェックスクリプトの読み方.md",
    "theme": "20_オフラインRPM取得実務",
    "title": "依存チェックスクリプトの読み方",
-   "lead": "**このフォルダは「解説」と「手順書」に分かれています。** | 種類 | ノート | 何が書いてあるか | |:--|:--|:--| | 解説 | [ローカルリポジトリの仕組み](./ローカルリポジトリの仕組み.md) | **なぜこの手順になるのか**。`createrepo` と目次、`clean all`、`--assumeno`、**署名検証の落とし穴**、エラータ、yum と dnf の違い | | 手順書 | [手順書 RHEL 7.9 openssh の更新](./手順書_RHEL7_openssh更新.md) | `yum` でローカルリポジトリから openssh を更新",
+   "lead": "**このフォルダは「解説」と「手順書」に分かれています。** | 種類 | ノート | 何が書いてあるか | |:--|:--|:--| | 解説 | [オフラインRPM適用の考え方](./解説_オフラインRPM適用の考え方.md) | **なぜこの手順になるのか。**判定を対象サーバーでしかできない理由、NEVRA と版比較、下見の仕組み、落とし穴8件、`LANG=C` の有効範囲 | | 解説 | [下見ログの読み方](./解説_下見ログの読み方.md) | `yum install --assumeno` のログを1行ずつ読む。`Error:` の塊、計画の表、`Transaction ",
    "lines": 716,
    "sections": [
     "目次",
@@ -13609,6 +13390,7 @@
     "CREATEREPO",
     "Error:",
     "IFS=",
+    "LANG=C",
     "LC_ALL=C",
     "LOG_DIR",
     "ORIG_LANG=...",
@@ -13674,7 +13456,7 @@
    "path": "20_オフラインRPM取得実務/手順書_RHEL7_openssh更新.md",
    "theme": "20_オフラインRPM取得実務",
    "title": "手順書 RHEL 7.9 openssh の更新",
-   "lead": "**このフォルダは「解説」と「手順書」に分かれています。** | 種類 | ノート | 何が書いてあるか | |:--|:--|:--| | 解説 | [ローカルリポジトリの仕組み](./ローカルリポジトリの仕組み.md) | **なぜこの手順になるのか**。`createrepo` と目次、`clean all`、`--assumeno`、**署名検証の落とし穴**、エラータ、yum と dnf の違い | | **手順書** | **このノート（手順書 RHEL 7.9 openssh の更新）** | `yum` でローカルリポジトリから openssh を更新する通し手順（事前確認 →",
+   "lead": "**このフォルダは「解説」と「手順書」に分かれています。** | 種類 | ノート | 何が書いてあるか | |:--|:--|:--| | 解説 | [オフラインRPM適用の考え方](./解説_オフラインRPM適用の考え方.md) | **なぜこの手順になるのか。**判定を対象サーバーでしかできない理由、NEVRA と版比較、下見の仕組み、落とし穴8件、`LANG=C` の有効範囲 | | 解説 | [下見ログの読み方](./解説_下見ログの読み方.md) | `yum install --assumeno` のログを1行ずつ読む。`Error:` の塊、計画の表、`Transaction ",
    "lines": 626,
    "sections": [
     "目次",
@@ -13832,211 +13614,360 @@
    ]
   },
   {
-   "path": "20_オフラインRPM取得実務/手順書_RHEL7_yum-utilsが無い場合の依存RPM取得.md",
+   "path": "20_オフラインRPM取得実務/手順書_RHEL7_不足依存RPM取得と適用_yum-utilsあり.md",
    "theme": "20_オフラインRPM取得実務",
-   "title": "RHEL 7.9：yum-utils が無い別システムで不足依存RPMを取得する",
-   "lead": "**このフォルダは「解説」と「手順書」に分かれています。** | 種類 | ノート | 何が書いてあるか | |:--|:--|:--| | 解説 | [ローカルリポジトリの仕組み](./ローカルリポジトリの仕組み.md) | **なぜこの手順になるのか**。`createrepo` と目次、`clean all`、`--assumeno`、**署名検証の落とし穴**、エラータ、yum と dnf の違い | | 手順書 | [手順書 RHEL 7.9 openssh の更新](./手順書_RHEL7_openssh更新.md) | `yum` でローカルリポジトリから openssh を更新",
-   "lines": 407,
+   "title": "RHEL 7.9：不足依存RPMの取得と適用（yum-utils あり）",
+   "lead": "**このフォルダのノート一覧** | 種類 | ノート | 何が書いてあるか | |:--|:--|:--| | 解説 | [オフラインRPM適用の考え方](./解説_オフラインRPM適用の考え方.md) | **なぜこの手順になるのか。**判定を対象サーバーでしかできない理由、NEVRA と版比較、下見の仕組み、落とし穴8件、`LANG=C` の有効範囲 | | 解説 | [下見ログの読み方](./解説_下見ログの読み方.md) | `yum install --assumeno` のログを1行ずつ読む。`Error:` の塊、計画の表、`Transaction Summary`、よくある読",
+   "lines": 979,
    "sections": [
     "目次",
     "この手順書でやること",
-    "1. yum-utils が使えるか判定する",
-    "2. 標準 yum での代わり",
-    "3. 足りないRPMの正体を調べる",
-    "3.1 機能名からパッケージ名を探す",
-    "3.2 版の候補を並べて選ぶ",
-    "3.3 依存をさらにたどる",
-    "4. 足りないRPMを取得する",
-    "4.1 取得用の一時フォルダに落とす",
-    "4.2 中身を確認して、採用するものだけ移す",
-    "4.3 別システムにすでに入っている版を取りたい場合",
-    "4.4 本編の第7章に戻る",
-    "この方法の弱点",
-    "よく出るメッセージ早見表",
-    "やってはいけないこと",
-    "公式参照",
-    "この文書の検証範囲",
+    "1.【手元】RPM を1つにまとめる",
+    "2.【C】ログインして作業場所を用意する",
+    "3.【C】現在の状態を記録する",
+    "4.【手元→C】RPM を送って展開する",
+    "5.【C】下見する",
+    "6.【C】足りない条件の一覧を作って持ち出す",
+    "7.【B】足りない RPM を取得する（yumdownloader / repoquery）",
+    "7.1 取得機にログインして作業場所を用意する",
+    "7.2 社内リポジトリを確認する",
+    "7.3 条件ごとに提供元を調べて取得する",
+    "7.4 取得したものを確認してまとめる",
+    "8.【B→手元→C】取得した RPM を持ち帰って追加する",
+    "8.1 取得機から手元へ、手元から対象サーバーへ運ぶ",
+    "8.2【C】照合して展開し、採用するものだけ移す",
+    "8.3【C】もう一度下見する",
+    "9.【C】トランザクションテストをする",
+    "10.【C】適用する",
+    "11.【C】適用後の確認",
+    "付録A よく出るメッセージ",
+    "付録B 記録表",
+    "ラウンド記録",
+    "採用・不採用の台帳",
+    "作られるファイル",
+    "完了条件",
+    "付録C やってはいけないこと",
+    "付録D 根拠と検証範囲",
     "変更履歴"
    ],
    "commands": [
     "cat",
+    "cd",
+    "df",
+    "diff",
     "echo",
+    "export",
+    "grep",
     "head",
+    "hostname",
     "ls",
     "mkdir",
     "mv",
+    "needs-restarting",
     "repoquery",
+    "rm",
     "rpm",
+    "sha256sum",
     "tail",
+    "tar",
+    "uname",
+    "wc",
     "which",
     "yum",
     "yumdownloader"
    ],
    "terms": [
-    "-v",
+    "-q",
+    "-qp",
     "-y",
-    "/var/cache/yum",
-    "Error:",
-    "LOG_DIR",
-    "REPO_ID",
-    "RPM_DIR",
-    "Repo",
-    "Requires:",
-    "all",
-    "alwaysprompt",
-    "assumeno",
-    "check_deps.sh",
-    "cli.py",
-    "conf.downloaddir",
-    "createrepo",
-    "dependency:",
-    "deplist",
-    "dnf",
-    "downloadonly",
-    "dryrun_*.txt",
-    "el7",
-    "export",
-    "info",
-    "internal-rhel7",
-    "list",
-    "ls",
-    "mv",
-    "openssl",
-    "openssl-libs",
-    "provider:",
-    "provides",
-    "rc=",
-    "reinstall",
-    "repoquery",
-    "search",
-    "whatprovides",
-    "which",
-    "x86_64",
-    "yum",
-    "yum-plugin-downloadonly",
-    "yum-utils",
-    "yum.8",
-    "yumdownloader"
-   ],
-   "headline": [
-    "1.",
-    "2.",
-    "3.",
-    "3.1",
-    "3.2",
-    "3.3",
-    "4.",
-    "4.1",
-    "4.2",
-    "4.3",
-    "4.4",
-    "7.9",
-    "RHEL",
-    "RHEL7",
-    "dependency:",
-    "yum",
-    "yum-utils"
-   ]
-  },
-  {
-   "path": "20_オフラインRPM取得実務/手順書_RHEL7_下見ログの読み方.md",
-   "theme": "20_オフラインRPM取得実務",
-   "title": "RHEL 7.9：下見ログ（yum install --assumeno）の読み方",
-   "lead": "**このフォルダは「解説」と「手順書」に分かれています。** | 種類 | ノート | 何が書いてあるか | |:--|:--|:--| | 解説 | [ローカルリポジトリの仕組み](./ローカルリポジトリの仕組み.md) | **なぜこの手順になるのか**。`createrepo` と目次、`clean all`、`--assumeno`、**署名検証の落とし穴**、エラータ、yum と dnf の違い | | **解説** | **このノート（下見ログの読み方）** | **`yum install --assumeno` のログの読み方。**行の形ごとの意味、`Error:` の塊の読み",
-   "lines": 359,
-   "sections": [
-    "目次",
-    "このノートでやること",
-    "1. 読み込みのブロック",
-    "2. 依存解決の実況",
-    "3. 依存が足りないとき（Error: の塊）",
-    "4. 依存が足りたとき（計画の表）",
-    "5. 黙って外された RPM を見つける",
-    "6. 終わり方",
-    "7. 見る順番（チェックリスト）",
-    "8. よくある読み違い",
-    "公式参照",
-    "この文書の検証範囲",
-    "変更履歴"
-   ],
-   "commands": [
-    "grep",
-    "sed",
-    "tail"
-   ],
-   "terms": [
-    "-d",
-    "/etc/yum.conf",
-    "/etc/yum.repos.d/*.repo",
-    "/tmp",
-    "0:",
-    "1:1.0.2k-21",
-    "1:1.0.2k-26",
-    "Available",
+    ".zip",
+    "/boot",
+    "/rpm",
+    "/var",
     "Available:",
-    "Downgrade",
-    "Downgrading:",
-    "Epoch:Version-Release",
     "Error:",
     "Examining",
     "Excluding",
-    "Install",
+    "FAILED",
+    "Failed",
+    "Hash",
     "Installed",
-    "Installed:",
-    "Installing:",
+    "Installing",
+    "LANG=C",
     "Marking",
     "Obsoleting",
-    "Reinstall",
-    "Reinstalling:",
-    "Remove",
+    "Removed",
     "Removing",
-    "Removing:",
+    "Replaced",
+    "Repo-pkgs",
     "Requires:",
-    "Updating:",
-    "Upgrade",
-    "alwaysprompt",
-    "assumeno",
+    "Updated",
+    "Updating",
+    "add_01.tar.gz",
+    "add_01.tar.gz.sha256",
+    "alwaysprompt=0",
+    "apply.txt",
+    "assumeyes=1",
+    "cd",
+    "check",
     "check_deps.sh",
     "createrepo",
-    "d",
-    "debuglevel",
-    "debuglevel=2",
+    "depcheck_log.tar.gz",
+    "dir",
     "dnf",
+    "dryrun_01.txt",
+    "dryrun_02.txt",
     "el7",
+    "errors_01.txt",
     "exclude",
+    "exit",
+    "export",
+    "grep",
+    "history.txt",
+    "hostname",
+    "includepkgs",
     "install",
+    "installed-after.tsv",
+    "installed-before.tsv",
+    "installed-diff.txt",
+    "internal-rhel7",
+    "libcrypto.so.10",
+    "localinstall",
+    "ls",
+    "needs-restarting",
+    "openssh-libs",
     "openssh-server",
+    "openssl",
+    "openssl-libs",
     "openssl-libs-1:1.0.2k-26.el7_9.x86_64",
+    "rc",
+    "rc=0",
     "replacing",
-    "skip_broken",
+    "repolist.txt",
+    "repoquery",
+    "requires_01.txt",
+    "requires_02.txt",
+    "rpm",
+    "rpm.tar.gz",
+    "rpm/",
+    "sha256sum",
+    "sudo",
+    "tar",
+    "tar.gz",
+    "tee",
+    "test",
+    "test.txt",
+    "tsflags",
+    "tsflags=test",
+    "unzip",
+    "x86_64",
     "yum",
-    "yum.conf"
+    "yum-check-after.log",
+    "yum-check-before.log",
+    "yum-utils",
+    "yum.8",
+    "yum.conf",
+    "yumdownloader"
    ],
    "headline": [
-    "1.",
-    "2.",
-    "3.",
-    "4.",
-    "5.",
-    "6.",
-    "7.",
+    "7.1",
+    "7.2",
+    "7.3",
+    "7.4",
     "7.9",
-    "8.",
-    "Error",
-    "Error:",
-    "Examining",
+    "8.1",
     "RHEL",
     "RHEL7",
     "RPM",
-    "install",
+    "errors_01.txt",
+    "repoquery",
+    "requires_01.txt",
+    "yum",
+    "yum-utils",
+    "yumdownloader"
+   ]
+  },
+  {
+   "path": "20_オフラインRPM取得実務/手順書_RHEL7_不足依存RPM取得と適用_yum-utilsなし.md",
+   "theme": "20_オフラインRPM取得実務",
+   "title": "RHEL 7.9：不足依存RPMの取得と適用（yum-utils なし）",
+   "lead": "**このフォルダのノート一覧** | 種類 | ノート | 何が書いてあるか | |:--|:--|:--| | 解説 | [オフラインRPM適用の考え方](./解説_オフラインRPM適用の考え方.md) | **なぜこの手順になるのか。**判定を対象サーバーでしかできない理由、NEVRA と版比較、下見の仕組み、落とし穴8件、`LANG=C` の有効範囲 | | 解説 | [下見ログの読み方](./解説_下見ログの読み方.md) | `yum install --assumeno` のログを1行ずつ読む。`Error:` の塊、計画の表、`Transaction Summary`、よくある読",
+   "lines": 1000,
+   "sections": [
+    "目次",
+    "この手順書でやること",
+    "1.【手元】RPM を1つにまとめる",
+    "2.【C】ログインして作業場所を用意する",
+    "3.【C】現在の状態を記録する",
+    "4.【手元→C】RPM を送って展開する",
+    "5.【C】下見する",
+    "6.【C】足りない条件の一覧を作って持ち出す",
+    "7.【B】足りない RPM を取得する（標準の yum だけ）",
+    "7.1 取得機にログインして作業場所を用意する",
+    "7.2 社内リポジトリを確認する",
+    "7.3 条件からパッケージ名と版を決める",
+    "7.4 取得する",
+    "7.5 取得したものを確認してまとめる",
+    "8.【B→手元→C】取得した RPM を持ち帰って追加する",
+    "8.1 取得機から手元へ、手元から対象サーバーへ運ぶ",
+    "8.2【C】照合して展開し、採用するものだけ移す",
+    "8.3【C】もう一度下見する",
+    "9.【C】トランザクションテストをする",
+    "10.【C】適用する",
+    "11.【C】適用後の確認",
+    "付録A よく出るメッセージ",
+    "付録B 記録表",
+    "ラウンド記録",
+    "採用・不採用の台帳",
+    "作られるファイル",
+    "完了条件",
+    "付録C やってはいけないこと",
+    "付録D 根拠と検証範囲",
+    "変更履歴"
+   ],
+   "commands": [
+    "cat",
+    "cd",
+    "df",
+    "diff",
+    "echo",
+    "export",
+    "grep",
+    "head",
+    "hostname",
+    "ls",
+    "mkdir",
+    "mv",
+    "rm",
+    "rpm",
+    "sha256sum",
+    "systemctl",
+    "tail",
+    "tar",
+    "uname",
+    "wc",
+    "which",
     "yum"
+   ],
+   "terms": [
+    "-q",
+    "-qp",
+    "-y",
+    ".zip",
+    "/boot",
+    "/rpm",
+    "/var",
+    "1:",
+    "Available:",
+    "Error:",
+    "Examining",
+    "Excluding",
+    "FAILED",
+    "Failed",
+    "Hash",
+    "Installed",
+    "Installing",
+    "LANG=C",
+    "Marking",
+    "Obsoleting",
+    "Removed",
+    "Removing",
+    "Replaced",
+    "Repo",
+    "Repo-pkgs",
+    "Requires:",
+    "Updated",
+    "Updating",
+    "add_01.tar.gz",
+    "add_01.tar.gz.sha256",
+    "alwaysprompt=0",
+    "apply.txt",
+    "assumeyes=1",
+    "cd",
+    "check",
+    "check_deps.sh",
+    "createrepo",
+    "depcheck_log.tar.gz",
+    "dir",
+    "dnf",
+    "dryrun_01.txt",
+    "dryrun_02.txt",
+    "el7",
+    "errors_01.txt",
+    "exclude",
+    "exit",
+    "export",
+    "glibc",
+    "grep",
+    "history.txt",
+    "hostname",
+    "includepkgs",
+    "info",
+    "install",
+    "installed-after.tsv",
+    "installed-before.tsv",
+    "installed-diff.txt",
+    "internal-rhel7",
+    "libcrypto.so.10",
+    "list",
+    "localinstall",
+    "needs-restarting",
+    "openssh-libs",
+    "openssh-server",
+    "openssl-libs",
+    "reinstall",
+    "replacing",
+    "repolist.txt",
+    "repoquery",
+    "requires_01.txt",
+    "requires_02.txt",
+    "rpm",
+    "rpm.tar.gz",
+    "rpm/",
+    "search",
+    "sha256sum",
+    "sudo",
+    "systemd",
+    "tar",
+    "tar.gz",
+    "tee",
+    "test",
+    "test.txt",
+    "tsflags",
+    "tsflags=test",
+    "unzip",
+    "x86_64",
+    "yum",
+    "yum-check-after.log",
+    "yum-check-before.log",
+    "yum-plugin-downloadonly",
+    "yum-utils",
+    "yum.8",
+    "yum.conf",
+    "yumdownloader"
+   ],
+   "headline": [
+    "7.1",
+    "7.2",
+    "7.3",
+    "7.4",
+    "7.5",
+    "7.9",
+    "8.1",
+    "RHEL",
+    "RHEL7",
+    "RPM",
+    "errors_01.txt",
+    "requires_01.txt",
+    "yum",
+    "yum-utils"
    ]
   },
   {
    "path": "20_オフラインRPM取得実務/手順書_RHEL7_依存不足対応.md",
    "theme": "20_オフラインRPM取得実務",
    "title": "手順書 RHEL 7.9 依存RPMの不足対応",
-   "lead": "**このフォルダは「解説」と「手順書」に分かれています。** | 種類 | ノート | 何が書いてあるか | |:--|:--|:--| | 解説 | [ローカルリポジトリの仕組み](./ローカルリポジトリの仕組み.md) | **なぜこの手順になるのか**。`createrepo` と目次、`clean all`、`--assumeno`、**署名検証の落とし穴**、エラータ、yum と dnf の違い | | 手順書 | [手順書 RHEL 7.9 openssh の更新](./手順書_RHEL7_openssh更新.md) | `yum` でローカルリポジトリから openssh を更新",
+   "lead": "**このフォルダは「解説」と「手順書」に分かれています。** | 種類 | ノート | 何が書いてあるか | |:--|:--|:--| | 解説 | [オフラインRPM適用の考え方](./解説_オフラインRPM適用の考え方.md) | **なぜこの手順になるのか。**判定を対象サーバーでしかできない理由、NEVRA と版比較、下見の仕組み、落とし穴8件、`LANG=C` の有効範囲 | | 解説 | [下見ログの読み方](./解説_下見ログの読み方.md) | `yum install --assumeno` のログを1行ずつ読む。`Error:` の塊、計画の表、`Transaction ",
    "lines": 552,
    "sections": [
     "目次",
@@ -14167,103 +14098,10 @@
    ]
   },
   {
-   "path": "20_オフラインRPM取得実務/手順書_RHEL7_対象サーバーでの適用前確認.md",
-   "theme": "20_オフラインRPM取得実務",
-   "title": "RHEL 7.9：対象サーバーでの適用前確認",
-   "lead": "**このフォルダは「解説」と「手順書」に分かれています。** | 種類 | ノート | 何が書いてあるか | |:--|:--|:--| | 解説 | [ローカルリポジトリの仕組み](./ローカルリポジトリの仕組み.md) | **なぜこの手順になるのか**。`createrepo` と目次、`clean all`、`--assumeno`、**署名検証の落とし穴**、エラータ、yum と dnf の違い | | 手順書 | [手順書 RHEL 7.9 openssh の更新](./手順書_RHEL7_openssh更新.md) | `yum` でローカルリポジトリから openssh を更新",
-   "lines": 366,
-   "sections": [
-    "目次",
-    "この手順書でやること",
-    "1. 送って展開し、現状を記録する",
-    "2. 下見する",
-    "3. トランザクションテストをする",
-    "4. ここで確認できないこと",
-    "完了条件",
-    "やってはいけないこと",
-    "公式参照",
-    "この文書の検証範囲",
-    "変更履歴"
-   ],
-   "commands": [
-    "cat",
-    "cd",
-    "df",
-    "diff",
-    "echo",
-    "export",
-    "grep",
-    "ls",
-    "mkdir",
-    "rpm",
-    "sha256sum",
-    "tail",
-    "tar",
-    "uname",
-    "wc",
-    "yum"
-   ],
-   "terms": [
-    "-qa",
-    "-y",
-    ".repo",
-    "/tmp",
-    "Error:",
-    "Excluding",
-    "FAILED",
-    "Installing",
-    "NG",
-    "OK",
-    "Obsoleting",
-    "Removing",
-    "Requires:",
-    "Updating",
-    "alwaysprompt",
-    "alwaysprompt=0",
-    "assumeno",
-    "assumeyes=1",
-    "check",
-    "check_deps.sh",
-    "createrepo",
-    "debuglevel=2",
-    "dnf",
-    "exclude",
-    "exit",
-    "grep",
-    "includepkgs",
-    "install",
-    "installed-before.tsv",
-    "ja_JP.UTF-8",
-    "localpkg_gpgcheck",
-    "replacing",
-    "rpm",
-    "rpm/",
-    "rpm_final.tar.gz",
-    "rpm_final.tar.gz.sha256",
-    "sudo",
-    "tee",
-    "test",
-    "tsflags",
-    "tsflags=test",
-    "yum",
-    "yum.conf"
-   ],
-   "headline": [
-    "/tmp",
-    "1.",
-    "2.",
-    "3.",
-    "4.",
-    "7.9",
-    "RHEL",
-    "RHEL7"
-   ]
-  },
-  {
    "path": "20_オフラインRPM取得実務/手順書_RHEL8以降_openssh更新.md",
    "theme": "20_オフラインRPM取得実務",
    "title": "手順書 RHEL 8 以降 openssh の更新",
-   "lead": "**このフォルダは「解説」と「手順書」に分かれています。** | 種類 | ノート | 何が書いてあるか | |:--|:--|:--| | 解説 | [ローカルリポジトリの仕組み](./ローカルリポジトリの仕組み.md) | **なぜこの手順になるのか**。`createrepo` と目次、`clean all`、`--assumeno`、**署名検証の落とし穴**、エラータ、yum と dnf の違い | | 手順書 | [手順書 RHEL 7.9 openssh の更新](./手順書_RHEL7_openssh更新.md) | `yum` でローカルリポジトリから openssh を更新",
+   "lead": "**このフォルダは「解説」と「手順書」に分かれています。** | 種類 | ノート | 何が書いてあるか | |:--|:--|:--| | 解説 | [オフラインRPM適用の考え方](./解説_オフラインRPM適用の考え方.md) | **なぜこの手順になるのか。**判定を対象サーバーでしかできない理由、NEVRA と版比較、下見の仕組み、落とし穴8件、`LANG=C` の有効範囲 | | 解説 | [下見ログの読み方](./解説_下見ログの読み方.md) | `yum install --assumeno` のログを1行ずつ読む。`Error:` の塊、計画の表、`Transaction ",
    "lines": 609,
    "sections": [
     "目次",
@@ -14348,6 +14186,7 @@
     "6afedf8f",
     "Comment",
     "Error:",
+    "LANG=C",
     "LOG_DIR",
     "REPO_DIR",
     "REPO_ID",
@@ -14420,7 +14259,7 @@
    "path": "20_オフラインRPM取得実務/手順書_RHEL8以降_依存不足対応.md",
    "theme": "20_オフラインRPM取得実務",
    "title": "手順書 RHEL 8 以降 依存RPMの不足対応",
-   "lead": "**このフォルダは「解説」と「手順書」に分かれています。** | 種類 | ノート | 何が書いてあるか | |:--|:--|:--| | 解説 | [ローカルリポジトリの仕組み](./ローカルリポジトリの仕組み.md) | **なぜこの手順になるのか**。`createrepo` と目次、`clean all`、`--assumeno`、**署名検証の落とし穴**、エラータ、yum と dnf の違い | | 手順書 | [手順書 RHEL 7.9 openssh の更新](./手順書_RHEL7_openssh更新.md) | `yum` でローカルリポジトリから openssh を更新",
+   "lead": "**このフォルダは「解説」と「手順書」に分かれています。** | 種類 | ノート | 何が書いてあるか | |:--|:--|:--| | 解説 | [オフラインRPM適用の考え方](./解説_オフラインRPM適用の考え方.md) | **なぜこの手順になるのか。**判定を対象サーバーでしかできない理由、NEVRA と版比較、下見の仕組み、落とし穴8件、`LANG=C` の有効範囲 | | 解説 | [下見ログの読み方](./解説_下見ログの読み方.md) | `yum install --assumeno` のログを1行ずつ読む。`Error:` の塊、計画の表、`Transaction ",
    "lines": 540,
    "sections": [
     "目次",
@@ -14474,6 +14313,7 @@
    "terms": [
     "-P",
     "Error:",
+    "LANG=C",
     "LOG_DIR",
     "Problem:",
     "added_since_prev.txt",
@@ -14548,6 +14388,323 @@
     "RHEL",
     "RPM",
     "best"
+   ]
+  },
+  {
+   "path": "20_オフラインRPM取得実務/解説_オフラインRPM適用の考え方.md",
+   "theme": "20_オフラインRPM取得実務",
+   "title": "RHEL 7.9：オフラインRPM適用の考え方",
+   "lead": "**このフォルダのノート一覧** | 種類 | ノート | 何が書いてあるか | |:--|:--|:--| | **解説** | **このノート（オフラインRPM適用の考え方）** | **なぜこの手順になるのか。**判定を対象サーバーでしかできない理由、NEVRA と版比較、下見の仕組み、落とし穴8件、`LANG=C` の有効範囲 | | 解説 | [下見ログの読み方](./解説_下見ログの読み方.md) | `yum install --assumeno` のログを1行ずつ読む。`Error:` の塊、計画の表、`Transaction Summary`、よくある読み違い | | 解説 ",
+   "lines": 606,
+   "sections": [
+    "目次",
+    "1. 全体像",
+    "2. なぜ判定を対象サーバーでしかできないのか",
+    "2.1 「足りない」は、そのサーバーの中身との比較",
+    "2.2 具体例：取得機で判定すると取りこぼす",
+    "2.3 だからこうする",
+    "3. RPM・依存関係・リポジトリ",
+    "4. NEVRA と版の比較",
+    "4.1 Epoch がいちばん強い",
+    "4.2 Release の `el7_9` が大事",
+    "4.3 バージョン番号で脆弱性を判定しない",
+    "5. 下見（`install --assumeno`）が何をしているか",
+    "5.1 1個ずつ下見してはいけない理由",
+    "5.2 下見では社内リポジトリを有効にしない",
+    "6. 落とし穴の一覧",
+    "6.1 渡した RPM が黙って計画から外れる",
+    "6.2 `Exiting on user command` は成功",
+    "6.3 `--assumeno` が効かない構成がある",
+    "6.4 `tsflags` の打ち間違いは致命的",
+    "6.5 `Excluding` は既定では出力されない",
+    "6.6 `--assumeno` で中止すると `/tmp` にファイルが残る",
+    "6.7 `tsflags=test` は履歴に残らない",
+    "6.8 取得機にすでに入っている依存は落ちない",
+    "7. `export LANG=C` の有効範囲",
+    "7.1 `exit` すれば元に戻る",
+    "7.2 確認と戻し方",
+    "7.3 `LC_ALL` と `sudo` に注意",
+    "8. 条件から提供元を探すコツ",
+    "8.1 条件はそのまま、クォートで囲んで渡す",
+    "8.2 カッコは外さない。ワイルドカードにする",
+    "8.3 よくある対応表（RHEL 7）",
+    "8.4 選ぶときのコツ",
+    "9. よく出るメッセージ早見表",
+    "10. やってはいけないこと",
+    "11. 根拠と検証範囲",
+    "11.1 参照した資料",
+    "11.2 開発元ソースで確認した挙動",
+    "11.3 未検証のまま残ること",
+    "変更履歴"
+   ],
+   "commands": [
+    "cat",
+    "echo",
+    "grep",
+    "locale",
+    "localectl",
+    "ls",
+    "printenv",
+    "repoquery",
+    "yum"
+   ],
+   "terms": [
+    "-E",
+    "-K",
+    "-R",
+    "-d",
+    "-qa",
+    "-qp",
+    "-v",
+    "-y",
+    ".repo",
+    "/etc/locale.conf",
+    "/etc/profile.d/lang.sh",
+    "/tmp",
+    "/tmp/yum_save_tx.*.yumtx",
+    "0:2.0-1",
+    "1.0.2k",
+    "1:1.0-1",
+    "1:1.0.2k-21",
+    "1:1.0.2k-26",
+    "26.el7_9",
+    "BAD",
+    "Error:",
+    "Examining",
+    "Excluding",
+    "Failed",
+    "Installed",
+    "LANG",
+    "LANG=C",
+    "LC_*",
+    "LC_ALL",
+    "LC_MESSAGES",
+    "Marking",
+    "NOKEY",
+    "NOTRUSTED",
+    "OK",
+    "Obsoleting",
+    "Removed",
+    "Removing",
+    "Replaced",
+    "Requires:",
+    "UNKNOWN",
+    "Updated",
+    "access.redhat.com/solutions/",
+    "alwaysprompt",
+    "alwaysprompt=0",
+    "assumeno",
+    "assumeyes",
+    "assumeyes=1",
+    "check",
+    "check_deps.sh",
+    "createrepo",
+    "debuglevel",
+    "debuglevel=2",
+    "dnf",
+    "el6",
+    "el7",
+    "el7_9",
+    "el8",
+    "exclude",
+    "exit",
+    "export",
+    "glibc",
+    "history",
+    "i686",
+    "install",
+    "ja_JP.UTF-8",
+    "krb5-libs",
+    "lang.sh",
+    "libcrypto.so.10",
+    "libcurl",
+    "libgcc",
+    "libselinux",
+    "libstdc++",
+    "libxml2",
+    "locale",
+    "localinstall",
+    "localpkg_gpgcheck",
+    "mv",
+    "needs-restarting",
+    "noarch",
+    "openssh-server",
+    "openssl",
+    "openssl-libs",
+    "openssl-libs-1:1.0.2k-26.el7_9.x86_64",
+    "provides",
+    "reinstall",
+    "replacing",
+    "repodata/",
+    "repoquery",
+    "rpm",
+    "skip_broken",
+    "subscription-manager",
+    "sudo",
+    "tee",
+    "test",
+    "tsflags",
+    "tsflags=test",
+    "x86_64",
+    "yum",
+    "yum-3.4.3-168",
+    "yum-utils",
+    "yum.8",
+    "yum.conf",
+    "yumdownloader",
+    "zlib"
+   ],
+   "headline": [
+    "/tmp",
+    "1.",
+    "10.",
+    "11.",
+    "11.1",
+    "11.2",
+    "11.3",
+    "2.",
+    "2.1",
+    "2.2",
+    "2.3",
+    "3.",
+    "4.",
+    "4.1",
+    "4.2",
+    "4.3",
+    "5.",
+    "5.1",
+    "5.2",
+    "6.",
+    "6.1",
+    "6.2",
+    "6.3",
+    "6.4",
+    "6.5",
+    "6.6",
+    "6.7",
+    "6.8",
+    "7.",
+    "7.1",
+    "7.2",
+    "7.3",
+    "7.9",
+    "8.",
+    "8.1",
+    "8.2",
+    "8.3",
+    "8.4",
+    "9.",
+    "Epoch",
+    "Excluding",
+    "LC_ALL",
+    "NEVRA",
+    "RHEL",
+    "RPM",
+    "Release",
+    "debuglevel",
+    "el7_9",
+    "el8",
+    "exit",
+    "export",
+    "sudo",
+    "tsflags",
+    "tsflags=test"
+   ]
+  },
+  {
+   "path": "20_オフラインRPM取得実務/解説_下見ログの読み方.md",
+   "theme": "20_オフラインRPM取得実務",
+   "title": "RHEL 7.9：下見ログ（yum install --assumeno）の読み方",
+   "lead": "**このフォルダのノート一覧** | 種類 | ノート | 何が書いてあるか | |:--|:--|:--| | 解説 | [オフラインRPM適用の考え方](./解説_オフラインRPM適用の考え方.md) | **なぜこの手順になるのか。**判定を対象サーバーでしかできない理由、NEVRA と版比較、下見の仕組み、落とし穴8件、`LANG=C` の有効範囲 | | **解説** | **このノート（下見ログの読み方）** | `yum install --assumeno` のログを1行ずつ読む。`Error:` の塊、計画の表、`Transaction Summary`、よくある読み違い |",
+   "lines": 359,
+   "sections": [
+    "目次",
+    "このノートでやること",
+    "1. 読み込みのブロック",
+    "2. 依存解決の実況",
+    "3. 依存が足りないとき（Error: の塊）",
+    "4. 依存が足りたとき（計画の表）",
+    "5. 黙って外された RPM を見つける",
+    "6. 終わり方",
+    "7. 見る順番（チェックリスト）",
+    "8. よくある読み違い",
+    "公式参照",
+    "この文書の検証範囲",
+    "変更履歴"
+   ],
+   "commands": [
+    "grep",
+    "sed",
+    "tail"
+   ],
+   "terms": [
+    "-d",
+    "/etc/yum.conf",
+    "/etc/yum.repos.d/*.repo",
+    "/tmp",
+    "0:",
+    "1:1.0.2k-21",
+    "1:1.0.2k-26",
+    "Available",
+    "Available:",
+    "Downgrade",
+    "Downgrading:",
+    "Epoch:Version-Release",
+    "Error:",
+    "Examining",
+    "Excluding",
+    "Install",
+    "Installed",
+    "Installed:",
+    "Installing:",
+    "LANG=C",
+    "Marking",
+    "Obsoleting",
+    "Reinstall",
+    "Reinstalling:",
+    "Remove",
+    "Removing",
+    "Removing:",
+    "Requires:",
+    "Updating:",
+    "Upgrade",
+    "alwaysprompt",
+    "assumeno",
+    "check_deps.sh",
+    "createrepo",
+    "d",
+    "debuglevel",
+    "debuglevel=2",
+    "dnf",
+    "el7",
+    "exclude",
+    "install",
+    "openssh-server",
+    "openssl-libs-1:1.0.2k-26.el7_9.x86_64",
+    "replacing",
+    "repoquery",
+    "skip_broken",
+    "yum",
+    "yum.conf",
+    "yumdownloader"
+   ],
+   "headline": [
+    "1.",
+    "2.",
+    "3.",
+    "4.",
+    "5.",
+    "6.",
+    "7.",
+    "7.9",
+    "8.",
+    "Error",
+    "Error:",
+    "Examining",
+    "RHEL",
+    "RPM",
+    "install",
+    "yum"
    ]
   }
  ],
@@ -14712,11 +14869,11 @@
    "10_セキュリティ/ポートスキャンと疎通_nmapとnc.md",
    "17_運用管理/バックアップの方式と設計.md",
    "17_運用管理/ログインメッセージ_issueとmotd.md",
-   "20_オフラインRPM取得実務/RHEL7_CVE対応RPM99個_依存関係確認とオフライン更新準備.md",
    "20_オフラインRPM取得実務/手順書_RHEL7_openssh更新.md",
-   "20_オフラインRPM取得実務/手順書_RHEL7_yum-utilsが無い場合の依存RPM取得.md",
-   "20_オフラインRPM取得実務/手順書_RHEL7_対象サーバーでの適用前確認.md",
-   "20_オフラインRPM取得実務/手順書_RHEL8以降_openssh更新.md"
+   "20_オフラインRPM取得実務/手順書_RHEL7_不足依存RPM取得と適用_yum-utilsあり.md",
+   "20_オフラインRPM取得実務/手順書_RHEL7_不足依存RPM取得と適用_yum-utilsなし.md",
+   "20_オフラインRPM取得実務/手順書_RHEL8以降_openssh更新.md",
+   "20_オフラインRPM取得実務/解説_オフラインRPM適用の考え方.md"
   ],
   "cd": [
    "01_シェルとコマンドライン/コマンドの連結と制御演算子.md",
@@ -14737,8 +14894,8 @@
    "07_パッケージ管理/dnf実践④_オフライン環境での適用と切り戻し.md",
    "07_パッケージ管理/patchによるソースの更新.md",
    "07_パッケージ管理/ソースからのビルドとインストール.md",
-   "20_オフラインRPM取得実務/RHEL7_CVE対応RPM99個_依存関係確認とオフライン更新準備.md",
-   "20_オフラインRPM取得実務/手順書_RHEL7_対象サーバーでの適用前確認.md"
+   "20_オフラインRPM取得実務/手順書_RHEL7_不足依存RPM取得と適用_yum-utilsあり.md",
+   "20_オフラインRPM取得実務/手順書_RHEL7_不足依存RPM取得と適用_yum-utilsなし.md"
   ],
   "chgrp": [
    "03_ユーザ管理とパーミッション/SGID_特殊パーミッション.md",
@@ -14842,8 +14999,7 @@
   "date": [
    "01_シェルとコマンドライン/コマンドの連結と制御演算子.md",
    "01_シェルとコマンドライン/シェル変数と環境変数.md",
-   "01_シェルとコマンドライン/標準入出力とリダイレクト.md",
-   "20_オフラインRPM取得実務/RHEL7_CVE対応RPM99個_依存関係確認とオフライン更新準備.md"
+   "01_シェルとコマンドライン/標準入出力とリダイレクト.md"
   ],
   "dd": [
    "05_起動プロセスとカーネル/BIOSとUEFI.md",
@@ -14875,7 +15031,8 @@
    "06_ストレージとファイルシステム/ディスクを追加する手順.md",
    "06_ストレージとファイルシステム/ファイルシステムの種類と作成.md",
    "06_ストレージとファイルシステム/マウントとアンマウント.md",
-   "20_オフラインRPM取得実務/手順書_RHEL7_対象サーバーでの適用前確認.md"
+   "20_オフラインRPM取得実務/手順書_RHEL7_不足依存RPM取得と適用_yum-utilsあり.md",
+   "20_オフラインRPM取得実務/手順書_RHEL7_不足依存RPM取得と適用_yum-utilsなし.md"
   ],
   "diff": [
    "02_テキスト処理と正規表現/sedによる置換.md",
@@ -14885,8 +15042,8 @@
    "07_パッケージ管理/dnf実践④_オフライン環境での適用と切り戻し.md",
    "07_パッケージ管理/dnf解説⑤_依存関係とセキュリティ更新の調べ方.md",
    "07_パッケージ管理/patchによるソースの更新.md",
-   "20_オフラインRPM取得実務/RHEL7_CVE対応RPM99個_依存関係確認とオフライン更新準備.md",
-   "20_オフラインRPM取得実務/手順書_RHEL7_対象サーバーでの適用前確認.md"
+   "20_オフラインRPM取得実務/手順書_RHEL7_不足依存RPM取得と適用_yum-utilsあり.md",
+   "20_オフラインRPM取得実務/手順書_RHEL7_不足依存RPM取得と適用_yum-utilsなし.md"
   ],
   "dig": [
    "08_ネットワーク/nmcliによるネットワーク設定.md",
@@ -15021,9 +15178,9 @@
    "17_運用管理/バックアップの方式と設計.md",
    "17_運用管理/ユーザへの通知_wallとwriteとtalk.md",
    "17_運用管理/ログインメッセージ_issueとmotd.md",
-   "20_オフラインRPM取得実務/RHEL7_CVE対応RPM99個_依存関係確認とオフライン更新準備.md",
-   "20_オフラインRPM取得実務/手順書_RHEL7_yum-utilsが無い場合の依存RPM取得.md",
-   "20_オフラインRPM取得実務/手順書_RHEL7_対象サーバーでの適用前確認.md"
+   "20_オフラインRPM取得実務/手順書_RHEL7_不足依存RPM取得と適用_yum-utilsあり.md",
+   "20_オフラインRPM取得実務/手順書_RHEL7_不足依存RPM取得と適用_yum-utilsなし.md",
+   "20_オフラインRPM取得実務/解説_オフラインRPM適用の考え方.md"
   ],
   "efibootmgr": [
    "05_起動プロセスとカーネル/BIOSとUEFI.md",
@@ -15050,12 +15207,12 @@
    "01_シェルとコマンドライン/ファイルの内容を見るコマンド.md",
    "05_起動プロセスとカーネル/systemctl_サービスの操作と確認.md",
    "07_パッケージ管理/共有ライブラリの管理.md",
-   "20_オフラインRPM取得実務/RHEL7_CVE対応RPM99個_依存関係確認とオフライン更新準備.md",
    "20_オフラインRPM取得実務/ローカルリポジトリの仕組み.md",
    "20_オフラインRPM取得実務/依存チェックスクリプトの読み方.md",
    "20_オフラインRPM取得実務/手順書_RHEL7_openssh更新.md",
+   "20_オフラインRPM取得実務/手順書_RHEL7_不足依存RPM取得と適用_yum-utilsあり.md",
+   "20_オフラインRPM取得実務/手順書_RHEL7_不足依存RPM取得と適用_yum-utilsなし.md",
    "20_オフラインRPM取得実務/手順書_RHEL7_依存不足対応.md",
-   "20_オフラインRPM取得実務/手順書_RHEL7_対象サーバーでの適用前確認.md",
    "20_オフラインRPM取得実務/手順書_RHEL8以降_openssh更新.md",
    "20_オフラインRPM取得実務/手順書_RHEL8以降_依存不足対応.md"
   ],
@@ -15197,14 +15354,15 @@
    "08_ネットワーク/名前解決の確認_digとhost.md",
    "17_運用管理/ユーザへの通知_wallとwriteとtalk.md",
    "17_運用管理/ログインメッセージ_issueとmotd.md",
-   "20_オフラインRPM取得実務/RHEL7_CVE対応RPM99個_依存関係確認とオフライン更新準備.md",
    "20_オフラインRPM取得実務/ローカルリポジトリの仕組み.md",
    "20_オフラインRPM取得実務/手順書_RHEL7_openssh更新.md",
-   "20_オフラインRPM取得実務/手順書_RHEL7_下見ログの読み方.md",
+   "20_オフラインRPM取得実務/手順書_RHEL7_不足依存RPM取得と適用_yum-utilsあり.md",
+   "20_オフラインRPM取得実務/手順書_RHEL7_不足依存RPM取得と適用_yum-utilsなし.md",
    "20_オフラインRPM取得実務/手順書_RHEL7_依存不足対応.md",
-   "20_オフラインRPM取得実務/手順書_RHEL7_対象サーバーでの適用前確認.md",
    "20_オフラインRPM取得実務/手順書_RHEL8以降_openssh更新.md",
-   "20_オフラインRPM取得実務/手順書_RHEL8以降_依存不足対応.md"
+   "20_オフラインRPM取得実務/手順書_RHEL8以降_依存不足対応.md",
+   "20_オフラインRPM取得実務/解説_オフラインRPM適用の考え方.md",
+   "20_オフラインRPM取得実務/解説_下見ログの読み方.md"
   ],
   "growpart": [
    "06_ストレージとファイルシステム/LVM_論理ボリュームの管理.md"
@@ -15251,7 +15409,8 @@
    "05_起動プロセスとカーネル/初期RAMディスク_initrdとinitramfs.md",
    "06_ストレージとファイルシステム/fsckとファイルシステムの修復.md",
    "07_パッケージ管理/ソースからのビルドとインストール.md",
-   "20_オフラインRPM取得実務/手順書_RHEL7_yum-utilsが無い場合の依存RPM取得.md"
+   "20_オフラインRPM取得実務/手順書_RHEL7_不足依存RPM取得と適用_yum-utilsあり.md",
+   "20_オフラインRPM取得実務/手順書_RHEL7_不足依存RPM取得と適用_yum-utilsなし.md"
   ],
   "hello": [
    "07_パッケージ管理/ソースからのビルドとインストール.md"
@@ -15270,7 +15429,8 @@
   ],
   "hostname": [
    "08_ネットワーク/ネットワークの基礎知識_サブネットとMTUとホスト名.md",
-   "20_オフラインRPM取得実務/RHEL7_CVE対応RPM99個_依存関係確認とオフライン更新準備.md"
+   "20_オフラインRPM取得実務/手順書_RHEL7_不足依存RPM取得と適用_yum-utilsあり.md",
+   "20_オフラインRPM取得実務/手順書_RHEL7_不足依存RPM取得と適用_yum-utilsなし.md"
   ],
   "hostnamectl": [
    "08_ネットワーク/ネットワークの基礎知識_サブネットとMTUとホスト名.md"
@@ -15400,10 +15560,10 @@
    "05_起動プロセスとカーネル/サービスの自動起動設定.md"
   ],
   "locale": [
-   "20_オフラインRPM取得実務/RHEL7_CVE対応RPM99個_依存関係確認とオフライン更新準備.md"
+   "20_オフラインRPM取得実務/解説_オフラインRPM適用の考え方.md"
   ],
   "localectl": [
-   "20_オフラインRPM取得実務/RHEL7_CVE対応RPM99個_依存関係確認とオフライン更新準備.md"
+   "20_オフラインRPM取得実務/解説_オフラインRPM適用の考え方.md"
   ],
   "locate": [
    "06_ストレージとファイルシステム/コマンドの場所を探す.md"
@@ -15488,14 +15648,14 @@
    "17_運用管理/バックアップメディアとテープ操作.md",
    "17_運用管理/ユーザへの通知_wallとwriteとtalk.md",
    "17_運用管理/ログインメッセージ_issueとmotd.md",
-   "20_オフラインRPM取得実務/RHEL7_CVE対応RPM99個_依存関係確認とオフライン更新準備.md",
    "20_オフラインRPM取得実務/ローカルリポジトリの仕組み.md",
    "20_オフラインRPM取得実務/手順書_RHEL7_openssh更新.md",
-   "20_オフラインRPM取得実務/手順書_RHEL7_yum-utilsが無い場合の依存RPM取得.md",
+   "20_オフラインRPM取得実務/手順書_RHEL7_不足依存RPM取得と適用_yum-utilsあり.md",
+   "20_オフラインRPM取得実務/手順書_RHEL7_不足依存RPM取得と適用_yum-utilsなし.md",
    "20_オフラインRPM取得実務/手順書_RHEL7_依存不足対応.md",
-   "20_オフラインRPM取得実務/手順書_RHEL7_対象サーバーでの適用前確認.md",
    "20_オフラインRPM取得実務/手順書_RHEL8以降_openssh更新.md",
-   "20_オフラインRPM取得実務/手順書_RHEL8以降_依存不足対応.md"
+   "20_オフラインRPM取得実務/手順書_RHEL8以降_依存不足対応.md",
+   "20_オフラインRPM取得実務/解説_オフラインRPM適用の考え方.md"
   ],
   "lsblk": [
    "05_起動プロセスとカーネル/BIOSとUEFI.md",
@@ -15615,12 +15775,11 @@
    "07_パッケージ管理/dnf実践③_オフライン環境でのパッケージの集め方.md",
    "07_パッケージ管理/dnf実践④_オフライン環境での適用と切り戻し.md",
    "17_運用管理/バックアップの方式と設計.md",
-   "20_オフラインRPM取得実務/RHEL7_CVE対応RPM99個_依存関係確認とオフライン更新準備.md",
    "20_オフラインRPM取得実務/依存チェックスクリプトの読み方.md",
    "20_オフラインRPM取得実務/手順書_RHEL7_openssh更新.md",
-   "20_オフラインRPM取得実務/手順書_RHEL7_yum-utilsが無い場合の依存RPM取得.md",
+   "20_オフラインRPM取得実務/手順書_RHEL7_不足依存RPM取得と適用_yum-utilsあり.md",
+   "20_オフラインRPM取得実務/手順書_RHEL7_不足依存RPM取得と適用_yum-utilsなし.md",
    "20_オフラインRPM取得実務/手順書_RHEL7_依存不足対応.md",
-   "20_オフラインRPM取得実務/手順書_RHEL7_対象サーバーでの適用前確認.md",
    "20_オフラインRPM取得実務/手順書_RHEL8以降_openssh更新.md",
    "20_オフラインRPM取得実務/手順書_RHEL8以降_依存不足対応.md"
   ],
@@ -15717,8 +15876,8 @@
    "01_シェルとコマンドライン/ファイルとディレクトリの操作.md",
    "01_シェルとコマンドライン/ファイルの種類とタイムスタンプ.md",
    "06_ストレージとファイルシステム/fsckとファイルシステムの修復.md",
-   "20_オフラインRPM取得実務/RHEL7_CVE対応RPM99個_依存関係確認とオフライン更新準備.md",
-   "20_オフラインRPM取得実務/手順書_RHEL7_yum-utilsが無い場合の依存RPM取得.md"
+   "20_オフラインRPM取得実務/手順書_RHEL7_不足依存RPM取得と適用_yum-utilsあり.md",
+   "20_オフラインRPM取得実務/手順書_RHEL7_不足依存RPM取得と適用_yum-utilsなし.md"
   ],
   "mysql": [
    "01_シェルとコマンドライン/コマンド履歴.md"
@@ -15726,6 +15885,9 @@
   "nc": [
    "08_ネットワーク/疎通確認_pingとtraceroute.md",
    "10_セキュリティ/ポートスキャンと疎通_nmapとnc.md"
+  ],
+  "needs-restarting": [
+   "20_オフラインRPM取得実務/手順書_RHEL7_不足依存RPM取得と適用_yum-utilsあり.md"
   ],
   "netplan": [
    "08_ネットワーク/アドレスとルーティングの確認.md"
@@ -15819,7 +15981,7 @@
   ],
   "printenv": [
    "01_シェルとコマンドライン/シェル変数と環境変数.md",
-   "20_オフラインRPM取得実務/RHEL7_CVE対応RPM99個_依存関係確認とオフライン更新準備.md"
+   "20_オフラインRPM取得実務/解説_オフラインRPM適用の考え方.md"
   ],
   "printf": [
    "01_シェルとコマンドライン/シェルスクリプトの実行方法.md",
@@ -15909,8 +16071,8 @@
    "06_ストレージとファイルシステム/fsckとファイルシステムの修復.md"
   ],
   "repoquery": [
-   "20_オフラインRPM取得実務/RHEL7_CVE対応RPM99個_依存関係確認とオフライン更新準備.md",
-   "20_オフラインRPM取得実務/手順書_RHEL7_yum-utilsが無い場合の依存RPM取得.md"
+   "20_オフラインRPM取得実務/手順書_RHEL7_不足依存RPM取得と適用_yum-utilsあり.md",
+   "20_オフラインRPM取得実務/解説_オフラインRPM適用の考え方.md"
   ],
   "repotrack": [
    "07_パッケージ管理/dnf実践④_オフライン環境での適用と切り戻し.md"
@@ -15936,7 +16098,8 @@
    "06_ストレージとファイルシステム/スワップ領域.md",
    "07_パッケージ管理/RPMによるパッケージ管理.md",
    "07_パッケージ管理/共有ライブラリの管理.md",
-   "20_オフラインRPM取得実務/RHEL7_CVE対応RPM99個_依存関係確認とオフライン更新準備.md"
+   "20_オフラインRPM取得実務/手順書_RHEL7_不足依存RPM取得と適用_yum-utilsあり.md",
+   "20_オフラインRPM取得実務/手順書_RHEL7_不足依存RPM取得と適用_yum-utilsなし.md"
   ],
   "rmdir": [
    "01_シェルとコマンドライン/ファイルとディレクトリの操作.md"
@@ -15959,12 +16122,11 @@
    "07_パッケージ管理/dnf解説④_リポジトリとキャッシュの管理.md",
    "07_パッケージ管理/dnf解説⑤_依存関係とセキュリティ更新の調べ方.md",
    "07_パッケージ管理/dnf解説⑥_環境の見極めとバージョン差分.md",
-   "20_オフラインRPM取得実務/RHEL7_CVE対応RPM99個_依存関係確認とオフライン更新準備.md",
    "20_オフラインRPM取得実務/ローカルリポジトリの仕組み.md",
    "20_オフラインRPM取得実務/手順書_RHEL7_openssh更新.md",
-   "20_オフラインRPM取得実務/手順書_RHEL7_yum-utilsが無い場合の依存RPM取得.md",
+   "20_オフラインRPM取得実務/手順書_RHEL7_不足依存RPM取得と適用_yum-utilsあり.md",
+   "20_オフラインRPM取得実務/手順書_RHEL7_不足依存RPM取得と適用_yum-utilsなし.md",
    "20_オフラインRPM取得実務/手順書_RHEL7_依存不足対応.md",
-   "20_オフラインRPM取得実務/手順書_RHEL7_対象サーバーでの適用前確認.md",
    "20_オフラインRPM取得実務/手順書_RHEL8以降_openssh更新.md",
    "20_オフラインRPM取得実務/手順書_RHEL8以降_依存不足対応.md"
   ],
@@ -16013,8 +16175,8 @@
    "05_起動プロセスとカーネル/GRUBの設定と復旧.md",
    "20_オフラインRPM取得実務/依存チェックスクリプトの読み方.md",
    "20_オフラインRPM取得実務/手順書_RHEL7_openssh更新.md",
-   "20_オフラインRPM取得実務/手順書_RHEL7_下見ログの読み方.md",
-   "20_オフラインRPM取得実務/手順書_RHEL8以降_openssh更新.md"
+   "20_オフラインRPM取得実務/手順書_RHEL8以降_openssh更新.md",
+   "20_オフラインRPM取得実務/解説_下見ログの読み方.md"
   ],
   "seq": [
    "01_シェルとコマンドライン/パイプとフィルタ.md",
@@ -16039,8 +16201,8 @@
   ],
   "sha256sum": [
    "01_シェルとコマンドライン/ファイルのチェックサム_md5sumとsha256sum.md",
-   "20_オフラインRPM取得実務/RHEL7_CVE対応RPM99個_依存関係確認とオフライン更新準備.md",
-   "20_オフラインRPM取得実務/手順書_RHEL7_対象サーバーでの適用前確認.md"
+   "20_オフラインRPM取得実務/手順書_RHEL7_不足依存RPM取得と適用_yum-utilsあり.md",
+   "20_オフラインRPM取得実務/手順書_RHEL7_不足依存RPM取得と適用_yum-utilsなし.md"
   ],
   "shopt": [
    "01_シェルとコマンドライン/コマンド履歴.md",
@@ -16160,6 +16322,7 @@
    "08_ネットワーク/ネットワーク設定ファイル.md",
    "17_運用管理/ユーザへの通知_wallとwriteとtalk.md",
    "20_オフラインRPM取得実務/手順書_RHEL7_openssh更新.md",
+   "20_オフラインRPM取得実務/手順書_RHEL7_不足依存RPM取得と適用_yum-utilsなし.md",
    "20_オフラインRPM取得実務/手順書_RHEL8以降_openssh更新.md"
   ],
   "systemd-analyze": [
@@ -16181,12 +16344,11 @@
    "01_シェルとコマンドライン/ファイルの内容を見るコマンド.md",
    "02_テキスト処理と正規表現/テキストの分割と整形_splitとfmt.md",
    "06_ストレージとファイルシステム/fstabの書き方.md",
-   "20_オフラインRPM取得実務/RHEL7_CVE対応RPM99個_依存関係確認とオフライン更新準備.md",
-   "20_オフラインRPM取得実務/手順書_RHEL7_yum-utilsが無い場合の依存RPM取得.md",
-   "20_オフラインRPM取得実務/手順書_RHEL7_下見ログの読み方.md",
+   "20_オフラインRPM取得実務/手順書_RHEL7_不足依存RPM取得と適用_yum-utilsあり.md",
+   "20_オフラインRPM取得実務/手順書_RHEL7_不足依存RPM取得と適用_yum-utilsなし.md",
    "20_オフラインRPM取得実務/手順書_RHEL7_依存不足対応.md",
-   "20_オフラインRPM取得実務/手順書_RHEL7_対象サーバーでの適用前確認.md",
-   "20_オフラインRPM取得実務/手順書_RHEL8以降_依存不足対応.md"
+   "20_オフラインRPM取得実務/手順書_RHEL8以降_依存不足対応.md",
+   "20_オフラインRPM取得実務/解説_下見ログの読み方.md"
   ],
   "talk": [
    "17_運用管理/ユーザへの通知_wallとwriteとtalk.md"
@@ -16199,8 +16361,8 @@
    "07_パッケージ管理/dnf実践④_オフライン環境での適用と切り戻し.md",
    "07_パッケージ管理/ソースからのビルドとインストール.md",
    "17_運用管理/バックアップメディアとテープ操作.md",
-   "20_オフラインRPM取得実務/RHEL7_CVE対応RPM99個_依存関係確認とオフライン更新準備.md",
-   "20_オフラインRPM取得実務/手順書_RHEL7_対象サーバーでの適用前確認.md"
+   "20_オフラインRPM取得実務/手順書_RHEL7_不足依存RPM取得と適用_yum-utilsあり.md",
+   "20_オフラインRPM取得実務/手順書_RHEL7_不足依存RPM取得と適用_yum-utilsなし.md"
   ],
   "tcpdchk": [
    "10_セキュリティ/TCPラッパーによるアクセス制御.md"
@@ -16319,8 +16481,8 @@
    "05_起動プロセスとカーネル/カーネルモジュールの管理.md",
    "07_パッケージ管理/dnf実践①_オンライン環境での更新手順.md",
    "07_パッケージ管理/dnf解説④_リポジトリとキャッシュの管理.md",
-   "20_オフラインRPM取得実務/RHEL7_CVE対応RPM99個_依存関係確認とオフライン更新準備.md",
-   "20_オフラインRPM取得実務/手順書_RHEL7_対象サーバーでの適用前確認.md"
+   "20_オフラインRPM取得実務/手順書_RHEL7_不足依存RPM取得と適用_yum-utilsあり.md",
+   "20_オフラインRPM取得実務/手順書_RHEL7_不足依存RPM取得と適用_yum-utilsなし.md"
   ],
   "uniq": [
    "02_テキスト処理と正規表現/sortによる並べ替え.md"
@@ -16431,8 +16593,8 @@
    "02_テキスト処理と正規表現/テキストの分割と整形_splitとfmt.md",
    "02_テキスト処理と正規表現/テキストファイルの改行コード.md",
    "02_テキスト処理と正規表現/行数と行番号_wcとnl.md",
-   "20_オフラインRPM取得実務/RHEL7_CVE対応RPM99個_依存関係確認とオフライン更新準備.md",
-   "20_オフラインRPM取得実務/手順書_RHEL7_対象サーバーでの適用前確認.md"
+   "20_オフラインRPM取得実務/手順書_RHEL7_不足依存RPM取得と適用_yum-utilsあり.md",
+   "20_オフラインRPM取得実務/手順書_RHEL7_不足依存RPM取得と適用_yum-utilsなし.md"
   ],
   "whatis": [
    "01_シェルとコマンドライン/マニュアルの参照.md"
@@ -16448,8 +16610,8 @@
    "01_シェルとコマンドライン/圧縮とアーカイブ.md",
    "06_ストレージとファイルシステム/FHSとディレクトリ構成.md",
    "06_ストレージとファイルシステム/コマンドの場所を探す.md",
-   "20_オフラインRPM取得実務/RHEL7_CVE対応RPM99個_依存関係確認とオフライン更新準備.md",
-   "20_オフラインRPM取得実務/手順書_RHEL7_yum-utilsが無い場合の依存RPM取得.md"
+   "20_オフラインRPM取得実務/手順書_RHEL7_不足依存RPM取得と適用_yum-utilsあり.md",
+   "20_オフラインRPM取得実務/手順書_RHEL7_不足依存RPM取得と適用_yum-utilsなし.md"
   ],
   "while": [
    "04_プロセスとリソース管理/コマンドの繰り返し実行_watch.md"
@@ -16459,9 +16621,6 @@
    "04_プロセスとリソース管理/稼働状況の確認_uptime_w.md",
    "05_起動プロセスとカーネル/SysVinitの起動スクリプトとランレベル.md",
    "17_運用管理/ユーザへの通知_wallとwriteとtalk.md"
-  ],
-  "whoami": [
-   "20_オフラインRPM取得実務/RHEL7_CVE対応RPM99個_依存関係確認とオフライン更新準備.md"
   ],
   "write": [
    "17_運用管理/ユーザへの通知_wallとwriteとtalk.md"
@@ -16493,17 +16652,16 @@
    "07_パッケージ管理/YUMとDNFによるパッケージ管理.md",
    "07_パッケージ管理/dnf実践④_オフライン環境での適用と切り戻し.md",
    "07_パッケージ管理/dnf解説①_基本とインストール系コマンド.md",
-   "20_オフラインRPM取得実務/RHEL7_CVE対応RPM99個_依存関係確認とオフライン更新準備.md",
    "20_オフラインRPM取得実務/ローカルリポジトリの仕組み.md",
    "20_オフラインRPM取得実務/手順書_RHEL7_openssh更新.md",
-   "20_オフラインRPM取得実務/手順書_RHEL7_yum-utilsが無い場合の依存RPM取得.md",
+   "20_オフラインRPM取得実務/手順書_RHEL7_不足依存RPM取得と適用_yum-utilsあり.md",
+   "20_オフラインRPM取得実務/手順書_RHEL7_不足依存RPM取得と適用_yum-utilsなし.md",
    "20_オフラインRPM取得実務/手順書_RHEL7_依存不足対応.md",
-   "20_オフラインRPM取得実務/手順書_RHEL7_対象サーバーでの適用前確認.md"
+   "20_オフラインRPM取得実務/解説_オフラインRPM適用の考え方.md"
   ],
   "yumdownloader": [
    "07_パッケージ管理/dnf実践④_オフライン環境での適用と切り戻し.md",
-   "20_オフラインRPM取得実務/RHEL7_CVE対応RPM99個_依存関係確認とオフライン更新準備.md",
-   "20_オフラインRPM取得実務/手順書_RHEL7_yum-utilsが無い場合の依存RPM取得.md"
+   "20_オフラインRPM取得実務/手順書_RHEL7_不足依存RPM取得と適用_yum-utilsあり.md"
   ],
   "zcat": [
    "01_シェルとコマンドライン/マニュアルの参照.md",
@@ -16638,7 +16796,7 @@
    "05_起動プロセスとカーネル/カーネルの実行時管理_dmesgとsysctl.md",
    "06_ストレージとファイルシステム/RAIDの監視と保守.md",
    "06_ストレージとファイルシステム/ソフトウェアRAIDの管理_mdadm.md",
-   "20_オフラインRPM取得実務/RHEL7_CVE対応RPM99個_依存関係確認とオフライン更新準備.md"
+   "20_オフラインRPM取得実務/解説_オフラインRPM適用の考え方.md"
   ],
   "-F": [
    "01_シェルとコマンドライン/ファイルとディレクトリの操作.md",
@@ -16680,7 +16838,8 @@
   ],
   "-K": [
    "01_シェルとコマンドライン/マニュアルの参照.md",
-   "06_ストレージとファイルシステム/LVM_サイズ変更とスナップショット.md"
+   "06_ストレージとファイルシステム/LVM_サイズ変更とスナップショット.md",
+   "20_オフラインRPM取得実務/解説_オフラインRPM適用の考え方.md"
   ],
   "-KILL": [
    "04_プロセスとリソース管理/プロセスの検索と終了_pgrepとkill.md"
@@ -16760,7 +16919,7 @@
    "06_ストレージとファイルシステム/ファイルシステム別ユーティリティ.md",
    "06_ストレージとファイルシステム/マウントとアンマウント.md",
    "07_パッケージ管理/patchによるソースの更新.md",
-   "20_オフラインRPM取得実務/RHEL7_CVE対応RPM99個_依存関係確認とオフライン更新準備.md"
+   "20_オフラインRPM取得実務/解説_オフラインRPM適用の考え方.md"
   ],
   "-RR": [
    "06_ストレージとファイルシステム/ファイルシステム別ユーティリティ.md"
@@ -16961,8 +17120,7 @@
    "08_ネットワーク/ネットワーク状態の確認_netstat.md",
    "08_ネットワーク/パケットキャプチャ_tcpdump.md",
    "08_ネットワーク/疎通確認_pingとtraceroute.md",
-   "17_運用管理/ユーザへの通知_wallとwriteとtalk.md",
-   "20_オフラインRPM取得実務/RHEL7_CVE対応RPM99個_依存関係確認とオフライン更新準備.md"
+   "17_運用管理/ユーザへの通知_wallとwriteとtalk.md"
   ],
   "-c0": [
    "06_ストレージとファイルシステム/hdparmによるディスクパラメータ.md"
@@ -17006,7 +17164,8 @@
    "08_ネットワーク/ARPキャッシュの操作_arp.md",
    "08_ネットワーク/アドレスとルーティングの確認.md",
    "08_ネットワーク/ネットワークの基礎知識_サブネットとMTUとホスト名.md",
-   "20_オフラインRPM取得実務/手順書_RHEL7_下見ログの読み方.md"
+   "20_オフラインRPM取得実務/解説_オフラインRPM適用の考え方.md",
+   "20_オフラインRPM取得実務/解説_下見ログの読み方.md"
   ],
   "-d0": [
    "06_ストレージとファイルシステム/hdparmによるディスクパラメータ.md"
@@ -17085,8 +17244,7 @@
    "08_ネットワーク/ARPキャッシュの操作_arp.md",
    "08_ネットワーク/nmcliによるネットワーク設定.md",
    "08_ネットワーク/ネットワークの基礎知識_サブネットとMTUとホスト名.md",
-   "17_運用管理/バックアップメディアとテープ操作.md",
-   "20_オフラインRPM取得実務/RHEL7_CVE対応RPM99個_依存関係確認とオフライン更新準備.md"
+   "17_運用管理/バックアップメディアとテープ操作.md"
   ],
   "-fstype=iso9660": [
    "06_ストレージとファイルシステム/オートマウント_autofs.md"
@@ -17496,18 +17654,21 @@
    "07_パッケージ管理/dnf解説③_オプションの使い分け.md",
    "08_ネットワーク/疎通確認_pingとtraceroute.md",
    "10_セキュリティ/ポートスキャンと疎通_nmapとnc.md",
-   "20_オフラインRPM取得実務/RHEL7_CVE対応RPM99個_依存関係確認とオフライン更新準備.md",
-   "20_オフラインRPM取得実務/依存チェックスクリプトの読み方.md"
+   "20_オフラインRPM取得実務/依存チェックスクリプトの読み方.md",
+   "20_オフラインRPM取得実務/手順書_RHEL7_不足依存RPM取得と適用_yum-utilsあり.md",
+   "20_オフラインRPM取得実務/手順書_RHEL7_不足依存RPM取得と適用_yum-utilsなし.md"
   ],
   "-qa": [
    "07_パッケージ管理/RPMによるパッケージ管理.md",
-   "20_オフラインRPM取得実務/手順書_RHEL7_対象サーバーでの適用前確認.md"
+   "20_オフラインRPM取得実務/解説_オフラインRPM適用の考え方.md"
   ],
   "-qf": [
    "07_パッケージ管理/RPMによるパッケージ管理.md"
   ],
   "-qp": [
-   "20_オフラインRPM取得実務/RHEL7_CVE対応RPM99個_依存関係確認とオフライン更新準備.md"
+   "20_オフラインRPM取得実務/手順書_RHEL7_不足依存RPM取得と適用_yum-utilsあり.md",
+   "20_オフラインRPM取得実務/手順書_RHEL7_不足依存RPM取得と適用_yum-utilsなし.md",
+   "20_オフラインRPM取得実務/解説_オフラインRPM適用の考え方.md"
   ],
   "-quit": [
    "06_ストレージとファイルシステム/findによるファイル検索.md"
@@ -17711,8 +17872,7 @@
    "08_ネットワーク/nmcliによるネットワーク設定.md",
    "08_ネットワーク/ソケットの確認_ss.md",
    "08_ネットワーク/ネットワーク状態の確認_netstat.md",
-   "17_運用管理/rsyncによる同期とバックアップ.md",
-   "20_オフラインRPM取得実務/RHEL7_CVE対応RPM99個_依存関係確認とオフライン更新準備.md"
+   "17_運用管理/rsyncによる同期とバックアップ.md"
   ],
   "-tulnp": [
    "08_ネットワーク/ソケットの確認_ss.md",
@@ -17792,7 +17952,7 @@
    "08_ネットワーク/名前解決の確認_digとhost.md",
    "10_セキュリティ/ポートスキャンと疎通_nmapとnc.md",
    "17_運用管理/rsyncによる同期とバックアップ.md",
-   "20_オフラインRPM取得実務/手順書_RHEL7_yum-utilsが無い場合の依存RPM取得.md"
+   "20_オフラインRPM取得実務/解説_オフラインRPM適用の考え方.md"
   ],
   "-vET": [
    "01_シェルとコマンドライン/ファイルの内容を見るコマンド.md"
@@ -17848,8 +18008,7 @@
    "06_ストレージとファイルシステム/ソフトウェアRAIDの管理_mdadm.md",
    "06_ストレージとファイルシステム/ディスクの健全性監視_SMART.md",
    "07_パッケージ管理/dnf解説③_オプションの使い分け.md",
-   "08_ネットワーク/ソケットの確認_ss.md",
-   "20_オフラインRPM取得実務/RHEL7_CVE対応RPM99個_依存関係確認とオフライン更新準備.md"
+   "08_ネットワーク/ソケットの確認_ss.md"
   ],
   "-x1": [
    "06_ストレージとファイルシステム/ソフトウェアRAIDの管理_mdadm.md"
@@ -17862,8 +18021,9 @@
    "07_パッケージ管理/YUMとDNFによるパッケージ管理.md",
    "07_パッケージ管理/dnf解説②_削除系と調査系コマンド.md",
    "07_パッケージ管理/dnf解説③_オプションの使い分け.md",
-   "20_オフラインRPM取得実務/手順書_RHEL7_yum-utilsが無い場合の依存RPM取得.md",
-   "20_オフラインRPM取得実務/手順書_RHEL7_対象サーバーでの適用前確認.md"
+   "20_オフラインRPM取得実務/手順書_RHEL7_不足依存RPM取得と適用_yum-utilsあり.md",
+   "20_オフラインRPM取得実務/手順書_RHEL7_不足依存RPM取得と適用_yum-utilsなし.md",
+   "20_オフラインRPM取得実務/解説_オフラインRPM適用の考え方.md"
   ],
   "-z": [
    "01_シェルとコマンドライン/ファイルの種類とタイムスタンプ.md",
@@ -17873,8 +18033,7 @@
    "06_ストレージとファイルシステム/ソフトウェアRAIDの管理_mdadm.md",
    "10_セキュリティ/ポートスキャンと疎通_nmapとnc.md",
    "17_運用管理/rsyncによる同期とバックアップ.md",
-   "17_運用管理/バックアップメディアとテープ操作.md",
-   "20_オフラインRPM取得実務/RHEL7_CVE対応RPM99個_依存関係確認とオフライン更新準備.md"
+   "17_運用管理/バックアップメディアとテープ操作.md"
   ],
   ".0": [
    "05_起動プロセスとカーネル/その他のブートローダ.md"
@@ -18003,11 +18162,10 @@
    "07_パッケージ管理/dnf解説④_リポジトリとキャッシュの管理.md",
    "07_パッケージ管理/dnf解説⑤_依存関係とセキュリティ更新の調べ方.md",
    "07_パッケージ管理/dnf解説⑥_環境の見極めとバージョン差分.md",
-   "20_オフラインRPM取得実務/RHEL7_CVE対応RPM99個_依存関係確認とオフライン更新準備.md",
    "20_オフラインRPM取得実務/依存チェックスクリプトの読み方.md",
    "20_オフラインRPM取得実務/手順書_RHEL7_openssh更新.md",
-   "20_オフラインRPM取得実務/手順書_RHEL7_対象サーバーでの適用前確認.md",
-   "20_オフラインRPM取得実務/手順書_RHEL8以降_openssh更新.md"
+   "20_オフラインRPM取得実務/手順書_RHEL8以降_openssh更新.md",
+   "20_オフラインRPM取得実務/解説_オフラインRPM適用の考え方.md"
   ],
   ".requires/": [
    "05_起動プロセスとカーネル/systemd_基本とユニットファイル.md"
@@ -18015,8 +18173,7 @@
   ".rpm": [
    "07_パッケージ管理/RPMによるパッケージ管理.md",
    "07_パッケージ管理/YUMとDNFによるパッケージ管理.md",
-   "07_パッケージ管理/dnf解説④_リポジトリとキャッシュの管理.md",
-   "20_オフラインRPM取得実務/RHEL7_CVE対応RPM99個_依存関係確認とオフライン更新準備.md"
+   "07_パッケージ管理/dnf解説④_リポジトリとキャッシュの管理.md"
   ],
   ".rpmnew": [
    "07_パッケージ管理/dnf実践②_オンライン環境での切り戻しと除外設定.md",
@@ -18037,9 +18194,6 @@
   ".sh": [
    "01_シェルとコマンドライン/シェルの設定ファイル.md",
    "01_シェルとコマンドライン/シェルスクリプトの実行方法.md"
-  ],
-  ".sha256": [
-   "20_オフラインRPM取得実務/RHEL7_CVE対応RPM99個_依存関係確認とオフライン更新準備.md"
   ],
   ".slice": [
    "05_起動プロセスとカーネル/systemd_基本とユニットファイル.md"
@@ -18067,8 +18221,7 @@
    "01_シェルとコマンドライン/圧縮とアーカイブ.md"
   ],
   ".tar.gz": [
-   "01_シェルとコマンドライン/圧縮とアーカイブ.md",
-   "20_オフラインRPM取得実務/RHEL7_CVE対応RPM99個_依存関係確認とオフライン更新準備.md"
+   "01_シェルとコマンドライン/圧縮とアーカイブ.md"
   ],
   ".tar.xz": [
    "01_シェルとコマンドライン/圧縮とアーカイブ.md"
@@ -18103,7 +18256,8 @@
   ],
   ".zip": [
    "01_シェルとコマンドライン/圧縮とアーカイブ.md",
-   "20_オフラインRPM取得実務/RHEL7_CVE対応RPM99個_依存関係確認とオフライン更新準備.md"
+   "20_オフラインRPM取得実務/手順書_RHEL7_不足依存RPM取得と適用_yum-utilsあり.md",
+   "20_オフラインRPM取得実務/手順書_RHEL7_不足依存RPM取得と適用_yum-utilsなし.md"
   ],
   "/0": [
    "08_ネットワーク/アドレスとルーティングの確認.md",
@@ -18185,7 +18339,9 @@
    "06_ストレージとファイルシステム/fstabの書き方.md",
    "06_ストレージとファイルシステム/マウントとアンマウント.md",
    "07_パッケージ管理/YUMとDNFによるパッケージ管理.md",
-   "07_パッケージ管理/dnf実践①_オンライン環境での更新手順.md"
+   "07_パッケージ管理/dnf実践①_オンライン環境での更新手順.md",
+   "20_オフラインRPM取得実務/手順書_RHEL7_不足依存RPM取得と適用_yum-utilsあり.md",
+   "20_オフラインRPM取得実務/手順書_RHEL7_不足依存RPM取得と適用_yum-utilsなし.md"
   ],
   "/boot/System.map": [
    "05_起動プロセスとカーネル/カーネルのビルドとインストール.md"
@@ -18712,7 +18868,7 @@
    "07_パッケージ管理/共有ライブラリの管理.md"
   ],
   "/etc/locale.conf": [
-   "20_オフラインRPM取得実務/RHEL7_CVE対応RPM99個_依存関係確認とオフライン更新準備.md"
+   "20_オフラインRPM取得実務/解説_オフラインRPM適用の考え方.md"
   ],
   "/etc/login.defs": [
    "03_ユーザ管理とパーミッション/所有権とumask.md"
@@ -18818,7 +18974,7 @@
    "01_シェルとコマンドライン/シェルの設定ファイル.md"
   ],
   "/etc/profile.d/lang.sh": [
-   "20_オフラインRPM取得実務/RHEL7_CVE対応RPM99個_依存関係確認とオフライン更新準備.md"
+   "20_オフラインRPM取得実務/解説_オフラインRPM適用の考え方.md"
   ],
   "/etc/rc*.d/*sshd": [
    "05_起動プロセスとカーネル/SysVinitの起動スクリプトとランレベル.md"
@@ -19016,7 +19172,7 @@
    "07_パッケージ管理/RPMによるパッケージ管理.md",
    "07_パッケージ管理/YUMとDNFによるパッケージ管理.md",
    "07_パッケージ管理/dnf解説④_リポジトリとキャッシュの管理.md",
-   "20_オフラインRPM取得実務/手順書_RHEL7_下見ログの読み方.md"
+   "20_オフラインRPM取得実務/解説_下見ログの読み方.md"
   ],
   "/etc/yum.repos.d": [
    "07_パッケージ管理/YUMとDNFによるパッケージ管理.md",
@@ -19030,10 +19186,7 @@
   "/etc/yum.repos.d/*.repo": [
    "07_パッケージ管理/dnf解説④_リポジトリとキャッシュの管理.md",
    "20_オフラインRPM取得実務/ローカルリポジトリの仕組み.md",
-   "20_オフラインRPM取得実務/手順書_RHEL7_下見ログの読み方.md"
-  ],
-  "/etc/yum.repos.d/internal-rhel7.repo": [
-   "20_オフラインRPM取得実務/RHEL7_CVE対応RPM99個_依存関係確認とオフライン更新準備.md"
+   "20_オフラインRPM取得実務/解説_下見ログの読み方.md"
   ],
   "/etc/yum.repos.d/redhat.repo": [
    "07_パッケージ管理/dnf実践②_オンライン環境での切り戻しと除外設定.md",
@@ -19145,8 +19298,7 @@
    "06_ストレージとファイルシステム/fstabの書き方.md"
   ],
   "/opt": [
-   "06_ストレージとファイルシステム/FHSとディレクトリ構成.md",
-   "20_オフラインRPM取得実務/RHEL7_CVE対応RPM99個_依存関係確認とオフライン更新準備.md"
+   "06_ストレージとファイルシステム/FHSとディレクトリ構成.md"
   ],
   "/opt/...": [
    "20_オフラインRPM取得実務/ローカルリポジトリの仕組み.md"
@@ -19271,7 +19423,8 @@
    "06_ストレージとファイルシステム/FHSとディレクトリ構成.md"
   ],
   "/rpm": [
-   "20_オフラインRPM取得実務/RHEL7_CVE対応RPM99個_依存関係確認とオフライン更新準備.md"
+   "20_オフラインRPM取得実務/手順書_RHEL7_不足依存RPM取得と適用_yum-utilsあり.md",
+   "20_オフラインRPM取得実務/手順書_RHEL7_不足依存RPM取得と適用_yum-utilsなし.md"
   ],
   "/run": [
    "05_起動プロセスとカーネル/systemctl_サービスの操作と確認.md",
@@ -19351,8 +19504,8 @@
    "06_ストレージとファイルシステム/コマンドの場所を探す.md",
    "06_ストレージとファイルシステム/ファイルシステムの種類と作成.md",
    "17_運用管理/バックアップの方式と設計.md",
-   "20_オフラインRPM取得実務/手順書_RHEL7_下見ログの読み方.md",
-   "20_オフラインRPM取得実務/手順書_RHEL7_対象サーバーでの適用前確認.md"
+   "20_オフラインRPM取得実務/解説_オフラインRPM適用の考え方.md",
+   "20_オフラインRPM取得実務/解説_下見ログの読み方.md"
   ],
   "/tmp/hello.txt": [
    "05_起動プロセスとカーネル/systemd_Serviceセクションと自作サービス.md"
@@ -19361,7 +19514,7 @@
    "01_シェルとコマンドライン/端末とscreenとtmux.md"
   ],
   "/tmp/yum_save_tx.*.yumtx": [
-   "20_オフラインRPM取得実務/RHEL7_CVE対応RPM99個_依存関係確認とオフライン更新準備.md"
+   "20_オフラインRPM取得実務/解説_オフラインRPM適用の考え方.md"
   ],
   "/usr": [
    "06_ストレージとファイルシステム/FHSとディレクトリ構成.md",
@@ -19534,7 +19687,9 @@
    "06_ストレージとファイルシステム/FHSとディレクトリ構成.md",
    "06_ストレージとファイルシステム/LVM_サイズ変更とスナップショット.md",
    "06_ストレージとファイルシステム/LVM_作業手順とトラブル対応.md",
-   "06_ストレージとファイルシステム/LVM_論理ボリュームの管理.md"
+   "06_ストレージとファイルシステム/LVM_論理ボリュームの管理.md",
+   "20_オフラインRPM取得実務/手順書_RHEL7_不足依存RPM取得と適用_yum-utilsあり.md",
+   "20_オフラインRPM取得実務/手順書_RHEL7_不足依存RPM取得と適用_yum-utilsなし.md"
   ],
   "/var/cache": [
    "06_ストレージとファイルシステム/FHSとディレクトリ構成.md"
@@ -19548,9 +19703,6 @@
   ],
   "/var/cache/dnf/...": [
    "07_パッケージ管理/dnf解説③_オプションの使い分け.md"
-  ],
-  "/var/cache/yum": [
-   "20_オフラインRPM取得実務/手順書_RHEL7_yum-utilsが無い場合の依存RPM取得.md"
   ],
   "/var/lib": [
    "06_ストレージとファイルシステム/FHSとディレクトリ構成.md"
@@ -19625,8 +19777,7 @@
    "03_ユーザ管理とパーミッション/SGID_特殊パーミッション.md",
    "06_ストレージとファイルシステム/FHSとディレクトリ構成.md",
    "06_ストレージとファイルシステム/fstabの書き方.md",
-   "07_パッケージ管理/dnf実践①_オンライン環境での更新手順.md",
-   "20_オフラインRPM取得実務/RHEL7_CVE対応RPM99個_依存関係確認とオフライン更新準備.md"
+   "07_パッケージ管理/dnf実践①_オンライン環境での更新手順.md"
   ],
   "/var/tmp/patch_YYYYMMDD": [
    "20_オフラインRPM取得実務/手順書_RHEL7_openssh更新.md",
@@ -19727,10 +19878,13 @@
   "0:": [
    "05_起動プロセスとカーネル/サービスの自動起動設定.md",
    "05_起動プロセスとカーネル/ハードウェアの確認とudev.md",
-   "20_オフラインRPM取得実務/手順書_RHEL7_下見ログの読み方.md"
+   "20_オフラインRPM取得実務/解説_下見ログの読み方.md"
   ],
   "0:03": [
    "04_プロセスとリソース管理/プロセスの確認_ps.md"
+  ],
+  "0:2.0-1": [
+   "20_オフラインRPM取得実務/解説_オフラインRPM適用の考え方.md"
   ],
   "0x": [
    "06_ストレージとファイルシステム/ソフトウェアRAIDの管理_mdadm.md"
@@ -19787,7 +19941,7 @@
    "02_テキスト処理と正規表現/正規表現の基礎.md"
   ],
   "1.0.2k": [
-   "20_オフラインRPM取得実務/RHEL7_CVE対応RPM99個_依存関係確認とオフライン更新準備.md"
+   "20_オフラインRPM取得実務/解説_オフラインRPM適用の考え方.md"
   ],
   "1.0.2k-26": [
    "20_オフラインRPM取得実務/手順書_RHEL7_依存不足対応.md"
@@ -19899,13 +20053,19 @@
    "04_プロセスとリソース管理/稼働状況の確認_uptime_w.md"
   ],
   "1:": [
-   "05_起動プロセスとカーネル/サービスの自動起動設定.md"
+   "05_起動プロセスとカーネル/サービスの自動起動設定.md",
+   "20_オフラインRPM取得実務/手順書_RHEL7_不足依存RPM取得と適用_yum-utilsなし.md"
+  ],
+  "1:1.0-1": [
+   "20_オフラインRPM取得実務/解説_オフラインRPM適用の考え方.md"
   ],
   "1:1.0.2k-21": [
-   "20_オフラインRPM取得実務/手順書_RHEL7_下見ログの読み方.md"
+   "20_オフラインRPM取得実務/解説_オフラインRPM適用の考え方.md",
+   "20_オフラインRPM取得実務/解説_下見ログの読み方.md"
   ],
   "1:1.0.2k-26": [
-   "20_オフラインRPM取得実務/手順書_RHEL7_下見ログの読み方.md"
+   "20_オフラインRPM取得実務/解説_オフラインRPM適用の考え方.md",
+   "20_オフラインRPM取得実務/解説_下見ログの読み方.md"
   ],
   "1K": [
    "02_テキスト処理と正規表現/sortによる並べ替え.md"
@@ -19986,7 +20146,7 @@
    "08_ネットワーク/経路の追加と削除_route.md"
   ],
   "26.el7_9": [
-   "20_オフラインRPM取得実務/RHEL7_CVE対応RPM99個_依存関係確認とオフライン更新準備.md"
+   "20_オフラインRPM取得実務/解説_オフラインRPM適用の考え方.md"
   ],
   "289B": [
    "04_プロセスとリソース管理/リソース監視_IOとネットワーク.md"
@@ -20293,17 +20453,21 @@
    "06_ストレージとファイルシステム/LVM_作業手順とトラブル対応.md"
   ],
   "Available": [
-   "20_オフラインRPM取得実務/手順書_RHEL7_下見ログの読み方.md"
+   "20_オフラインRPM取得実務/解説_下見ログの読み方.md"
   ],
   "Available:": [
-   "20_オフラインRPM取得実務/RHEL7_CVE対応RPM99個_依存関係確認とオフライン更新準備.md",
-   "20_オフラインRPM取得実務/手順書_RHEL7_下見ログの読み方.md"
+   "20_オフラインRPM取得実務/手順書_RHEL7_不足依存RPM取得と適用_yum-utilsあり.md",
+   "20_オフラインRPM取得実務/手順書_RHEL7_不足依存RPM取得と適用_yum-utilsなし.md",
+   "20_オフラインRPM取得実務/解説_下見ログの読み方.md"
   ],
   "Average:": [
    "04_プロセスとリソース管理/sar_過去にさかのぼる監視.md"
   ],
   "Avg": [
    "08_ネットワーク/mtrによる経路品質の調査.md"
+  ],
+  "BAD": [
+   "20_オフラインRPM取得実務/解説_オフラインRPM適用の考え方.md"
   ],
   "BASH_ENV": [
    "01_シェルとコマンドライン/シェルの設定ファイル.md"
@@ -20751,7 +20915,7 @@
   "Downgrade": [
    "07_パッケージ管理/YUMとDNFによるパッケージ管理.md",
    "07_パッケージ管理/dnf実践②_オンライン環境での切り戻しと除外設定.md",
-   "20_オフラインRPM取得実務/手順書_RHEL7_下見ログの読み方.md"
+   "20_オフラインRPM取得実務/解説_下見ログの読み方.md"
   ],
   "Downgrading": [
    "07_パッケージ管理/dnf実践①_オンライン環境での更新手順.md",
@@ -20759,7 +20923,7 @@
   ],
   "Downgrading:": [
    "07_パッケージ管理/dnf解説②_削除系と調査系コマンド.md",
-   "20_オフラインRPM取得実務/手順書_RHEL7_下見ログの読み方.md"
+   "20_オフラインRPM取得実務/解説_下見ログの読み方.md"
   ],
   "DropInPaths": [
    "05_起動プロセスとカーネル/systemctl_結果画面の見方.md"
@@ -20839,23 +21003,22 @@
    "05_起動プロセスとカーネル/systemd_Serviceセクションと自作サービス.md"
   ],
   "Epoch:Version-Release": [
-   "20_オフラインRPM取得実務/RHEL7_CVE対応RPM99個_依存関係確認とオフライン更新準備.md",
-   "20_オフラインRPM取得実務/手順書_RHEL7_下見ログの読み方.md"
+   "20_オフラインRPM取得実務/解説_下見ログの読み方.md"
   ],
   "Error": [
    "02_テキスト処理と正規表現/grepによる検索.md"
   ],
   "Error:": [
-   "20_オフラインRPM取得実務/RHEL7_CVE対応RPM99個_依存関係確認とオフライン更新準備.md",
    "20_オフラインRPM取得実務/ローカルリポジトリの仕組み.md",
    "20_オフラインRPM取得実務/依存チェックスクリプトの読み方.md",
    "20_オフラインRPM取得実務/手順書_RHEL7_openssh更新.md",
-   "20_オフラインRPM取得実務/手順書_RHEL7_yum-utilsが無い場合の依存RPM取得.md",
-   "20_オフラインRPM取得実務/手順書_RHEL7_下見ログの読み方.md",
+   "20_オフラインRPM取得実務/手順書_RHEL7_不足依存RPM取得と適用_yum-utilsあり.md",
+   "20_オフラインRPM取得実務/手順書_RHEL7_不足依存RPM取得と適用_yum-utilsなし.md",
    "20_オフラインRPM取得実務/手順書_RHEL7_依存不足対応.md",
-   "20_オフラインRPM取得実務/手順書_RHEL7_対象サーバーでの適用前確認.md",
    "20_オフラインRPM取得実務/手順書_RHEL8以降_openssh更新.md",
-   "20_オフラインRPM取得実務/手順書_RHEL8以降_依存不足対応.md"
+   "20_オフラインRPM取得実務/手順書_RHEL8以降_依存不足対応.md",
+   "20_オフラインRPM取得実務/解説_オフラインRPM適用の考え方.md",
+   "20_オフラインRPM取得実務/解説_下見ログの読み方.md"
   ],
   "Esc": [
    "01_シェルとコマンドライン/viエディタの基本とモード.md",
@@ -20868,13 +21031,16 @@
    "05_起動プロセスとカーネル/カーネルソースとmakeターゲット.md"
   ],
   "Examining": [
-   "20_オフラインRPM取得実務/RHEL7_CVE対応RPM99個_依存関係確認とオフライン更新準備.md",
-   "20_オフラインRPM取得実務/手順書_RHEL7_下見ログの読み方.md"
+   "20_オフラインRPM取得実務/手順書_RHEL7_不足依存RPM取得と適用_yum-utilsあり.md",
+   "20_オフラインRPM取得実務/手順書_RHEL7_不足依存RPM取得と適用_yum-utilsなし.md",
+   "20_オフラインRPM取得実務/解説_オフラインRPM適用の考え方.md",
+   "20_オフラインRPM取得実務/解説_下見ログの読み方.md"
   ],
   "Excluding": [
-   "20_オフラインRPM取得実務/RHEL7_CVE対応RPM99個_依存関係確認とオフライン更新準備.md",
-   "20_オフラインRPM取得実務/手順書_RHEL7_下見ログの読み方.md",
-   "20_オフラインRPM取得実務/手順書_RHEL7_対象サーバーでの適用前確認.md"
+   "20_オフラインRPM取得実務/手順書_RHEL7_不足依存RPM取得と適用_yum-utilsあり.md",
+   "20_オフラインRPM取得実務/手順書_RHEL7_不足依存RPM取得と適用_yum-utilsなし.md",
+   "20_オフラインRPM取得実務/解説_オフラインRPM適用の考え方.md",
+   "20_オフラインRPM取得実務/解説_下見ログの読み方.md"
   ],
   "ExecMainCode": [
    "05_起動プロセスとカーネル/systemctl_結果画面の見方.md"
@@ -20951,7 +21117,8 @@
    "01_シェルとコマンドライン/ファイルのチェックサム_md5sumとsha256sum.md",
    "08_ネットワーク/ARPキャッシュの操作_arp.md",
    "08_ネットワーク/アドレスとルーティングの確認.md",
-   "20_オフラインRPM取得実務/手順書_RHEL7_対象サーバーでの適用前確認.md"
+   "20_オフラインRPM取得実務/手順書_RHEL7_不足依存RPM取得と適用_yum-utilsあり.md",
+   "20_オフラインRPM取得実務/手順書_RHEL7_不足依存RPM取得と適用_yum-utilsなし.md"
   ],
   "FAT": [
    "06_ストレージとファイルシステム/fstabの書き方.md"
@@ -20983,6 +21150,11 @@
   ],
   "FailSpare": [
    "06_ストレージとファイルシステム/RAIDの監視と保守.md"
+  ],
+  "Failed": [
+   "20_オフラインRPM取得実務/手順書_RHEL7_不足依存RPM取得と適用_yum-utilsあり.md",
+   "20_オフラインRPM取得実務/手順書_RHEL7_不足依存RPM取得と適用_yum-utilsなし.md",
+   "20_オフラインRPM取得実務/解説_オフラインRPM適用の考え方.md"
   ],
   "Feb": [
    "02_テキスト処理と正規表現/sortによる並べ替え.md"
@@ -21097,9 +21269,6 @@
    "08_ネットワーク/ネットワーク状態の確認_netstat.md",
    "08_ネットワーク/経路の追加と削除_route.md"
   ],
-  "Get-FileHash": [
-   "20_オフラインRPM取得実務/RHEL7_CVE対応RPM99個_依存関係確認とオフライン更新準備.md"
-  ],
   "Get/set": [
    "06_ストレージとファイルシステム/hdparmによるディスクパラメータ.md"
   ],
@@ -21188,7 +21357,8 @@
    "08_ネットワーク/ARPキャッシュの操作_arp.md"
   ],
   "Hash": [
-   "20_オフラインRPM取得実務/RHEL7_CVE対応RPM99個_依存関係確認とオフライン更新準備.md"
+   "20_オフラインRPM取得実務/手順書_RHEL7_不足依存RPM取得と適用_yum-utilsあり.md",
+   "20_オフラインRPM取得実務/手順書_RHEL7_不足依存RPM取得と適用_yum-utilsなし.md"
   ],
   "Help": [
    "01_シェルとコマンドライン/テキストエディタの選択_nanoとEmacs.md"
@@ -21278,27 +21448,30 @@
   "Install": [
    "07_パッケージ管理/YUMとDNFによるパッケージ管理.md",
    "07_パッケージ管理/dnf実践①_オンライン環境での更新手順.md",
-   "20_オフラインRPM取得実務/手順書_RHEL7_下見ログの読み方.md"
+   "20_オフラインRPM取得実務/解説_下見ログの読み方.md"
   ],
   "Installed": [
-   "20_オフラインRPM取得実務/手順書_RHEL7_下見ログの読み方.md"
+   "20_オフラインRPM取得実務/手順書_RHEL7_不足依存RPM取得と適用_yum-utilsあり.md",
+   "20_オフラインRPM取得実務/手順書_RHEL7_不足依存RPM取得と適用_yum-utilsなし.md",
+   "20_オフラインRPM取得実務/解説_オフラインRPM適用の考え方.md",
+   "20_オフラインRPM取得実務/解説_下見ログの読み方.md"
   ],
   "Installed:": [
    "07_パッケージ管理/dnf解説①_基本とインストール系コマンド.md",
    "07_パッケージ管理/dnf解説⑥_環境の見極めとバージョン差分.md",
-   "20_オフラインRPM取得実務/RHEL7_CVE対応RPM99個_依存関係確認とオフライン更新準備.md",
    "20_オフラインRPM取得実務/ローカルリポジトリの仕組み.md",
-   "20_オフラインRPM取得実務/手順書_RHEL7_下見ログの読み方.md",
-   "20_オフラインRPM取得実務/手順書_RHEL7_依存不足対応.md"
+   "20_オフラインRPM取得実務/手順書_RHEL7_依存不足対応.md",
+   "20_オフラインRPM取得実務/解説_下見ログの読み方.md"
   ],
   "Installing": [
    "07_パッケージ管理/dnf実践①_オンライン環境での更新手順.md",
-   "20_オフラインRPM取得実務/手順書_RHEL7_対象サーバーでの適用前確認.md"
+   "20_オフラインRPM取得実務/手順書_RHEL7_不足依存RPM取得と適用_yum-utilsあり.md",
+   "20_オフラインRPM取得実務/手順書_RHEL7_不足依存RPM取得と適用_yum-utilsなし.md"
   ],
   "Installing:": [
    "07_パッケージ管理/dnf解説①_基本とインストール系コマンド.md",
    "07_パッケージ管理/dnf解説②_削除系と調査系コマンド.md",
-   "20_オフラインRPM取得実務/手順書_RHEL7_下見ログの読み方.md"
+   "20_オフラインRPM取得実務/解説_下見ログの読み方.md"
   ],
   "Ip:": [
    "08_ネットワーク/ネットワーク状態の確認_netstat.md"
@@ -21364,12 +21537,19 @@
   ],
   "LANG": [
    "01_シェルとコマンドライン/シェル変数と環境変数.md",
-   "20_オフラインRPM取得実務/RHEL7_CVE対応RPM99個_依存関係確認とオフライン更新準備.md"
+   "20_オフラインRPM取得実務/解説_オフラインRPM適用の考え方.md"
   ],
   "LANG=C": [
-   "20_オフラインRPM取得実務/RHEL7_CVE対応RPM99個_依存関係確認とオフライン更新準備.md",
+   "20_オフラインRPM取得実務/ローカルリポジトリの仕組み.md",
+   "20_オフラインRPM取得実務/依存チェックスクリプトの読み方.md",
    "20_オフラインRPM取得実務/手順書_RHEL7_openssh更新.md",
-   "20_オフラインRPM取得実務/手順書_RHEL7_依存不足対応.md"
+   "20_オフラインRPM取得実務/手順書_RHEL7_不足依存RPM取得と適用_yum-utilsあり.md",
+   "20_オフラインRPM取得実務/手順書_RHEL7_不足依存RPM取得と適用_yum-utilsなし.md",
+   "20_オフラインRPM取得実務/手順書_RHEL7_依存不足対応.md",
+   "20_オフラインRPM取得実務/手順書_RHEL8以降_openssh更新.md",
+   "20_オフラインRPM取得実務/手順書_RHEL8以降_依存不足対応.md",
+   "20_オフラインRPM取得実務/解説_オフラインRPM適用の考え方.md",
+   "20_オフラインRPM取得実務/解説_下見ログの読み方.md"
   ],
   "LAST": [
    "04_プロセスとリソース管理/sar_過去にさかのぼる監視.md"
@@ -21378,10 +21558,10 @@
    "06_ストレージとファイルシステム/ディスクの健全性監視_SMART.md"
   ],
   "LC_*": [
-   "20_オフラインRPM取得実務/RHEL7_CVE対応RPM99個_依存関係確認とオフライン更新準備.md"
+   "20_オフラインRPM取得実務/解説_オフラインRPM適用の考え方.md"
   ],
   "LC_ALL": [
-   "20_オフラインRPM取得実務/RHEL7_CVE対応RPM99個_依存関係確認とオフライン更新準備.md"
+   "20_オフラインRPM取得実務/解説_オフラインRPM適用の考え方.md"
   ],
   "LC_ALL=C": [
    "01_シェルとコマンドライン/パス名展開とワイルドカード.md",
@@ -21393,7 +21573,7 @@
    "02_テキスト処理と正規表現/sortによる並べ替え.md"
   ],
   "LC_MESSAGES": [
-   "20_オフラインRPM取得実務/RHEL7_CVE対応RPM99個_依存関係確認とオフライン更新準備.md"
+   "20_オフラインRPM取得実務/解説_オフラインRPM適用の考え方.md"
   ],
   "LD_LIBRARY_PATH": [
    "01_シェルとコマンドライン/テキストエディタの選択_nanoとEmacs.md",
@@ -21430,7 +21610,6 @@
   "LOG_DIR": [
    "20_オフラインRPM取得実務/依存チェックスクリプトの読み方.md",
    "20_オフラインRPM取得実務/手順書_RHEL7_openssh更新.md",
-   "20_オフラインRPM取得実務/手順書_RHEL7_yum-utilsが無い場合の依存RPM取得.md",
    "20_オフラインRPM取得実務/手順書_RHEL7_依存不足対応.md",
    "20_オフラインRPM取得実務/手順書_RHEL8以降_openssh更新.md",
    "20_オフラインRPM取得実務/手順書_RHEL8以降_依存不足対応.md"
@@ -21547,8 +21726,10 @@
    "08_ネットワーク/無線LANの設定_iwconfigとiw.md"
   ],
   "Marking": [
-   "20_オフラインRPM取得実務/RHEL7_CVE対応RPM99個_依存関係確認とオフライン更新準備.md",
-   "20_オフラインRPM取得実務/手順書_RHEL7_下見ログの読み方.md"
+   "20_オフラインRPM取得実務/手順書_RHEL7_不足依存RPM取得と適用_yum-utilsあり.md",
+   "20_オフラインRPM取得実務/手順書_RHEL7_不足依存RPM取得と適用_yum-utilsなし.md",
+   "20_オフラインRPM取得実務/解説_オフラインRPM適用の考え方.md",
+   "20_オフラインRPM取得実務/解説_下見ログの読み方.md"
   ],
   "Mem:": [
    "04_プロセスとリソース管理/リソース監視_システム全体.md"
@@ -21621,9 +21802,6 @@
   "NFS1:/share": [
    "06_ストレージとファイルシステム/オートマウント_autofs.md"
   ],
-  "NG": [
-   "20_オフラインRPM取得実務/手順書_RHEL7_対象サーバーでの適用前確認.md"
-  ],
   "NI": [
    "04_プロセスとリソース管理/プロセスの確認_ps.md",
    "04_プロセスとリソース管理/リソース監視_プロセス単位.md"
@@ -21642,7 +21820,11 @@
   ],
   "NOKEY": [
    "07_パッケージ管理/dnf実践③_オフライン環境でのパッケージの集め方.md",
-   "07_パッケージ管理/dnf解説④_リポジトリとキャッシュの管理.md"
+   "07_パッケージ管理/dnf解説④_リポジトリとキャッシュの管理.md",
+   "20_オフラインRPM取得実務/解説_オフラインRPM適用の考え方.md"
+  ],
+  "NOTRUSTED": [
+   "20_オフラインRPM取得実務/解説_オフラインRPM適用の考え方.md"
   ],
   "NRestarts": [
    "05_起動プロセスとカーネル/systemctl_結果画面の見方.md"
@@ -21669,7 +21851,7 @@
   "OK": [
    "01_シェルとコマンドライン/ファイルのチェックサム_md5sumとsha256sum.md",
    "20_オフラインRPM取得実務/ローカルリポジトリの仕組み.md",
-   "20_オフラインRPM取得実務/手順書_RHEL7_対象サーバーでの適用前確認.md"
+   "20_オフラインRPM取得実務/解説_オフラインRPM適用の考え方.md"
   ],
   "OLDPWD": [
    "01_シェルとコマンドライン/シェル変数と環境変数.md"
@@ -21691,9 +21873,10 @@
    "20_オフラインRPM取得実務/依存チェックスクリプトの読み方.md"
   ],
   "Obsoleting": [
-   "20_オフラインRPM取得実務/RHEL7_CVE対応RPM99個_依存関係確認とオフライン更新準備.md",
-   "20_オフラインRPM取得実務/手順書_RHEL7_下見ログの読み方.md",
-   "20_オフラインRPM取得実務/手順書_RHEL7_対象サーバーでの適用前確認.md"
+   "20_オフラインRPM取得実務/手順書_RHEL7_不足依存RPM取得と適用_yum-utilsあり.md",
+   "20_オフラインRPM取得実務/手順書_RHEL7_不足依存RPM取得と適用_yum-utilsなし.md",
+   "20_オフラインRPM取得実務/解説_オフラインRPM適用の考え方.md",
+   "20_オフラインRPM取得実務/解説_下見ログの読み方.md"
   ],
   "Offline_Uncorrectable": [
    "06_ストレージとファイルシステム/ディスクの健全性監視_SMART.md"
@@ -21917,9 +22100,7 @@
    "20_オフラインRPM取得実務/手順書_RHEL8以降_openssh更新.md"
   ],
   "REPO_ID": [
-   "20_オフラインRPM取得実務/RHEL7_CVE対応RPM99個_依存関係確認とオフライン更新準備.md",
    "20_オフラインRPM取得実務/手順書_RHEL7_openssh更新.md",
-   "20_オフラインRPM取得実務/手順書_RHEL7_yum-utilsが無い場合の依存RPM取得.md",
    "20_オフラインRPM取得実務/手順書_RHEL8以降_openssh更新.md"
   ],
   "RES": [
@@ -21946,9 +22127,6 @@
   "RPM-GPG-KEY-redhat-release": [
    "20_オフラインRPM取得実務/ローカルリポジトリの仕組み.md",
    "20_オフラインRPM取得実務/手順書_RHEL7_openssh更新.md"
-  ],
-  "RPM_DIR": [
-   "20_オフラインRPM取得実務/手順書_RHEL7_yum-utilsが無い場合の依存RPM取得.md"
   ],
   "RSS": [
    "04_プロセスとリソース管理/プロセスの確認_ps.md",
@@ -21990,11 +22168,11 @@
    "08_ネットワーク/経路の追加と削除_route.md"
   ],
   "Reinstall": [
-   "20_オフラインRPM取得実務/手順書_RHEL7_下見ログの読み方.md"
+   "20_オフラインRPM取得実務/解説_下見ログの読み方.md"
   ],
   "Reinstalling:": [
    "07_パッケージ管理/dnf解説②_削除系と調査系コマンド.md",
-   "20_オフラインRPM取得実務/手順書_RHEL7_下見ログの読み方.md"
+   "20_オフラインRPM取得実務/解説_下見ログの読み方.md"
   ],
   "Releasever": [
    "07_パッケージ管理/dnf実践①_オンライン環境での更新手順.md"
@@ -22014,34 +22192,40 @@
   ],
   "Remove": [
    "07_パッケージ管理/YUMとDNFによるパッケージ管理.md",
-   "20_オフラインRPM取得実務/手順書_RHEL7_下見ログの読み方.md"
+   "20_オフラインRPM取得実務/解説_下見ログの読み方.md"
+  ],
+  "Removed": [
+   "20_オフラインRPM取得実務/手順書_RHEL7_不足依存RPM取得と適用_yum-utilsあり.md",
+   "20_オフラインRPM取得実務/手順書_RHEL7_不足依存RPM取得と適用_yum-utilsなし.md",
+   "20_オフラインRPM取得実務/解説_オフラインRPM適用の考え方.md"
   ],
   "Removing": [
    "07_パッケージ管理/dnf実践①_オンライン環境での更新手順.md",
-   "20_オフラインRPM取得実務/RHEL7_CVE対応RPM99個_依存関係確認とオフライン更新準備.md",
-   "20_オフラインRPM取得実務/手順書_RHEL7_下見ログの読み方.md",
-   "20_オフラインRPM取得実務/手順書_RHEL7_対象サーバーでの適用前確認.md"
+   "20_オフラインRPM取得実務/手順書_RHEL7_不足依存RPM取得と適用_yum-utilsあり.md",
+   "20_オフラインRPM取得実務/手順書_RHEL7_不足依存RPM取得と適用_yum-utilsなし.md",
+   "20_オフラインRPM取得実務/解説_オフラインRPM適用の考え方.md",
+   "20_オフラインRPM取得実務/解説_下見ログの読み方.md"
   ],
   "Removing:": [
    "07_パッケージ管理/dnf実践④_オフライン環境での適用と切り戻し.md",
    "07_パッケージ管理/dnf解説①_基本とインストール系コマンド.md",
    "07_パッケージ管理/dnf解説②_削除系と調査系コマンド.md",
    "07_パッケージ管理/dnf解説⑤_依存関係とセキュリティ更新の調べ方.md",
-   "20_オフラインRPM取得実務/手順書_RHEL7_下見ログの読み方.md"
+   "20_オフラインRPM取得実務/解説_下見ログの読み方.md"
+  ],
+  "Replaced": [
+   "20_オフラインRPM取得実務/手順書_RHEL7_不足依存RPM取得と適用_yum-utilsあり.md",
+   "20_オフラインRPM取得実務/手順書_RHEL7_不足依存RPM取得と適用_yum-utilsなし.md",
+   "20_オフラインRPM取得実務/解説_オフラインRPM適用の考え方.md"
   ],
   "Repo": [
    "07_パッケージ管理/dnf解説②_削除系と調査系コマンド.md",
-   "20_オフラインRPM取得実務/手順書_RHEL7_yum-utilsが無い場合の依存RPM取得.md"
-  ],
-  "Repo-baseurl": [
-   "20_オフラインRPM取得実務/RHEL7_CVE対応RPM99個_依存関係確認とオフライン更新準備.md"
-  ],
-  "Repo-id": [
-   "20_オフラインRPM取得実務/RHEL7_CVE対応RPM99個_依存関係確認とオフライン更新準備.md"
+   "20_オフラインRPM取得実務/手順書_RHEL7_不足依存RPM取得と適用_yum-utilsなし.md"
   ],
   "Repo-pkgs": [
-   "20_オフラインRPM取得実務/RHEL7_CVE対応RPM99個_依存関係確認とオフライン更新準備.md",
    "20_オフラインRPM取得実務/手順書_RHEL7_openssh更新.md",
+   "20_オフラインRPM取得実務/手順書_RHEL7_不足依存RPM取得と適用_yum-utilsあり.md",
+   "20_オフラインRPM取得実務/手順書_RHEL7_不足依存RPM取得と適用_yum-utilsなし.md",
    "20_オフラインRPM取得実務/手順書_RHEL8以降_openssh更新.md"
   ],
   "Reported_Uncorrect": [
@@ -22054,13 +22238,13 @@
    "05_起動プロセスとカーネル/systemd_基本とユニットファイル.md"
   ],
   "Requires:": [
-   "20_オフラインRPM取得実務/RHEL7_CVE対応RPM99個_依存関係確認とオフライン更新準備.md",
    "20_オフラインRPM取得実務/ローカルリポジトリの仕組み.md",
    "20_オフラインRPM取得実務/依存チェックスクリプトの読み方.md",
-   "20_オフラインRPM取得実務/手順書_RHEL7_yum-utilsが無い場合の依存RPM取得.md",
-   "20_オフラインRPM取得実務/手順書_RHEL7_下見ログの読み方.md",
+   "20_オフラインRPM取得実務/手順書_RHEL7_不足依存RPM取得と適用_yum-utilsあり.md",
+   "20_オフラインRPM取得実務/手順書_RHEL7_不足依存RPM取得と適用_yum-utilsなし.md",
    "20_オフラインRPM取得実務/手順書_RHEL7_依存不足対応.md",
-   "20_オフラインRPM取得実務/手順書_RHEL7_対象サーバーでの適用前確認.md"
+   "20_オフラインRPM取得実務/解説_オフラインRPM適用の考え方.md",
+   "20_オフラインRPM取得実務/解説_下見ログの読み方.md"
   ],
   "Requires=": [
    "05_起動プロセスとカーネル/systemctl_サービスの操作と確認.md",
@@ -22290,15 +22474,11 @@
    "06_ストレージとファイルシステム/スワップ領域.md",
    "07_パッケージ管理/dnf解説②_削除系と調査系コマンド.md"
   ],
-  "Skipped": [
-   "20_オフラインRPM取得実務/RHEL7_CVE対応RPM99個_依存関係確認とオフライン更新準備.md"
-  ],
   "Skipped:": [
    "07_パッケージ管理/dnf解説③_オプションの使い分け.md"
   ],
   "Skipping": [
-   "07_パッケージ管理/dnf実践①_オンライン環境での更新手順.md",
-   "20_オフラインRPM取得実務/RHEL7_CVE対応RPM99個_依存関係確認とオフライン更新準備.md"
+   "07_パッケージ管理/dnf実践①_オンライン環境での更新手順.md"
   ],
   "Snt": [
    "08_ネットワーク/mtrによる経路品質の調査.md"
@@ -22540,7 +22720,8 @@
   ],
   "UNKNOWN": [
    "08_ネットワーク/アドレスとルーティングの確認.md",
-   "10_セキュリティ/TCPラッパーによるアクセス制御.md"
+   "10_セキュリティ/TCPラッパーによるアクセス制御.md",
+   "20_オフラインRPM取得実務/解説_オフラインRPM適用の考え方.md"
   ],
   "UP": [
    "08_ネットワーク/アドレスとルーティングの確認.md"
@@ -22588,17 +22769,23 @@
   "Up": [
    "04_プロセスとリソース管理/リソース監視_IOとネットワーク.md"
   ],
+  "Updated": [
+   "20_オフラインRPM取得実務/手順書_RHEL7_不足依存RPM取得と適用_yum-utilsあり.md",
+   "20_オフラインRPM取得実務/手順書_RHEL7_不足依存RPM取得と適用_yum-utilsなし.md",
+   "20_オフラインRPM取得実務/解説_オフラインRPM適用の考え方.md"
+  ],
   "Updating": [
-   "20_オフラインRPM取得実務/手順書_RHEL7_対象サーバーでの適用前確認.md"
+   "20_オフラインRPM取得実務/手順書_RHEL7_不足依存RPM取得と適用_yum-utilsあり.md",
+   "20_オフラインRPM取得実務/手順書_RHEL7_不足依存RPM取得と適用_yum-utilsなし.md"
   ],
   "Updating:": [
    "20_オフラインRPM取得実務/手順書_RHEL7_openssh更新.md",
-   "20_オフラインRPM取得実務/手順書_RHEL7_下見ログの読み方.md"
+   "20_オフラインRPM取得実務/解説_下見ログの読み方.md"
   ],
   "Upgrade": [
    "07_パッケージ管理/YUMとDNFによるパッケージ管理.md",
    "07_パッケージ管理/dnf実践②_オンライン環境での切り戻しと除外設定.md",
-   "20_オフラインRPM取得実務/手順書_RHEL7_下見ログの読み方.md"
+   "20_オフラインRPM取得実務/解説_下見ログの読み方.md"
   ],
   "Upgraded": [
    "07_パッケージ管理/dnf解説③_オプションの使い分け.md"
@@ -22818,7 +23005,7 @@
    "02_テキスト処理と正規表現/テキストの分割と整形_splitとfmt.md"
   ],
   "access.redhat.com/solutions/": [
-   "20_オフラインRPM取得実務/RHEL7_CVE対応RPM99個_依存関係確認とオフライン更新準備.md"
+   "20_オフラインRPM取得実務/解説_オフラインRPM適用の考え方.md"
   ],
   "accesspoints": [
    "08_ネットワーク/無線LANの設定_iwconfigとiw.md"
@@ -22861,6 +23048,14 @@
   ],
   "add-wants": [
    "05_起動プロセスとカーネル/systemctl_サービスの操作と確認.md"
+  ],
+  "add_01.tar.gz": [
+   "20_オフラインRPM取得実務/手順書_RHEL7_不足依存RPM取得と適用_yum-utilsあり.md",
+   "20_オフラインRPM取得実務/手順書_RHEL7_不足依存RPM取得と適用_yum-utilsなし.md"
+  ],
+  "add_01.tar.gz.sha256": [
+   "20_オフラインRPM取得実務/手順書_RHEL7_不足依存RPM取得と適用_yum-utilsあり.md",
+   "20_オフラインRPM取得実務/手順書_RHEL7_不足依存RPM取得と適用_yum-utilsなし.md"
   ],
   "added": [
    "05_起動プロセスとカーネル/モジュールの依存関係とDKMS.md"
@@ -22920,8 +23115,7 @@
    "05_起動プロセスとカーネル/ハードウェアの確認とudev.md",
    "05_起動プロセスとカーネル/初期RAMディスク_initrdとinitramfs.md",
    "07_パッケージ管理/dnf解説③_オプションの使い分け.md",
-   "07_パッケージ管理/ソースからのビルドとインストール.md",
-   "20_オフラインRPM取得実務/手順書_RHEL7_yum-utilsが無い場合の依存RPM取得.md"
+   "07_パッケージ管理/ソースからのビルドとインストール.md"
   ],
   "allexport": [
    "01_シェルとコマンドライン/シェルのオプション設定.md",
@@ -22937,14 +23131,13 @@
    "05_起動プロセスとカーネル/systemd_Serviceセクションと自作サービス.md"
   ],
   "alwaysprompt": [
-   "20_オフラインRPM取得実務/RHEL7_CVE対応RPM99個_依存関係確認とオフライン更新準備.md",
-   "20_オフラインRPM取得実務/手順書_RHEL7_yum-utilsが無い場合の依存RPM取得.md",
-   "20_オフラインRPM取得実務/手順書_RHEL7_下見ログの読み方.md",
-   "20_オフラインRPM取得実務/手順書_RHEL7_対象サーバーでの適用前確認.md"
+   "20_オフラインRPM取得実務/解説_オフラインRPM適用の考え方.md",
+   "20_オフラインRPM取得実務/解説_下見ログの読み方.md"
   ],
   "alwaysprompt=0": [
-   "20_オフラインRPM取得実務/RHEL7_CVE対応RPM99個_依存関係確認とオフライン更新準備.md",
-   "20_オフラインRPM取得実務/手順書_RHEL7_対象サーバーでの適用前確認.md"
+   "20_オフラインRPM取得実務/手順書_RHEL7_不足依存RPM取得と適用_yum-utilsあり.md",
+   "20_オフラインRPM取得実務/手順書_RHEL7_不足依存RPM取得と適用_yum-utilsなし.md",
+   "20_オフラインRPM取得実務/解説_オフラインRPM適用の考え方.md"
   ],
   "and": [
    "08_ネットワーク/パケットキャプチャ_tcpdump.md"
@@ -22964,6 +23157,10 @@
   ],
   "apply": [
    "08_ネットワーク/アドレスとルーティングの確認.md"
+  ],
+  "apply.txt": [
+   "20_オフラインRPM取得実務/手順書_RHEL7_不足依存RPM取得と適用_yum-utilsあり.md",
+   "20_オフラインRPM取得実務/手順書_RHEL7_不足依存RPM取得と適用_yum-utilsなし.md"
   ],
   "apply_updates": [
    "07_パッケージ管理/dnf実践②_オンライン環境での切り戻しと除外設定.md"
@@ -23028,17 +23225,16 @@
    "08_ネットワーク/インタフェースの冗長化_bonding.md"
   ],
   "assumeno": [
-   "20_オフラインRPM取得実務/RHEL7_CVE対応RPM99個_依存関係確認とオフライン更新準備.md",
-   "20_オフラインRPM取得実務/手順書_RHEL7_yum-utilsが無い場合の依存RPM取得.md",
-   "20_オフラインRPM取得実務/手順書_RHEL7_下見ログの読み方.md",
-   "20_オフラインRPM取得実務/手順書_RHEL7_対象サーバーでの適用前確認.md"
+   "20_オフラインRPM取得実務/解説_オフラインRPM適用の考え方.md",
+   "20_オフラインRPM取得実務/解説_下見ログの読み方.md"
   ],
   "assumeyes": [
-   "20_オフラインRPM取得実務/RHEL7_CVE対応RPM99個_依存関係確認とオフライン更新準備.md"
+   "20_オフラインRPM取得実務/解説_オフラインRPM適用の考え方.md"
   ],
   "assumeyes=1": [
-   "20_オフラインRPM取得実務/RHEL7_CVE対応RPM99個_依存関係確認とオフライン更新準備.md",
-   "20_オフラインRPM取得実務/手順書_RHEL7_対象サーバーでの適用前確認.md"
+   "20_オフラインRPM取得実務/手順書_RHEL7_不足依存RPM取得と適用_yum-utilsあり.md",
+   "20_オフラインRPM取得実務/手順書_RHEL7_不足依存RPM取得と適用_yum-utilsなし.md",
+   "20_オフラインRPM取得実務/解説_オフラインRPM適用の考え方.md"
   ],
   "async": [
    "06_ストレージとファイルシステム/fstabの書き方.md"
@@ -23524,7 +23720,9 @@
    "03_ユーザ管理とパーミッション/パーミッションの読み方とchmod.md",
    "05_起動プロセスとカーネル/カーネルのビルドとインストール.md",
    "06_ストレージとファイルシステム/コマンドの場所を探す.md",
-   "07_パッケージ管理/patchによるソースの更新.md"
+   "07_パッケージ管理/patchによるソースの更新.md",
+   "20_オフラインRPM取得実務/手順書_RHEL7_不足依存RPM取得と適用_yum-utilsあり.md",
+   "20_オフラインRPM取得実務/手順書_RHEL7_不足依存RPM取得と適用_yum-utilsなし.md"
   ],
   "centos": [
    "05_起動プロセスとカーネル/GRUBの設定と復旧.md"
@@ -23545,7 +23743,9 @@
    "06_ストレージとファイルシステム/RAIDの監視と保守.md",
    "07_パッケージ管理/dnf解説①_基本とインストール系コマンド.md",
    "07_パッケージ管理/ソースからのビルドとインストール.md",
-   "20_オフラインRPM取得実務/手順書_RHEL7_対象サーバーでの適用前確認.md"
+   "20_オフラインRPM取得実務/手順書_RHEL7_不足依存RPM取得と適用_yum-utilsあり.md",
+   "20_オフラインRPM取得実務/手順書_RHEL7_不足依存RPM取得と適用_yum-utilsなし.md",
+   "20_オフラインRPM取得実務/解説_オフラインRPM適用の考え方.md"
   ],
   "check-update": [
    "07_パッケージ管理/YUMとDNFによるパッケージ管理.md",
@@ -23561,16 +23761,16 @@
    "07_パッケージ管理/dnf解説①_基本とインストール系コマンド.md"
   ],
   "check_deps.sh": [
-   "20_オフラインRPM取得実務/RHEL7_CVE対応RPM99個_依存関係確認とオフライン更新準備.md",
    "20_オフラインRPM取得実務/ローカルリポジトリの仕組み.md",
    "20_オフラインRPM取得実務/依存チェックスクリプトの読み方.md",
    "20_オフラインRPM取得実務/手順書_RHEL7_openssh更新.md",
-   "20_オフラインRPM取得実務/手順書_RHEL7_yum-utilsが無い場合の依存RPM取得.md",
-   "20_オフラインRPM取得実務/手順書_RHEL7_下見ログの読み方.md",
+   "20_オフラインRPM取得実務/手順書_RHEL7_不足依存RPM取得と適用_yum-utilsあり.md",
+   "20_オフラインRPM取得実務/手順書_RHEL7_不足依存RPM取得と適用_yum-utilsなし.md",
    "20_オフラインRPM取得実務/手順書_RHEL7_依存不足対応.md",
-   "20_オフラインRPM取得実務/手順書_RHEL7_対象サーバーでの適用前確認.md",
    "20_オフラインRPM取得実務/手順書_RHEL8以降_openssh更新.md",
-   "20_オフラインRPM取得実務/手順書_RHEL8以降_依存不足対応.md"
+   "20_オフラインRPM取得実務/手順書_RHEL8以降_依存不足対応.md",
+   "20_オフラインRPM取得実務/解説_オフラインRPM適用の考え方.md",
+   "20_オフラインRPM取得実務/解説_下見ログの読み方.md"
   ],
   "checkmd5": [
    "01_シェルとコマンドライン/ファイルのチェックサム_md5sumとsha256sum.md"
@@ -23657,9 +23857,6 @@
   "clear": [
    "04_プロセスとリソース管理/コマンドの繰り返し実行_watch.md"
   ],
-  "cli.py": [
-   "20_オフラインRPM取得実務/手順書_RHEL7_yum-utilsが無い場合の依存RPM取得.md"
-  ],
   "cloneconfig": [
    "05_起動プロセスとカーネル/カーネルソースとmakeターゲット.md"
   ],
@@ -23712,9 +23909,6 @@
   ],
   "condrestart": [
    "05_起動プロセスとカーネル/SysVinitの起動スクリプトとランレベル.md"
-  ],
-  "conf.downloaddir": [
-   "20_オフラインRPM取得実務/手順書_RHEL7_yum-utilsが無い場合の依存RPM取得.md"
   ],
   "conf/": [
    "05_起動プロセスとカーネル/初期RAMディスク_initrdとinitramfs.md"
@@ -23861,16 +24055,16 @@
    "06_ストレージとファイルシステム/ディスクの暗号化_dm-cryptとLUKS.md"
   ],
   "createrepo": [
-   "20_オフラインRPM取得実務/RHEL7_CVE対応RPM99個_依存関係確認とオフライン更新準備.md",
    "20_オフラインRPM取得実務/ローカルリポジトリの仕組み.md",
    "20_オフラインRPM取得実務/依存チェックスクリプトの読み方.md",
    "20_オフラインRPM取得実務/手順書_RHEL7_openssh更新.md",
-   "20_オフラインRPM取得実務/手順書_RHEL7_yum-utilsが無い場合の依存RPM取得.md",
-   "20_オフラインRPM取得実務/手順書_RHEL7_下見ログの読み方.md",
+   "20_オフラインRPM取得実務/手順書_RHEL7_不足依存RPM取得と適用_yum-utilsあり.md",
+   "20_オフラインRPM取得実務/手順書_RHEL7_不足依存RPM取得と適用_yum-utilsなし.md",
    "20_オフラインRPM取得実務/手順書_RHEL7_依存不足対応.md",
-   "20_オフラインRPM取得実務/手順書_RHEL7_対象サーバーでの適用前確認.md",
    "20_オフラインRPM取得実務/手順書_RHEL8以降_openssh更新.md",
-   "20_オフラインRPM取得実務/手順書_RHEL8以降_依存不足対応.md"
+   "20_オフラインRPM取得実務/手順書_RHEL8以降_依存不足対応.md",
+   "20_オフラインRPM取得実務/解説_オフラインRPM適用の考え方.md",
+   "20_オフラインRPM取得実務/解説_下見ログの読み方.md"
   ],
   "createrepo.log": [
    "20_オフラインRPM取得実務/手順書_RHEL7_依存不足対応.md",
@@ -23982,7 +24176,7 @@
    "07_パッケージ管理/RPMによるパッケージ管理.md",
    "08_ネットワーク/nmcliによるネットワーク設定.md",
    "08_ネットワーク/経路の追加と削除_route.md",
-   "20_オフラインRPM取得実務/手順書_RHEL7_下見ログの読み方.md"
+   "20_オフラインRPM取得実務/解説_下見ログの読み方.md"
   ],
   "d1/": [
    "17_運用管理/rsyncによる同期とバックアップ.md"
@@ -24090,11 +24284,12 @@
    "07_パッケージ管理/dnf解説①_基本とインストール系コマンド.md"
   ],
   "debuglevel": [
-   "20_オフラインRPM取得実務/手順書_RHEL7_下見ログの読み方.md"
+   "20_オフラインRPM取得実務/解説_オフラインRPM適用の考え方.md",
+   "20_オフラインRPM取得実務/解説_下見ログの読み方.md"
   ],
   "debuglevel=2": [
-   "20_オフラインRPM取得実務/手順書_RHEL7_下見ログの読み方.md",
-   "20_オフラインRPM取得実務/手順書_RHEL7_対象サーバーでの適用前確認.md"
+   "20_オフラインRPM取得実務/解説_オフラインRPM適用の考え方.md",
+   "20_オフラインRPM取得実務/解説_下見ログの読み方.md"
   ],
   "declare": [
    "01_シェルとコマンドライン/シェル変数と環境変数.md"
@@ -24133,17 +24328,14 @@
    "20_オフラインRPM取得実務/手順書_RHEL7_openssh更新.md"
   ],
   "depcheck_log.tar.gz": [
-   "20_オフラインRPM取得実務/RHEL7_CVE対応RPM99個_依存関係確認とオフライン更新準備.md"
-  ],
-  "dependency:": [
-   "20_オフラインRPM取得実務/手順書_RHEL7_yum-utilsが無い場合の依存RPM取得.md"
+   "20_オフラインRPM取得実務/手順書_RHEL7_不足依存RPM取得と適用_yum-utilsあり.md",
+   "20_オフラインRPM取得実務/手順書_RHEL7_不足依存RPM取得と適用_yum-utilsなし.md"
   ],
   "depends": [
    "05_起動プロセスとカーネル/カーネルモジュールの管理.md"
   ],
   "deplist": [
-   "07_パッケージ管理/dnf解説①_基本とインストール系コマンド.md",
-   "20_オフラインRPM取得実務/手順書_RHEL7_yum-utilsが無い場合の依存RPM取得.md"
+   "07_パッケージ管理/dnf解説①_基本とインストール系コマンド.md"
   ],
   "depmod": [
    "05_起動プロセスとカーネル/カーネルのビルドとインストール.md",
@@ -24209,8 +24401,7 @@
    "01_シェルとコマンドライン/圧縮とアーカイブ.md",
    "07_パッケージ管理/dnf実践①_オンライン環境での更新手順.md",
    "07_パッケージ管理/dnf解説⑤_依存関係とセキュリティ更新の調べ方.md",
-   "07_パッケージ管理/patchによるソースの更新.md",
-   "20_オフラインRPM取得実務/RHEL7_CVE対応RPM99個_依存関係確認とオフライン更新準備.md"
+   "07_パッケージ管理/patchによるソースの更新.md"
   ],
   "dig": [
    "08_ネットワーク/ネットワークの基礎知識_サブネットとMTUとホスト名.md",
@@ -24221,7 +24412,8 @@
    "03_ユーザ管理とパーミッション/パーミッションの読み方とchmod.md",
    "03_ユーザ管理とパーミッション/所有権とumask.md",
    "06_ストレージとファイルシステム/findによるファイル検索.md",
-   "20_オフラインRPM取得実務/RHEL7_CVE対応RPM99個_依存関係確認とオフライン更新準備.md"
+   "20_オフラインRPM取得実務/手順書_RHEL7_不足依存RPM取得と適用_yum-utilsあり.md",
+   "20_オフラインRPM取得実務/手順書_RHEL7_不足依存RPM取得と適用_yum-utilsなし.md"
   ],
   "dir1": [
    "01_シェルとコマンドライン/ファイルとディレクトリの操作.md"
@@ -24322,16 +24514,16 @@
    "07_パッケージ管理/dnf解説④_リポジトリとキャッシュの管理.md",
    "07_パッケージ管理/dnf解説⑤_依存関係とセキュリティ更新の調べ方.md",
    "07_パッケージ管理/dnf解説⑥_環境の見極めとバージョン差分.md",
-   "20_オフラインRPM取得実務/RHEL7_CVE対応RPM99個_依存関係確認とオフライン更新準備.md",
    "20_オフラインRPM取得実務/ローカルリポジトリの仕組み.md",
    "20_オフラインRPM取得実務/依存チェックスクリプトの読み方.md",
    "20_オフラインRPM取得実務/手順書_RHEL7_openssh更新.md",
-   "20_オフラインRPM取得実務/手順書_RHEL7_yum-utilsが無い場合の依存RPM取得.md",
-   "20_オフラインRPM取得実務/手順書_RHEL7_下見ログの読み方.md",
+   "20_オフラインRPM取得実務/手順書_RHEL7_不足依存RPM取得と適用_yum-utilsあり.md",
+   "20_オフラインRPM取得実務/手順書_RHEL7_不足依存RPM取得と適用_yum-utilsなし.md",
    "20_オフラインRPM取得実務/手順書_RHEL7_依存不足対応.md",
-   "20_オフラインRPM取得実務/手順書_RHEL7_対象サーバーでの適用前確認.md",
    "20_オフラインRPM取得実務/手順書_RHEL8以降_openssh更新.md",
-   "20_オフラインRPM取得実務/手順書_RHEL8以降_依存不足対応.md"
+   "20_オフラインRPM取得実務/手順書_RHEL8以降_依存不足対応.md",
+   "20_オフラインRPM取得実務/解説_オフラインRPM適用の考え方.md",
+   "20_オフラインRPM取得実務/解説_下見ログの読み方.md"
   ],
   "dnf-4": [
    "07_パッケージ管理/dnf実践①_オンライン環境での更新手順.md"
@@ -24468,9 +24660,6 @@
   "download_updates": [
    "07_パッケージ管理/dnf実践②_オンライン環境での切り戻しと除外設定.md"
   ],
-  "downloadonly": [
-   "20_オフラインRPM取得実務/手順書_RHEL7_yum-utilsが無い場合の依存RPM取得.md"
-  ],
   "dpkg": [
    "07_パッケージ管理/RPMによるパッケージ管理.md"
   ],
@@ -24497,14 +24686,13 @@
    "20_オフラインRPM取得実務/手順書_RHEL7_依存不足対応.md",
    "20_オフラインRPM取得実務/手順書_RHEL8以降_依存不足対応.md"
   ],
-  "dryrun_*.txt": [
-   "20_オフラインRPM取得実務/手順書_RHEL7_yum-utilsが無い場合の依存RPM取得.md"
-  ],
   "dryrun_01.txt": [
-   "20_オフラインRPM取得実務/RHEL7_CVE対応RPM99個_依存関係確認とオフライン更新準備.md"
+   "20_オフラインRPM取得実務/手順書_RHEL7_不足依存RPM取得と適用_yum-utilsあり.md",
+   "20_オフラインRPM取得実務/手順書_RHEL7_不足依存RPM取得と適用_yum-utilsなし.md"
   ],
-  "dryrun_01_repo.txt": [
-   "20_オフラインRPM取得実務/RHEL7_CVE対応RPM99個_依存関係確認とオフライン更新準備.md"
+  "dryrun_02.txt": [
+   "20_オフラインRPM取得実務/手順書_RHEL7_不足依存RPM取得と適用_yum-utilsあり.md",
+   "20_オフラインRPM取得実務/手順書_RHEL7_不足依存RPM取得と適用_yum-utilsなし.md"
   ],
   "dst": [
    "08_ネットワーク/パケットキャプチャ_tcpdump.md"
@@ -24609,17 +24797,25 @@
    "20_オフラインRPM取得実務/手順書_RHEL8以降_openssh更新.md",
    "20_オフラインRPM取得実務/手順書_RHEL8以降_依存不足対応.md"
   ],
+  "el6": [
+   "20_オフラインRPM取得実務/解説_オフラインRPM適用の考え方.md"
+  ],
   "el7": [
-   "20_オフラインRPM取得実務/RHEL7_CVE対応RPM99個_依存関係確認とオフライン更新準備.md",
    "20_オフラインRPM取得実務/手順書_RHEL7_openssh更新.md",
-   "20_オフラインRPM取得実務/手順書_RHEL7_yum-utilsが無い場合の依存RPM取得.md",
-   "20_オフラインRPM取得実務/手順書_RHEL7_下見ログの読み方.md",
-   "20_オフラインRPM取得実務/手順書_RHEL7_依存不足対応.md"
+   "20_オフラインRPM取得実務/手順書_RHEL7_不足依存RPM取得と適用_yum-utilsあり.md",
+   "20_オフラインRPM取得実務/手順書_RHEL7_不足依存RPM取得と適用_yum-utilsなし.md",
+   "20_オフラインRPM取得実務/手順書_RHEL7_依存不足対応.md",
+   "20_オフラインRPM取得実務/解説_オフラインRPM適用の考え方.md",
+   "20_オフラインRPM取得実務/解説_下見ログの読み方.md"
+  ],
+  "el7_9": [
+   "20_オフラインRPM取得実務/解説_オフラインRPM適用の考え方.md"
   ],
   "el8": [
    "20_オフラインRPM取得実務/ローカルリポジトリの仕組み.md",
    "20_オフラインRPM取得実務/手順書_RHEL8以降_openssh更新.md",
-   "20_オフラインRPM取得実務/手順書_RHEL8以降_依存不足対応.md"
+   "20_オフラインRPM取得実務/手順書_RHEL8以降_依存不足対応.md",
+   "20_オフラインRPM取得実務/解説_オフラインRPM適用の考え方.md"
   ],
   "el9": [
    "20_オフラインRPM取得実務/ローカルリポジトリの仕組み.md",
@@ -24732,6 +24928,10 @@
    "04_プロセスとリソース管理/リソース監視_IOとネットワーク.md",
    "08_ネットワーク/アドレスとルーティングの確認.md"
   ],
+  "errors_01.txt": [
+   "20_オフラインRPM取得実務/手順書_RHEL7_不足依存RPM取得と適用_yum-utilsあり.md",
+   "20_オフラインRPM取得実務/手順書_RHEL7_不足依存RPM取得と適用_yum-utilsなし.md"
+  ],
   "errtrace": [
    "01_シェルとコマンドライン/シェルのオプション設定.md"
   ],
@@ -24805,9 +25005,10 @@
    "07_パッケージ管理/dnf解説④_リポジトリとキャッシュの管理.md",
    "07_パッケージ管理/dnf解説⑤_依存関係とセキュリティ更新の調べ方.md",
    "07_パッケージ管理/dnf解説⑥_環境の見極めとバージョン差分.md",
-   "20_オフラインRPM取得実務/RHEL7_CVE対応RPM99個_依存関係確認とオフライン更新準備.md",
-   "20_オフラインRPM取得実務/手順書_RHEL7_下見ログの読み方.md",
-   "20_オフラインRPM取得実務/手順書_RHEL7_対象サーバーでの適用前確認.md"
+   "20_オフラインRPM取得実務/手順書_RHEL7_不足依存RPM取得と適用_yum-utilsあり.md",
+   "20_オフラインRPM取得実務/手順書_RHEL7_不足依存RPM取得と適用_yum-utilsなし.md",
+   "20_オフラインRPM取得実務/解説_オフラインRPM適用の考え方.md",
+   "20_オフラインRPM取得実務/解説_下見ログの読み方.md"
   ],
   "exclude_from_weak_autodetect": [
    "07_パッケージ管理/dnf解説⑥_環境の見極めとバージョン差分.md"
@@ -24839,8 +25040,9 @@
    "01_シェルとコマンドライン/シェルスクリプトの実行方法.md",
    "01_シェルとコマンドライン/端末とscreenとtmux.md",
    "05_起動プロセスとカーネル/GRUBの設定と復旧.md",
-   "20_オフラインRPM取得実務/RHEL7_CVE対応RPM99個_依存関係確認とオフライン更新準備.md",
-   "20_オフラインRPM取得実務/手順書_RHEL7_対象サーバーでの適用前確認.md"
+   "20_オフラインRPM取得実務/手順書_RHEL7_不足依存RPM取得と適用_yum-utilsあり.md",
+   "20_オフラインRPM取得実務/手順書_RHEL7_不足依存RPM取得と適用_yum-utilsなし.md",
+   "20_オフラインRPM取得実務/解説_オフラインRPM適用の考え方.md"
   ],
   "exit-code": [
    "05_起動プロセスとカーネル/systemctl_サービスの操作と確認.md",
@@ -24870,12 +25072,13 @@
    "01_シェルとコマンドライン/シェル変数と環境変数.md",
    "01_シェルとコマンドライン/テキストエディタの選択_nanoとEmacs.md",
    "01_シェルとコマンドライン/マニュアルの参照.md",
-   "20_オフラインRPM取得実務/RHEL7_CVE対応RPM99個_依存関係確認とオフライン更新準備.md",
    "20_オフラインRPM取得実務/手順書_RHEL7_openssh更新.md",
-   "20_オフラインRPM取得実務/手順書_RHEL7_yum-utilsが無い場合の依存RPM取得.md",
+   "20_オフラインRPM取得実務/手順書_RHEL7_不足依存RPM取得と適用_yum-utilsあり.md",
+   "20_オフラインRPM取得実務/手順書_RHEL7_不足依存RPM取得と適用_yum-utilsなし.md",
    "20_オフラインRPM取得実務/手順書_RHEL7_依存不足対応.md",
    "20_オフラインRPM取得実務/手順書_RHEL8以降_openssh更新.md",
-   "20_オフラインRPM取得実務/手順書_RHEL8以降_依存不足対応.md"
+   "20_オフラインRPM取得実務/手順書_RHEL8以降_依存不足対応.md",
+   "20_オフラインRPM取得実務/解説_オフラインRPM適用の考え方.md"
   ],
   "ext2": [
    "06_ストレージとファイルシステム/Btrfsとサブボリューム.md",
@@ -25069,9 +25272,6 @@
   "filtered": [
    "10_セキュリティ/ポートスキャンと疎通_nmapとnc.md"
   ],
-  "final-inventory.tsv": [
-   "20_オフラインRPM取得実務/RHEL7_CVE対応RPM99個_依存関係確認とオフライン更新準備.md"
-  ],
   "find": [
    "01_シェルとコマンドライン/ハードリンクとシンボリックリンク.md",
    "01_シェルとコマンドライン/パス名展開とワイルドカード.md",
@@ -25111,9 +25311,6 @@
   ],
   "fo/s": [
    "04_プロセスとリソース管理/リソース監視_IOとネットワーク.md"
-  ],
-  "for": [
-   "20_オフラインRPM取得実務/RHEL7_CVE対応RPM99個_依存関係確認とオフライン更新準備.md"
   ],
   "force-reload": [
    "05_起動プロセスとカーネル/SysVinitの起動スクリプトとランレベル.md"
@@ -25309,9 +25506,10 @@
   ],
   "glibc": [
    "07_パッケージ管理/dnf実践③_オフライン環境でのパッケージの集め方.md",
-   "20_オフラインRPM取得実務/RHEL7_CVE対応RPM99個_依存関係確認とオフライン更新準備.md",
+   "20_オフラインRPM取得実務/手順書_RHEL7_不足依存RPM取得と適用_yum-utilsなし.md",
    "20_オフラインRPM取得実務/手順書_RHEL7_依存不足対応.md",
-   "20_オフラインRPM取得実務/手順書_RHEL8以降_依存不足対応.md"
+   "20_オフラインRPM取得実務/手順書_RHEL8以降_依存不足対応.md",
+   "20_オフラインRPM取得実務/解説_オフラインRPM適用の考え方.md"
   ],
   "global": [
    "08_ネットワーク/アドレスとルーティングの確認.md"
@@ -25338,7 +25536,6 @@
    "07_パッケージ管理/dnf解説④_リポジトリとキャッシュの管理.md"
   ],
   "gpgcheck=0": [
-   "20_オフラインRPM取得実務/RHEL7_CVE対応RPM99個_依存関係確認とオフライン更新準備.md",
    "20_オフラインRPM取得実務/ローカルリポジトリの仕組み.md",
    "20_オフラインRPM取得実務/手順書_RHEL7_依存不足対応.md",
    "20_オフラインRPM取得実務/手順書_RHEL8以降_依存不足対応.md"
@@ -25386,11 +25583,11 @@
    "06_ストレージとファイルシステム/コマンドの場所を探す.md",
    "08_ネットワーク/アドレスとルーティングの確認.md",
    "08_ネットワーク/ソケットの確認_ss.md",
-   "20_オフラインRPM取得実務/RHEL7_CVE対応RPM99個_依存関係確認とオフライン更新準備.md",
    "20_オフラインRPM取得実務/ローカルリポジトリの仕組み.md",
    "20_オフラインRPM取得実務/依存チェックスクリプトの読み方.md",
    "20_オフラインRPM取得実務/手順書_RHEL7_openssh更新.md",
-   "20_オフラインRPM取得実務/手順書_RHEL7_対象サーバーでの適用前確認.md"
+   "20_オフラインRPM取得実務/手順書_RHEL7_不足依存RPM取得と適用_yum-utilsあり.md",
+   "20_オフラインRPM取得実務/手順書_RHEL7_不足依存RPM取得と適用_yum-utilsなし.md"
   ],
   "group": [
    "07_パッケージ管理/dnf解説①_基本とインストール系コマンド.md",
@@ -25545,10 +25742,15 @@
    "07_パッケージ管理/dnf解説③_オプションの使い分け.md",
    "07_パッケージ管理/dnf解説④_リポジトリとキャッシュの管理.md",
    "07_パッケージ管理/dnf解説⑤_依存関係とセキュリティ更新の調べ方.md",
-   "07_パッケージ管理/dnf解説⑥_環境の見極めとバージョン差分.md"
+   "07_パッケージ管理/dnf解説⑥_環境の見極めとバージョン差分.md",
+   "20_オフラインRPM取得実務/解説_オフラインRPM適用の考え方.md"
   ],
   "history-search-backward": [
    "01_シェルとコマンドライン/シェルの設定ファイル.md"
+  ],
+  "history.txt": [
+   "20_オフラインRPM取得実務/手順書_RHEL7_不足依存RPM取得と適用_yum-utilsあり.md",
+   "20_オフラインRPM取得実務/手順書_RHEL7_不足依存RPM取得と適用_yum-utilsなし.md"
   ],
   "hjkl": [
    "01_シェルとコマンドライン/viエディタの基本とモード.md"
@@ -25585,7 +25787,8 @@
   "hostname": [
    "05_起動プロセスとカーネル/カーネルのバージョンとリリース.md",
    "08_ネットワーク/ネットワークの基礎知識_サブネットとMTUとホスト名.md",
-   "20_オフラインRPM取得実務/RHEL7_CVE対応RPM99個_依存関係確認とオフライン更新準備.md"
+   "20_オフラインRPM取得実務/手順書_RHEL7_不足依存RPM取得と適用_yum-utilsあり.md",
+   "20_オフラインRPM取得実務/手順書_RHEL7_不足依存RPM取得と適用_yum-utilsなし.md"
   ],
   "hostnamectl": [
    "08_ネットワーク/ネットワークの基礎知識_サブネットとMTUとホスト名.md"
@@ -25662,7 +25865,8 @@
    "05_起動プロセスとカーネル/GRUBの設定と復旧.md"
   ],
   "i686": [
-   "07_パッケージ管理/RPMによるパッケージ管理.md"
+   "07_パッケージ管理/RPMによるパッケージ管理.md",
+   "20_オフラインRPM取得実務/解説_オフラインRPM適用の考え方.md"
   ],
   "ibs=": [
    "06_ストレージとファイルシステム/ddコマンド.md"
@@ -25795,8 +25999,8 @@
   ],
   "includepkgs": [
    "07_パッケージ管理/dnf解説④_リポジトリとキャッシュの管理.md",
-   "20_オフラインRPM取得実務/RHEL7_CVE対応RPM99個_依存関係確認とオフライン更新準備.md",
-   "20_オフラインRPM取得実務/手順書_RHEL7_対象サーバーでの適用前確認.md"
+   "20_オフラインRPM取得実務/手順書_RHEL7_不足依存RPM取得と適用_yum-utilsあり.md",
+   "20_オフラインRPM取得実務/手順書_RHEL7_不足依存RPM取得と適用_yum-utilsなし.md"
   ],
   "indirect": [
    "05_起動プロセスとカーネル/systemctl_サービスの操作と確認.md"
@@ -25823,7 +26027,7 @@
    "07_パッケージ管理/dnf解説⑤_依存関係とセキュリティ更新の調べ方.md",
    "07_パッケージ管理/dnf解説⑥_環境の見極めとバージョン差分.md",
    "08_ネットワーク/無線LANの設定_iwconfigとiw.md",
-   "20_オフラインRPM取得実務/手順書_RHEL7_yum-utilsが無い場合の依存RPM取得.md"
+   "20_オフラインRPM取得実務/手順書_RHEL7_不足依存RPM取得と適用_yum-utilsなし.md"
   ],
   "inherit": [
    "05_起動プロセスとカーネル/systemd_Serviceセクションと自作サービス.md"
@@ -25902,9 +26106,10 @@
    "07_パッケージ管理/dnf解説⑤_依存関係とセキュリティ更新の調べ方.md",
    "07_パッケージ管理/dnf解説⑥_環境の見極めとバージョン差分.md",
    "07_パッケージ管理/ソースからのビルドとインストール.md",
-   "20_オフラインRPM取得実務/RHEL7_CVE対応RPM99個_依存関係確認とオフライン更新準備.md",
-   "20_オフラインRPM取得実務/手順書_RHEL7_下見ログの読み方.md",
-   "20_オフラインRPM取得実務/手順書_RHEL7_対象サーバーでの適用前確認.md"
+   "20_オフラインRPM取得実務/手順書_RHEL7_不足依存RPM取得と適用_yum-utilsあり.md",
+   "20_オフラインRPM取得実務/手順書_RHEL7_不足依存RPM取得と適用_yum-utilsなし.md",
+   "20_オフラインRPM取得実務/解説_オフラインRPM適用の考え方.md",
+   "20_オフラインRPM取得実務/解説_下見ログの読み方.md"
   ],
   "install-n": [
    "07_パッケージ管理/dnf解説①_基本とインストール系コマンド.md"
@@ -25929,8 +26134,17 @@
    "05_起動プロセスとカーネル/モジュールの依存関係とDKMS.md",
    "07_パッケージ管理/dnf解説②_削除系と調査系コマンド.md"
   ],
+  "installed-after.tsv": [
+   "20_オフラインRPM取得実務/手順書_RHEL7_不足依存RPM取得と適用_yum-utilsあり.md",
+   "20_オフラインRPM取得実務/手順書_RHEL7_不足依存RPM取得と適用_yum-utilsなし.md"
+  ],
   "installed-before.tsv": [
-   "20_オフラインRPM取得実務/手順書_RHEL7_対象サーバーでの適用前確認.md"
+   "20_オフラインRPM取得実務/手順書_RHEL7_不足依存RPM取得と適用_yum-utilsあり.md",
+   "20_オフラインRPM取得実務/手順書_RHEL7_不足依存RPM取得と適用_yum-utilsなし.md"
+  ],
+  "installed-diff.txt": [
+   "20_オフラインRPM取得実務/手順書_RHEL7_不足依存RPM取得と適用_yum-utilsあり.md",
+   "20_オフラインRPM取得実務/手順書_RHEL7_不足依存RPM取得と適用_yum-utilsなし.md"
   ],
   "installextlinux": [
    "05_起動プロセスとカーネル/その他のブートローダ.md"
@@ -25958,8 +26172,8 @@
    "05_起動プロセスとカーネル/その他のブートローダ.md"
   ],
   "internal-rhel7": [
-   "20_オフラインRPM取得実務/RHEL7_CVE対応RPM99個_依存関係確認とオフライン更新準備.md",
-   "20_オフラインRPM取得実務/手順書_RHEL7_yum-utilsが無い場合の依存RPM取得.md"
+   "20_オフラインRPM取得実務/手順書_RHEL7_不足依存RPM取得と適用_yum-utilsあり.md",
+   "20_オフラインRPM取得実務/手順書_RHEL7_不足依存RPM取得と適用_yum-utilsなし.md"
   ],
   "intree": [
    "05_起動プロセスとカーネル/カーネルモジュールの管理.md"
@@ -26151,8 +26365,7 @@
    "06_ストレージとファイルシステム/ディスクを追加する手順.md"
   ],
   "ja_JP.UTF-8": [
-   "20_オフラインRPM取得実務/RHEL7_CVE対応RPM99個_依存関係確認とオフライン更新準備.md",
-   "20_オフラインRPM取得実務/手順書_RHEL7_対象サーバーでの適用前確認.md"
+   "20_オフラインRPM取得実務/解説_オフラインRPM適用の考え方.md"
   ],
   "jobs": [
    "04_プロセスとリソース管理/コマンドの繰り返し実行_watch.md",
@@ -26316,9 +26529,9 @@
    "05_起動プロセスとカーネル/カーネルモジュールの管理.md"
   ],
   "krb5-libs": [
-   "20_オフラインRPM取得実務/RHEL7_CVE対応RPM99個_依存関係確認とオフライン更新準備.md",
    "20_オフラインRPM取得実務/手順書_RHEL7_依存不足対応.md",
-   "20_オフラインRPM取得実務/手順書_RHEL8以降_依存不足対応.md"
+   "20_オフラインRPM取得実務/手順書_RHEL8以降_依存不足対応.md",
+   "20_オフラインRPM取得実務/解説_オフラインRPM適用の考え方.md"
   ],
   "kvm": [
    "05_起動プロセスとカーネル/systemd_基本とユニットファイル.md"
@@ -26327,7 +26540,7 @@
    "08_ネットワーク/IPアドレスの設定_ifconfigとip.md"
   ],
   "lang.sh": [
-   "20_オフラインRPM取得実務/RHEL7_CVE対応RPM99個_依存関係確認とオフライン更新準備.md"
+   "20_オフラインRPM取得実務/解説_オフラインRPM適用の考え方.md"
   ],
   "last": [
    "04_プロセスとリソース管理/稼働状況の確認_uptime_w.md"
@@ -26414,11 +26627,16 @@
    "20_オフラインRPM取得実務/手順書_RHEL8以降_依存不足対応.md"
   ],
   "libcrypto.so.10": [
-   "20_オフラインRPM取得実務/RHEL7_CVE対応RPM99個_依存関係確認とオフライン更新準備.md",
-   "20_オフラインRPM取得実務/手順書_RHEL7_依存不足対応.md"
+   "20_オフラインRPM取得実務/手順書_RHEL7_不足依存RPM取得と適用_yum-utilsあり.md",
+   "20_オフラインRPM取得実務/手順書_RHEL7_不足依存RPM取得と適用_yum-utilsなし.md",
+   "20_オフラインRPM取得実務/手順書_RHEL7_依存不足対応.md",
+   "20_オフラインRPM取得実務/解説_オフラインRPM適用の考え方.md"
   ],
   "libcrypto.so.3": [
    "20_オフラインRPM取得実務/手順書_RHEL8以降_依存不足対応.md"
+  ],
+  "libcurl": [
+   "20_オフラインRPM取得実務/解説_オフラインRPM適用の考え方.md"
   ],
   "libfoo": [
    "07_パッケージ管理/dnf実践①_オンライン環境での更新手順.md",
@@ -26442,6 +26660,9 @@
   "libfoo-3.0": [
    "07_パッケージ管理/dnf解説①_基本とインストール系コマンド.md",
    "07_パッケージ管理/dnf解説③_オプションの使い分け.md"
+  ],
+  "libgcc": [
+   "20_オフラインRPM取得実務/解説_オフラインRPM適用の考え方.md"
   ],
   "libgreet.so": [
    "07_パッケージ管理/共有ライブラリの管理.md"
@@ -26478,9 +26699,9 @@
    "07_パッケージ管理/dnf解説⑥_環境の見極めとバージョン差分.md"
   ],
   "libselinux": [
-   "20_オフラインRPM取得実務/RHEL7_CVE対応RPM99個_依存関係確認とオフライン更新準備.md",
    "20_オフラインRPM取得実務/手順書_RHEL7_依存不足対応.md",
-   "20_オフラインRPM取得実務/手順書_RHEL8以降_依存不足対応.md"
+   "20_オフラインRPM取得実務/手順書_RHEL8以降_依存不足対応.md",
+   "20_オフラインRPM取得実務/解説_オフラインRPM適用の考え方.md"
   ],
   "libselinux.so.1": [
    "20_オフラインRPM取得実務/手順書_RHEL7_依存不足対応.md",
@@ -26495,6 +26716,9 @@
   "libssl.so.3": [
    "20_オフラインRPM取得実務/手順書_RHEL8以降_依存不足対応.md"
   ],
+  "libstdc++": [
+   "20_オフラインRPM取得実務/解説_オフラインRPM適用の考え方.md"
+  ],
   "libsystemd.so.0": [
    "20_オフラインRPM取得実務/手順書_RHEL7_依存不足対応.md",
    "20_オフラインRPM取得実務/手順書_RHEL8以降_依存不足対応.md"
@@ -26507,6 +26731,9 @@
   "libudev.so.1": [
    "20_オフラインRPM取得実務/手順書_RHEL7_依存不足対応.md",
    "20_オフラインRPM取得実務/手順書_RHEL8以降_依存不足対応.md"
+  ],
+  "libxml2": [
+   "20_オフラインRPM取得実務/解説_オフラインRPM適用の考え方.md"
   ],
   "libxml2-python": [
    "20_オフラインRPM取得実務/ローカルリポジトリの仕組み.md",
@@ -26584,7 +26811,7 @@
    "07_パッケージ管理/dnf解説④_リポジトリとキャッシュの管理.md",
    "07_パッケージ管理/dnf解説⑤_依存関係とセキュリティ更新の調べ方.md",
    "07_パッケージ管理/dnf解説⑥_環境の見極めとバージョン差分.md",
-   "20_オフラインRPM取得実務/手順書_RHEL7_yum-utilsが無い場合の依存RPM取得.md"
+   "20_オフラインRPM取得実務/手順書_RHEL7_不足依存RPM取得と適用_yum-utilsなし.md"
   ],
   "list-*": [
    "05_起動プロセスとカーネル/systemctl_サービスの操作と確認.md"
@@ -26632,7 +26859,7 @@
    "20_オフラインRPM取得実務/依存チェックスクリプトの読み方.md"
   ],
   "locale": [
-   "20_オフラインRPM取得実務/RHEL7_CVE対応RPM99個_依存関係確認とオフライン更新準備.md"
+   "20_オフラインRPM取得実務/解説_オフラインRPM適用の考え方.md"
   ],
   "localhost.http": [
    "08_ネットワーク/パケットキャプチャ_tcpdump.md"
@@ -26649,12 +26876,13 @@
    "07_パッケージ管理/dnf解説④_リポジトリとキャッシュの管理.md",
    "07_パッケージ管理/dnf解説⑤_依存関係とセキュリティ更新の調べ方.md",
    "07_パッケージ管理/dnf解説⑥_環境の見極めとバージョン差分.md",
-   "20_オフラインRPM取得実務/RHEL7_CVE対応RPM99個_依存関係確認とオフライン更新準備.md"
+   "20_オフラインRPM取得実務/手順書_RHEL7_不足依存RPM取得と適用_yum-utilsあり.md",
+   "20_オフラインRPM取得実務/手順書_RHEL7_不足依存RPM取得と適用_yum-utilsなし.md",
+   "20_オフラインRPM取得実務/解説_オフラインRPM適用の考え方.md"
   ],
   "localpkg_gpgcheck": [
    "07_パッケージ管理/dnf実践④_オフライン環境での適用と切り戻し.md",
-   "20_オフラインRPM取得実務/RHEL7_CVE対応RPM99個_依存関係確認とオフライン更新準備.md",
-   "20_オフラインRPM取得実務/手順書_RHEL7_対象サーバーでの適用前確認.md"
+   "20_オフラインRPM取得実務/解説_オフラインRPM適用の考え方.md"
   ],
   "localrepo": [
    "20_オフラインRPM取得実務/手順書_RHEL7_openssh更新.md",
@@ -26728,8 +26956,7 @@
    "06_ストレージとファイルシステム/fstabの書き方.md",
    "06_ストレージとファイルシステム/コマンドの場所を探す.md",
    "17_運用管理/ログインメッセージ_issueとmotd.md",
-   "20_オフラインRPM取得実務/RHEL7_CVE対応RPM99個_依存関係確認とオフライン更新準備.md",
-   "20_オフラインRPM取得実務/手順書_RHEL7_yum-utilsが無い場合の依存RPM取得.md"
+   "20_オフラインRPM取得実務/手順書_RHEL7_不足依存RPM取得と適用_yum-utilsあり.md"
   ],
   "lsblk": [
    "05_起動プロセスとカーネル/カーネルの実行時管理_dmesgとsysctl.md",
@@ -27201,9 +27428,6 @@
    "06_ストレージとファイルシステム/ファイルシステムの種類と作成.md",
    "06_ストレージとファイルシステム/マウントとアンマウント.md"
   ],
-  "mktemp": [
-   "20_オフラインRPM取得実務/RHEL7_CVE対応RPM99個_依存関係確認とオフライン更新準備.md"
-  ],
   "mkxfs": [
    "06_ストレージとファイルシステム/ファイルシステム別ユーティリティ.md"
   ],
@@ -27371,7 +27595,7 @@
    "03_ユーザ管理とパーミッション/パーミッションの読み方とchmod.md",
    "05_起動プロセスとカーネル/サービスの自動起動設定.md",
    "06_ストレージとファイルシステム/ddコマンド.md",
-   "20_オフラインRPM取得実務/手順書_RHEL7_yum-utilsが無い場合の依存RPM取得.md"
+   "20_オフラインRPM取得実務/解説_オフラインRPM適用の考え方.md"
   ],
   "my-lv": [
    "06_ストレージとファイルシステム/LVM_論理ボリュームの管理.md"
@@ -27445,7 +27669,10 @@
    "07_パッケージ管理/dnf解説③_オプションの使い分け.md",
    "07_パッケージ管理/dnf解説④_リポジトリとキャッシュの管理.md",
    "07_パッケージ管理/dnf解説⑤_依存関係とセキュリティ更新の調べ方.md",
-   "07_パッケージ管理/dnf解説⑥_環境の見極めとバージョン差分.md"
+   "07_パッケージ管理/dnf解説⑥_環境の見極めとバージョン差分.md",
+   "20_オフラインRPM取得実務/手順書_RHEL7_不足依存RPM取得と適用_yum-utilsあり.md",
+   "20_オフラインRPM取得実務/手順書_RHEL7_不足依存RPM取得と適用_yum-utilsなし.md",
+   "20_オフラインRPM取得実務/解説_オフラインRPM適用の考え方.md"
   ],
   "neigh": [
    "08_ネットワーク/IPアドレスの設定_ifconfigとip.md",
@@ -27634,7 +27861,8 @@
    "20_オフラインRPM取得実務/手順書_RHEL7_openssh更新.md",
    "20_オフラインRPM取得実務/手順書_RHEL7_依存不足対応.md",
    "20_オフラインRPM取得実務/手順書_RHEL8以降_openssh更新.md",
-   "20_オフラインRPM取得実務/手順書_RHEL8以降_依存不足対応.md"
+   "20_オフラインRPM取得実務/手順書_RHEL8以降_依存不足対応.md",
+   "20_オフラインRPM取得実務/解説_オフラインRPM適用の考え方.md"
   ],
   "noatime": [
    "01_シェルとコマンドライン/ファイルの種類とタイムスタンプ.md",
@@ -27948,29 +28176,38 @@
    "20_オフラインRPM取得実務/手順書_RHEL7_openssh更新.md",
    "20_オフラインRPM取得実務/手順書_RHEL8以降_openssh更新.md"
   ],
+  "openssh-libs": [
+   "20_オフラインRPM取得実務/手順書_RHEL7_不足依存RPM取得と適用_yum-utilsあり.md",
+   "20_オフラインRPM取得実務/手順書_RHEL7_不足依存RPM取得と適用_yum-utilsなし.md"
+  ],
   "openssh-server": [
    "07_パッケージ管理/dnf実践④_オフライン環境での適用と切り戻し.md",
    "20_オフラインRPM取得実務/手順書_RHEL7_openssh更新.md",
-   "20_オフラインRPM取得実務/手順書_RHEL7_下見ログの読み方.md",
-   "20_オフラインRPM取得実務/手順書_RHEL8以降_openssh更新.md"
+   "20_オフラインRPM取得実務/手順書_RHEL7_不足依存RPM取得と適用_yum-utilsあり.md",
+   "20_オフラインRPM取得実務/手順書_RHEL7_不足依存RPM取得と適用_yum-utilsなし.md",
+   "20_オフラインRPM取得実務/手順書_RHEL8以降_openssh更新.md",
+   "20_オフラインRPM取得実務/解説_オフラインRPM適用の考え方.md",
+   "20_オフラインRPM取得実務/解説_下見ログの読み方.md"
   ],
   "openssl": [
    "07_パッケージ管理/RPMによるパッケージ管理.md",
-   "20_オフラインRPM取得実務/RHEL7_CVE対応RPM99個_依存関係確認とオフライン更新準備.md",
-   "20_オフラインRPM取得実務/手順書_RHEL7_yum-utilsが無い場合の依存RPM取得.md",
+   "20_オフラインRPM取得実務/手順書_RHEL7_不足依存RPM取得と適用_yum-utilsあり.md",
    "20_オフラインRPM取得実務/手順書_RHEL7_依存不足対応.md",
-   "20_オフラインRPM取得実務/手順書_RHEL8以降_依存不足対応.md"
+   "20_オフラインRPM取得実務/手順書_RHEL8以降_依存不足対応.md",
+   "20_オフラインRPM取得実務/解説_オフラインRPM適用の考え方.md"
   ],
   "openssl-libs": [
-   "20_オフラインRPM取得実務/RHEL7_CVE対応RPM99個_依存関係確認とオフライン更新準備.md",
    "20_オフラインRPM取得実務/依存チェックスクリプトの読み方.md",
-   "20_オフラインRPM取得実務/手順書_RHEL7_yum-utilsが無い場合の依存RPM取得.md",
+   "20_オフラインRPM取得実務/手順書_RHEL7_不足依存RPM取得と適用_yum-utilsあり.md",
+   "20_オフラインRPM取得実務/手順書_RHEL7_不足依存RPM取得と適用_yum-utilsなし.md",
    "20_オフラインRPM取得実務/手順書_RHEL7_依存不足対応.md",
-   "20_オフラインRPM取得実務/手順書_RHEL8以降_依存不足対応.md"
+   "20_オフラインRPM取得実務/手順書_RHEL8以降_依存不足対応.md",
+   "20_オフラインRPM取得実務/解説_オフラインRPM適用の考え方.md"
   ],
   "openssl-libs-1:1.0.2k-26.el7_9.x86_64": [
-   "20_オフラインRPM取得実務/RHEL7_CVE対応RPM99個_依存関係確認とオフライン更新準備.md",
-   "20_オフラインRPM取得実務/手順書_RHEL7_下見ログの読み方.md"
+   "20_オフラインRPM取得実務/手順書_RHEL7_不足依存RPM取得と適用_yum-utilsあり.md",
+   "20_オフラインRPM取得実務/解説_オフラインRPM適用の考え方.md",
+   "20_オフラインRPM取得実務/解説_下見ログの読み方.md"
   ],
   "openssl-libs.x86_64": [
    "20_オフラインRPM取得実務/依存チェックスクリプトの読み方.md",
@@ -27991,9 +28228,6 @@
   ],
   "or": [
    "08_ネットワーク/パケットキャプチャ_tcpdump.md"
-  ],
-  "original-inventory.tsv": [
-   "20_オフラインRPM取得実務/RHEL7_CVE対応RPM99個_依存関係確認とオフライン更新準備.md"
   ],
   "orphaned": [
    "08_ネットワーク/ソケットの確認_ss.md"
@@ -28263,9 +28497,6 @@
   "property": [
    "05_起動プロセスとカーネル/ハードウェアの確認とudev.md"
   ],
-  "provider:": [
-   "20_オフラインRPM取得実務/手順書_RHEL7_yum-utilsが無い場合の依存RPM取得.md"
-  ],
   "provides": [
    "07_パッケージ管理/YUMとDNFによるパッケージ管理.md",
    "07_パッケージ管理/dnf実践①_オンライン環境での更新手順.md",
@@ -28278,7 +28509,7 @@
    "07_パッケージ管理/dnf解説④_リポジトリとキャッシュの管理.md",
    "07_パッケージ管理/dnf解説⑤_依存関係とセキュリティ更新の調べ方.md",
    "07_パッケージ管理/dnf解説⑥_環境の見極めとバージョン差分.md",
-   "20_オフラインRPM取得実務/手順書_RHEL7_yum-utilsが無い場合の依存RPM取得.md"
+   "20_オフラインRPM取得実務/解説_オフラインRPM適用の考え方.md"
   ],
   "proxy": [
    "07_パッケージ管理/dnf解説④_リポジトリとキャッシュの管理.md"
@@ -28470,7 +28701,8 @@
   ],
   "rc": [
    "05_起動プロセスとカーネル/SysVinitの起動スクリプトとランレベル.md",
-   "07_パッケージ管理/dnf解説③_オプションの使い分け.md"
+   "07_パッケージ管理/dnf解説③_オプションの使い分け.md",
+   "20_オフラインRPM取得実務/手順書_RHEL7_不足依存RPM取得と適用_yum-utilsあり.md"
   ],
   "rc.sysinit": [
    "05_起動プロセスとカーネル/カーネルの実行時管理_dmesgとsysctl.md"
@@ -28481,12 +28713,9 @@
   "rc3.d": [
    "05_起動プロセスとカーネル/SysVinitの起動スクリプトとランレベル.md"
   ],
-  "rc=": [
-   "20_オフラインRPM取得実務/手順書_RHEL7_yum-utilsが無い場合の依存RPM取得.md"
-  ],
   "rc=0": [
    "07_パッケージ管理/dnf解説③_オプションの使い分け.md",
-   "20_オフラインRPM取得実務/RHEL7_CVE対応RPM99個_依存関係確認とオフライン更新準備.md"
+   "20_オフラインRPM取得実務/手順書_RHEL7_不足依存RPM取得と適用_yum-utilsあり.md"
   ],
   "rd.break": [
    "05_起動プロセスとカーネル/GRUBの設定と復旧.md"
@@ -28570,7 +28799,8 @@
    "07_パッケージ管理/dnf解説④_リポジトリとキャッシュの管理.md",
    "07_パッケージ管理/dnf解説⑤_依存関係とセキュリティ更新の調べ方.md",
    "07_パッケージ管理/dnf解説⑥_環境の見極めとバージョン差分.md",
-   "20_オフラインRPM取得実務/手順書_RHEL7_yum-utilsが無い場合の依存RPM取得.md"
+   "20_オフラインRPM取得実務/手順書_RHEL7_不足依存RPM取得と適用_yum-utilsなし.md",
+   "20_オフラインRPM取得実務/解説_オフラインRPM適用の考え方.md"
   ],
   "relatime": [
    "01_シェルとコマンドライン/ファイルの種類とタイムスタンプ.md",
@@ -28639,9 +28869,10 @@
    "08_ネットワーク/アドレスとルーティングの確認.md"
   ],
   "replacing": [
-   "20_オフラインRPM取得実務/RHEL7_CVE対応RPM99個_依存関係確認とオフライン更新準備.md",
-   "20_オフラインRPM取得実務/手順書_RHEL7_下見ログの読み方.md",
-   "20_オフラインRPM取得実務/手順書_RHEL7_対象サーバーでの適用前確認.md"
+   "20_オフラインRPM取得実務/手順書_RHEL7_不足依存RPM取得と適用_yum-utilsあり.md",
+   "20_オフラインRPM取得実務/手順書_RHEL7_不足依存RPM取得と適用_yum-utilsなし.md",
+   "20_オフラインRPM取得実務/解説_オフラインRPM適用の考え方.md",
+   "20_オフラインRPM取得実務/解説_下見ログの読み方.md"
   ],
   "repo": [
    "07_パッケージ管理/dnf解説③_オプションの使い分け.md"
@@ -28667,12 +28898,12 @@
   "repodata/": [
    "07_パッケージ管理/dnf実践③_オフライン環境でのパッケージの集め方.md",
    "07_パッケージ管理/dnf解説④_リポジトリとキャッシュの管理.md",
-   "20_オフラインRPM取得実務/RHEL7_CVE対応RPM99個_依存関係確認とオフライン更新準備.md",
    "20_オフラインRPM取得実務/ローカルリポジトリの仕組み.md",
    "20_オフラインRPM取得実務/手順書_RHEL7_openssh更新.md",
    "20_オフラインRPM取得実務/手順書_RHEL7_依存不足対応.md",
    "20_オフラインRPM取得実務/手順書_RHEL8以降_openssh更新.md",
-   "20_オフラインRPM取得実務/手順書_RHEL8以降_依存不足対応.md"
+   "20_オフラインRPM取得実務/手順書_RHEL8以降_依存不足対応.md",
+   "20_オフラインRPM取得実務/解説_オフラインRPM適用の考え方.md"
   ],
   "repodata/repomd.xml": [
    "07_パッケージ管理/dnf解説④_リポジトリとキャッシュの管理.md"
@@ -28691,7 +28922,8 @@
    "07_パッケージ管理/dnf解説①_基本とインストール系コマンド.md"
   ],
   "repolist.txt": [
-   "20_オフラインRPM取得実務/RHEL7_CVE対応RPM99個_依存関係確認とオフライン更新準備.md"
+   "20_オフラインRPM取得実務/手順書_RHEL7_不足依存RPM取得と適用_yum-utilsあり.md",
+   "20_オフラインRPM取得実務/手順書_RHEL7_不足依存RPM取得と適用_yum-utilsなし.md"
   ],
   "repomanage": [
    "07_パッケージ管理/dnf解説①_基本とインストール系コマンド.md"
@@ -28711,14 +28943,16 @@
    "07_パッケージ管理/dnf解説④_リポジトリとキャッシュの管理.md",
    "07_パッケージ管理/dnf解説⑤_依存関係とセキュリティ更新の調べ方.md",
    "07_パッケージ管理/dnf解説⑥_環境の見極めとバージョン差分.md",
-   "20_オフラインRPM取得実務/RHEL7_CVE対応RPM99個_依存関係確認とオフライン更新準備.md",
    "20_オフラインRPM取得実務/ローカルリポジトリの仕組み.md",
    "20_オフラインRPM取得実務/依存チェックスクリプトの読み方.md",
    "20_オフラインRPM取得実務/手順書_RHEL7_openssh更新.md",
-   "20_オフラインRPM取得実務/手順書_RHEL7_yum-utilsが無い場合の依存RPM取得.md",
+   "20_オフラインRPM取得実務/手順書_RHEL7_不足依存RPM取得と適用_yum-utilsあり.md",
+   "20_オフラインRPM取得実務/手順書_RHEL7_不足依存RPM取得と適用_yum-utilsなし.md",
    "20_オフラインRPM取得実務/手順書_RHEL7_依存不足対応.md",
    "20_オフラインRPM取得実務/手順書_RHEL8以降_openssh更新.md",
-   "20_オフラインRPM取得実務/手順書_RHEL8以降_依存不足対応.md"
+   "20_オフラインRPM取得実務/手順書_RHEL8以降_依存不足対応.md",
+   "20_オフラインRPM取得実務/解説_オフラインRPM適用の考え方.md",
+   "20_オフラインRPM取得実務/解説_下見ログの読み方.md"
   ],
   "repoquery-n": [
    "07_パッケージ管理/dnf解説⑥_環境の見極めとバージョン差分.md"
@@ -28751,6 +28985,14 @@
   ],
   "repotrack": [
    "07_パッケージ管理/dnf実践④_オフライン環境での適用と切り戻し.md"
+  ],
+  "requires_01.txt": [
+   "20_オフラインRPM取得実務/手順書_RHEL7_不足依存RPM取得と適用_yum-utilsあり.md",
+   "20_オフラインRPM取得実務/手順書_RHEL7_不足依存RPM取得と適用_yum-utilsなし.md"
+  ],
+  "requires_02.txt": [
+   "20_オフラインRPM取得実務/手順書_RHEL7_不足依存RPM取得と適用_yum-utilsあり.md",
+   "20_オフラインRPM取得実務/手順書_RHEL7_不足依存RPM取得と適用_yum-utilsなし.md"
   ],
   "rescue": [
    "05_起動プロセスとカーネル/systemctl_サービスの操作と確認.md"
@@ -28934,31 +29176,25 @@
    "07_パッケージ管理/dnf解説④_リポジトリとキャッシュの管理.md",
    "07_パッケージ管理/dnf解説⑤_依存関係とセキュリティ更新の調べ方.md",
    "07_パッケージ管理/dnf解説⑥_環境の見極めとバージョン差分.md",
-   "20_オフラインRPM取得実務/RHEL7_CVE対応RPM99個_依存関係確認とオフライン更新準備.md",
    "20_オフラインRPM取得実務/ローカルリポジトリの仕組み.md",
-   "20_オフラインRPM取得実務/手順書_RHEL7_対象サーバーでの適用前確認.md"
+   "20_オフラインRPM取得実務/手順書_RHEL7_不足依存RPM取得と適用_yum-utilsあり.md",
+   "20_オフラインRPM取得実務/手順書_RHEL7_不足依存RPM取得と適用_yum-utilsなし.md",
+   "20_オフラインRPM取得実務/解説_オフラインRPM適用の考え方.md"
   ],
   "rpm-pkg": [
    "05_起動プロセスとカーネル/カーネルソースとmakeターゲット.md"
   ],
   "rpm.tar.gz": [
-   "20_オフラインRPM取得実務/RHEL7_CVE対応RPM99個_依存関係確認とオフライン更新準備.md"
+   "20_オフラインRPM取得実務/手順書_RHEL7_不足依存RPM取得と適用_yum-utilsあり.md",
+   "20_オフラインRPM取得実務/手順書_RHEL7_不足依存RPM取得と適用_yum-utilsなし.md"
   ],
   "rpm/": [
-   "20_オフラインRPM取得実務/RHEL7_CVE対応RPM99個_依存関係確認とオフライン更新準備.md",
-   "20_オフラインRPM取得実務/手順書_RHEL7_対象サーバーでの適用前確認.md"
+   "20_オフラインRPM取得実務/手順書_RHEL7_不足依存RPM取得と適用_yum-utilsあり.md",
+   "20_オフラインRPM取得実務/手順書_RHEL7_不足依存RPM取得と適用_yum-utilsなし.md"
   ],
   "rpm2cpio": [
    "07_パッケージ管理/RPMによるパッケージ管理.md",
    "07_パッケージ管理/dnf解説①_基本とインストール系コマンド.md"
-  ],
-  "rpm_final.tar.gz": [
-   "20_オフラインRPM取得実務/RHEL7_CVE対応RPM99個_依存関係確認とオフライン更新準備.md",
-   "20_オフラインRPM取得実務/手順書_RHEL7_対象サーバーでの適用前確認.md"
-  ],
-  "rpm_final.tar.gz.sha256": [
-   "20_オフラインRPM取得実務/RHEL7_CVE対応RPM99個_依存関係確認とオフライン更新準備.md",
-   "20_オフラインRPM取得実務/手順書_RHEL7_対象サーバーでの適用前確認.md"
   ],
   "rpm_list.txt": [
    "20_オフラインRPM取得実務/手順書_RHEL7_依存不足対応.md",
@@ -29247,7 +29483,7 @@
    "07_パッケージ管理/dnf解説①_基本とインストール系コマンド.md",
    "08_ネットワーク/ネットワーク設定ファイル.md",
    "08_ネットワーク/名前解決の確認_digとhost.md",
-   "20_オフラインRPM取得実務/手順書_RHEL7_yum-utilsが無い場合の依存RPM取得.md"
+   "20_オフラインRPM取得実務/手順書_RHEL7_不足依存RPM取得と適用_yum-utilsなし.md"
   ],
   "secondary": [
    "08_ネットワーク/IPアドレスの設定_ifconfigとip.md"
@@ -29351,7 +29587,8 @@
   ],
   "sha256sum": [
    "01_シェルとコマンドライン/ファイルのチェックサム_md5sumとsha256sum.md",
-   "20_オフラインRPM取得実務/RHEL7_CVE対応RPM99個_依存関係確認とオフライン更新準備.md"
+   "20_オフラインRPM取得実務/手順書_RHEL7_不足依存RPM取得と適用_yum-utilsあり.md",
+   "20_オフラインRPM取得実務/手順書_RHEL7_不足依存RPM取得と適用_yum-utilsなし.md"
   ],
   "sha512sum": [
    "01_シェルとコマンドライン/ファイルのチェックサム_md5sumとsha256sum.md"
@@ -29474,7 +29711,8 @@
   ],
   "skip_broken": [
    "07_パッケージ管理/dnf解説⑥_環境の見極めとバージョン差分.md",
-   "20_オフラインRPM取得実務/手順書_RHEL7_下見ログの読み方.md"
+   "20_オフラインRPM取得実務/解説_オフラインRPM適用の考え方.md",
+   "20_オフラインRPM取得実務/解説_下見ログの読み方.md"
   ],
   "skip_if_unavailable": [
    "07_パッケージ管理/dnf解説①_基本とインストール系コマンド.md",
@@ -29731,7 +29969,8 @@
   ],
   "subscription-manager": [
    "07_パッケージ管理/dnf実践②_オンライン環境での切り戻しと除外設定.md",
-   "07_パッケージ管理/dnf解説④_リポジトリとキャッシュの管理.md"
+   "07_パッケージ管理/dnf解説④_リポジトリとキャッシュの管理.md",
+   "20_オフラインRPM取得実務/解説_オフラインRPM適用の考え方.md"
   ],
   "subvolume": [
    "06_ストレージとファイルシステム/Btrfsとサブボリューム.md",
@@ -29753,10 +29992,11 @@
    "08_ネットワーク/mtrによる経路品質の調査.md",
    "08_ネットワーク/ソケットの確認_ss.md",
    "08_ネットワーク/ネットワークの基礎知識_サブネットとMTUとホスト名.md",
-   "20_オフラインRPM取得実務/RHEL7_CVE対応RPM99個_依存関係確認とオフライン更新準備.md",
+   "20_オフラインRPM取得実務/手順書_RHEL7_不足依存RPM取得と適用_yum-utilsあり.md",
+   "20_オフラインRPM取得実務/手順書_RHEL7_不足依存RPM取得と適用_yum-utilsなし.md",
    "20_オフラインRPM取得実務/手順書_RHEL7_依存不足対応.md",
-   "20_オフラインRPM取得実務/手順書_RHEL7_対象サーバーでの適用前確認.md",
-   "20_オフラインRPM取得実務/手順書_RHEL8以降_依存不足対応.md"
+   "20_オフラインRPM取得実務/手順書_RHEL8以降_依存不足対応.md",
+   "20_オフラインRPM取得実務/解説_オフラインRPM適用の考え方.md"
   ],
   "suid": [
    "06_ストレージとファイルシステム/fstabの書き方.md"
@@ -29764,12 +30004,6 @@
   "summary.txt": [
    "20_オフラインRPM取得実務/手順書_RHEL7_依存不足対応.md",
    "20_オフラインRPM取得実務/手順書_RHEL8以降_依存不足対応.md"
-  ],
-  "summary_01.txt": [
-   "20_オフラインRPM取得実務/RHEL7_CVE対応RPM99個_依存関係確認とオフライン更新準備.md"
-  ],
-  "summary_02.txt": [
-   "20_オフラインRPM取得実務/RHEL7_CVE対応RPM99個_依存関係確認とオフライン更新準備.md"
   ],
   "suspend": [
    "05_起動プロセスとカーネル/systemctl_サービスの操作と確認.md"
@@ -29897,7 +30131,8 @@
   ],
   "systemd": [
    "05_起動プロセスとカーネル/GRUBの設定と復旧.md",
-   "07_パッケージ管理/dnf解説⑥_環境の見極めとバージョン差分.md"
+   "07_パッケージ管理/dnf解説⑥_環境の見極めとバージョン差分.md",
+   "20_オフラインRPM取得実務/手順書_RHEL7_不足依存RPM取得と適用_yum-utilsなし.md"
   ],
   "systemd-analyze": [
    "05_起動プロセスとカーネル/ブートプロセスの全体像.md"
@@ -29985,12 +30220,14 @@
    "17_運用管理/バックアップの方式と設計.md",
    "17_運用管理/バックアップツール_AmandaとBacula.md",
    "17_運用管理/バックアップメディアとテープ操作.md",
-   "20_オフラインRPM取得実務/RHEL7_CVE対応RPM99個_依存関係確認とオフライン更新準備.md"
+   "20_オフラインRPM取得実務/手順書_RHEL7_不足依存RPM取得と適用_yum-utilsあり.md",
+   "20_オフラインRPM取得実務/手順書_RHEL7_不足依存RPM取得と適用_yum-utilsなし.md"
   ],
   "tar.gz": [
    "01_シェルとコマンドライン/圧縮とアーカイブ.md",
    "05_起動プロセスとカーネル/カーネルのバージョンとリリース.md",
-   "20_オフラインRPM取得実務/RHEL7_CVE対応RPM99個_依存関係確認とオフライン更新準備.md"
+   "20_オフラインRPM取得実務/手順書_RHEL7_不足依存RPM取得と適用_yum-utilsあり.md",
+   "20_オフラインRPM取得実務/手順書_RHEL7_不足依存RPM取得と適用_yum-utilsなし.md"
   ],
   "tar.xz": [
    "05_起動プロセスとカーネル/カーネルのバージョンとリリース.md"
@@ -30055,7 +30292,9 @@
    "01_シェルとコマンドライン/コマンドの連結と制御演算子.md",
    "01_シェルとコマンドライン/パイプとフィルタ.md",
    "01_シェルとコマンドライン/標準入出力とリダイレクト.md",
-   "20_オフラインRPM取得実務/手順書_RHEL7_対象サーバーでの適用前確認.md"
+   "20_オフラインRPM取得実務/手順書_RHEL7_不足依存RPM取得と適用_yum-utilsあり.md",
+   "20_オフラインRPM取得実務/手順書_RHEL7_不足依存RPM取得と適用_yum-utilsなし.md",
+   "20_オフラインRPM取得実務/解説_オフラインRPM適用の考え方.md"
   ],
   "telinit": [
    "05_起動プロセスとカーネル/SysVinitの起動スクリプトとランレベル.md",
@@ -30080,13 +30319,17 @@
    "01_シェルとコマンドライン/ファイルとディレクトリの操作.md",
    "03_ユーザ管理とパーミッション/所有権とumask.md",
    "07_パッケージ管理/ソースからのビルドとインストール.md",
-   "20_オフラインRPM取得実務/手順書_RHEL7_対象サーバーでの適用前確認.md"
+   "20_オフラインRPM取得実務/手順書_RHEL7_不足依存RPM取得と適用_yum-utilsあり.md",
+   "20_オフラインRPM取得実務/手順書_RHEL7_不足依存RPM取得と適用_yum-utilsなし.md",
+   "20_オフラインRPM取得実務/解説_オフラインRPM適用の考え方.md"
   ],
   "test-payload-12345": [
    "10_セキュリティ/ポートスキャンと疎通_nmapとnc.md"
   ],
   "test.txt": [
-   "01_シェルとコマンドライン/viエディタの検索置換と保存.md"
+   "01_シェルとコマンドライン/viエディタの検索置換と保存.md",
+   "20_オフラインRPM取得実務/手順書_RHEL7_不足依存RPM取得と適用_yum-utilsあり.md",
+   "20_オフラインRPM取得実務/手順書_RHEL7_不足依存RPM取得と適用_yum-utilsなし.md"
   ],
   "tg3": [
    "05_起動プロセスとカーネル/カーネルモジュールの管理.md"
@@ -30216,12 +30459,14 @@
   ],
   "tsflags": [
    "07_パッケージ管理/dnf解説④_リポジトリとキャッシュの管理.md",
-   "20_オフラインRPM取得実務/RHEL7_CVE対応RPM99個_依存関係確認とオフライン更新準備.md",
-   "20_オフラインRPM取得実務/手順書_RHEL7_対象サーバーでの適用前確認.md"
+   "20_オフラインRPM取得実務/手順書_RHEL7_不足依存RPM取得と適用_yum-utilsあり.md",
+   "20_オフラインRPM取得実務/手順書_RHEL7_不足依存RPM取得と適用_yum-utilsなし.md",
+   "20_オフラインRPM取得実務/解説_オフラインRPM適用の考え方.md"
   ],
   "tsflags=test": [
-   "20_オフラインRPM取得実務/RHEL7_CVE対応RPM99個_依存関係確認とオフライン更新準備.md",
-   "20_オフラインRPM取得実務/手順書_RHEL7_対象サーバーでの適用前確認.md"
+   "20_オフラインRPM取得実務/手順書_RHEL7_不足依存RPM取得と適用_yum-utilsあり.md",
+   "20_オフラインRPM取得実務/手順書_RHEL7_不足依存RPM取得と適用_yum-utilsなし.md",
+   "20_オフラインRPM取得実務/解説_オフラインRPM適用の考え方.md"
   ],
   "ttl": [
    "08_ネットワーク/疎通確認_pingとtraceroute.md"
@@ -30451,7 +30696,8 @@
    "01_シェルとコマンドライン/圧縮とアーカイブ.md"
   ],
   "unzip": [
-   "20_オフラインRPM取得実務/RHEL7_CVE対応RPM99個_依存関係確認とオフライン更新準備.md"
+   "20_オフラインRPM取得実務/手順書_RHEL7_不足依存RPM取得と適用_yum-utilsあり.md",
+   "20_オフラインRPM取得実務/手順書_RHEL7_不足依存RPM取得と適用_yum-utilsなし.md"
   ],
   "up": [
    "07_パッケージ管理/dnf解説①_基本とインストール系コマンド.md",
@@ -30806,8 +31052,7 @@
    "01_シェルとコマンドライン/マニュアルの参照.md"
   ],
   "whatprovides": [
-   "07_パッケージ管理/YUMとDNFによるパッケージ管理.md",
-   "20_オフラインRPM取得実務/手順書_RHEL7_yum-utilsが無い場合の依存RPM取得.md"
+   "07_パッケージ管理/YUMとDNFによるパッケージ管理.md"
   ],
   "where": [
    "06_ストレージとファイルシステム/コマンドの場所を探す.md"
@@ -30821,9 +31066,7 @@
    "01_シェルとコマンドライン/圧縮とアーカイブ.md",
    "06_ストレージとファイルシステム/FHSとディレクトリ構成.md",
    "06_ストレージとファイルシステム/コマンドの場所を探す.md",
-   "20_オフラインRPM取得実務/RHEL7_CVE対応RPM99個_依存関係確認とオフライン更新準備.md",
-   "20_オフラインRPM取得実務/依存チェックスクリプトの読み方.md",
-   "20_オフラインRPM取得実務/手順書_RHEL7_yum-utilsが無い場合の依存RPM取得.md"
+   "20_オフラインRPM取得実務/依存チェックスクリプトの読み方.md"
   ],
   "whichis": [
    "06_ストレージとファイルシステム/コマンドの場所を探す.md"
@@ -30909,10 +31152,11 @@
    "07_パッケージ管理/RPMによるパッケージ管理.md",
    "07_パッケージ管理/dnf解説④_リポジトリとキャッシュの管理.md",
    "17_運用管理/ログインメッセージ_issueとmotd.md",
-   "20_オフラインRPM取得実務/RHEL7_CVE対応RPM99個_依存関係確認とオフライン更新準備.md",
-   "20_オフラインRPM取得実務/手順書_RHEL7_yum-utilsが無い場合の依存RPM取得.md",
+   "20_オフラインRPM取得実務/手順書_RHEL7_不足依存RPM取得と適用_yum-utilsあり.md",
+   "20_オフラインRPM取得実務/手順書_RHEL7_不足依存RPM取得と適用_yum-utilsなし.md",
    "20_オフラインRPM取得実務/手順書_RHEL7_依存不足対応.md",
-   "20_オフラインRPM取得実務/手順書_RHEL8以降_依存不足対応.md"
+   "20_オフラインRPM取得実務/手順書_RHEL8以降_依存不足対応.md",
+   "20_オフラインRPM取得実務/解説_オフラインRPM適用の考え方.md"
   ],
   "x86_64-efi": [
    "05_起動プロセスとカーネル/GRUBの設定と復旧.md"
@@ -31045,25 +31289,36 @@
    "07_パッケージ管理/dnf解説④_リポジトリとキャッシュの管理.md",
    "07_パッケージ管理/dnf解説⑤_依存関係とセキュリティ更新の調べ方.md",
    "07_パッケージ管理/dnf解説⑥_環境の見極めとバージョン差分.md",
-   "20_オフラインRPM取得実務/RHEL7_CVE対応RPM99個_依存関係確認とオフライン更新準備.md",
    "20_オフラインRPM取得実務/ローカルリポジトリの仕組み.md",
    "20_オフラインRPM取得実務/依存チェックスクリプトの読み方.md",
    "20_オフラインRPM取得実務/手順書_RHEL7_openssh更新.md",
-   "20_オフラインRPM取得実務/手順書_RHEL7_yum-utilsが無い場合の依存RPM取得.md",
-   "20_オフラインRPM取得実務/手順書_RHEL7_下見ログの読み方.md",
+   "20_オフラインRPM取得実務/手順書_RHEL7_不足依存RPM取得と適用_yum-utilsあり.md",
+   "20_オフラインRPM取得実務/手順書_RHEL7_不足依存RPM取得と適用_yum-utilsなし.md",
    "20_オフラインRPM取得実務/手順書_RHEL7_依存不足対応.md",
-   "20_オフラインRPM取得実務/手順書_RHEL7_対象サーバーでの適用前確認.md",
    "20_オフラインRPM取得実務/手順書_RHEL8以降_openssh更新.md",
-   "20_オフラインRPM取得実務/手順書_RHEL8以降_依存不足対応.md"
+   "20_オフラインRPM取得実務/手順書_RHEL8以降_依存不足対応.md",
+   "20_オフラインRPM取得実務/解説_オフラインRPM適用の考え方.md",
+   "20_オフラインRPM取得実務/解説_下見ログの読み方.md"
   ],
   "yum-3": [
    "07_パッケージ管理/dnf実践①_オンライン環境での更新手順.md"
+  ],
+  "yum-3.4.3-168": [
+   "20_オフラインRPM取得実務/解説_オフラインRPM適用の考え方.md"
+  ],
+  "yum-check-after.log": [
+   "20_オフラインRPM取得実務/手順書_RHEL7_不足依存RPM取得と適用_yum-utilsあり.md",
+   "20_オフラインRPM取得実務/手順書_RHEL7_不足依存RPM取得と適用_yum-utilsなし.md"
+  ],
+  "yum-check-before.log": [
+   "20_オフラインRPM取得実務/手順書_RHEL7_不足依存RPM取得と適用_yum-utilsあり.md",
+   "20_オフラインRPM取得実務/手順書_RHEL7_不足依存RPM取得と適用_yum-utilsなし.md"
   ],
   "yum-config-manager": [
    "07_パッケージ管理/dnf実践④_オフライン環境での適用と切り戻し.md"
   ],
   "yum-plugin-downloadonly": [
-   "20_オフラインRPM取得実務/手順書_RHEL7_yum-utilsが無い場合の依存RPM取得.md"
+   "20_オフラインRPM取得実務/手順書_RHEL7_不足依存RPM取得と適用_yum-utilsなし.md"
   ],
   "yum-plugin-security": [
    "07_パッケージ管理/dnf実践④_オフライン環境での適用と切り戻し.md"
@@ -31075,33 +31330,38 @@
    "07_パッケージ管理/dnf実践①_オンライン環境での更新手順.md",
    "07_パッケージ管理/dnf実践④_オフライン環境での適用と切り戻し.md",
    "07_パッケージ管理/dnf解説①_基本とインストール系コマンド.md",
-   "20_オフラインRPM取得実務/RHEL7_CVE対応RPM99個_依存関係確認とオフライン更新準備.md",
-   "20_オフラインRPM取得実務/手順書_RHEL7_yum-utilsが無い場合の依存RPM取得.md"
+   "20_オフラインRPM取得実務/手順書_RHEL7_不足依存RPM取得と適用_yum-utilsあり.md",
+   "20_オフラインRPM取得実務/手順書_RHEL7_不足依存RPM取得と適用_yum-utilsなし.md",
+   "20_オフラインRPM取得実務/解説_オフラインRPM適用の考え方.md"
   ],
   "yum.8": [
-   "20_オフラインRPM取得実務/RHEL7_CVE対応RPM99個_依存関係確認とオフライン更新準備.md",
-   "20_オフラインRPM取得実務/手順書_RHEL7_yum-utilsが無い場合の依存RPM取得.md"
+   "20_オフラインRPM取得実務/手順書_RHEL7_不足依存RPM取得と適用_yum-utilsあり.md",
+   "20_オフラインRPM取得実務/手順書_RHEL7_不足依存RPM取得と適用_yum-utilsなし.md",
+   "20_オフラインRPM取得実務/解説_オフラインRPM適用の考え方.md"
   ],
   "yum.8.html": [
    "07_パッケージ管理/YUMとDNFによるパッケージ管理.md"
   ],
   "yum.conf": [
-   "20_オフラインRPM取得実務/RHEL7_CVE対応RPM99個_依存関係確認とオフライン更新準備.md",
-   "20_オフラインRPM取得実務/手順書_RHEL7_下見ログの読み方.md",
-   "20_オフラインRPM取得実務/手順書_RHEL7_対象サーバーでの適用前確認.md"
+   "20_オフラインRPM取得実務/手順書_RHEL7_不足依存RPM取得と適用_yum-utilsあり.md",
+   "20_オフラインRPM取得実務/手順書_RHEL7_不足依存RPM取得と適用_yum-utilsなし.md",
+   "20_オフラインRPM取得実務/解説_オフラインRPM適用の考え方.md",
+   "20_オフラインRPM取得実務/解説_下見ログの読み方.md"
   ],
   "yum.conf.5.html": [
    "07_パッケージ管理/YUMとDNFによるパッケージ管理.md"
   ],
   "yumdownloader": [
-   "20_オフラインRPM取得実務/RHEL7_CVE対応RPM99個_依存関係確認とオフライン更新準備.md",
    "20_オフラインRPM取得実務/ローカルリポジトリの仕組み.md",
    "20_オフラインRPM取得実務/依存チェックスクリプトの読み方.md",
    "20_オフラインRPM取得実務/手順書_RHEL7_openssh更新.md",
-   "20_オフラインRPM取得実務/手順書_RHEL7_yum-utilsが無い場合の依存RPM取得.md",
+   "20_オフラインRPM取得実務/手順書_RHEL7_不足依存RPM取得と適用_yum-utilsあり.md",
+   "20_オフラインRPM取得実務/手順書_RHEL7_不足依存RPM取得と適用_yum-utilsなし.md",
    "20_オフラインRPM取得実務/手順書_RHEL7_依存不足対応.md",
    "20_オフラインRPM取得実務/手順書_RHEL8以降_openssh更新.md",
-   "20_オフラインRPM取得実務/手順書_RHEL8以降_依存不足対応.md"
+   "20_オフラインRPM取得実務/手順書_RHEL8以降_依存不足対応.md",
+   "20_オフラインRPM取得実務/解説_オフラインRPM適用の考え方.md",
+   "20_オフラインRPM取得実務/解説_下見ログの読み方.md"
   ],
   "yw": [
    "01_シェルとコマンドライン/viエディタの編集操作.md"
@@ -31146,9 +31406,9 @@
    "01_シェルとコマンドライン/圧縮とアーカイブ.md"
   ],
   "zlib": [
-   "20_オフラインRPM取得実務/RHEL7_CVE対応RPM99個_依存関係確認とオフライン更新準備.md",
    "20_オフラインRPM取得実務/手順書_RHEL7_依存不足対応.md",
-   "20_オフラインRPM取得実務/手順書_RHEL8以降_依存不足対応.md"
+   "20_オフラインRPM取得実務/手順書_RHEL8以降_依存不足対応.md",
+   "20_オフラインRPM取得実務/解説_オフラインRPM適用の考え方.md"
   ],
   "zombie": [
    "04_プロセスとリソース管理/リソース監視_プロセス単位.md"
@@ -31716,7 +31976,7 @@
   "/tmp": [
    "02_テキスト処理と正規表現/sortによる並べ替え.md",
    "06_ストレージとファイルシステム/FHSとディレクトリ構成.md",
-   "20_オフラインRPM取得実務/手順書_RHEL7_対象サーバーでの適用前確認.md"
+   "20_オフラインRPM取得実務/解説_オフラインRPM適用の考え方.md"
   ],
   "/usr": [
    "06_ストレージとファイルシステム/FHSとディレクトリ構成.md"
@@ -31772,16 +32032,14 @@
   ],
   "1.": [
    "06_ストレージとファイルシステム/ddコマンド.md",
-   "20_オフラインRPM取得実務/RHEL7_CVE対応RPM99個_依存関係確認とオフライン更新準備.md",
-   "20_オフラインRPM取得実務/手順書_RHEL7_yum-utilsが無い場合の依存RPM取得.md",
-   "20_オフラインRPM取得実務/手順書_RHEL7_下見ログの読み方.md",
-   "20_オフラインRPM取得実務/手順書_RHEL7_対象サーバーでの適用前確認.md"
+   "20_オフラインRPM取得実務/解説_オフラインRPM適用の考え方.md",
+   "20_オフラインRPM取得実務/解説_下見ログの読み方.md"
   ],
   "1...5": [
    "02_テキスト処理と正規表現/正規表現の基礎.md"
   ],
   "10.": [
-   "20_オフラインRPM取得実務/RHEL7_CVE対応RPM99個_依存関係確認とオフライン更新準備.md"
+   "20_オフラインRPM取得実務/解説_オフラインRPM適用の考え方.md"
   ],
   "10.0.0.5": [
    "10_セキュリティ/TCPラッパーによるアクセス制御.md"
@@ -31790,10 +32048,16 @@
    "08_ネットワーク/mtrによる経路品質の調査.md"
   ],
   "11.": [
-   "20_オフラインRPM取得実務/RHEL7_CVE対応RPM99個_依存関係確認とオフライン更新準備.md"
+   "20_オフラインRPM取得実務/解説_オフラインRPM適用の考え方.md"
   ],
-  "12.": [
-   "20_オフラインRPM取得実務/RHEL7_CVE対応RPM99個_依存関係確認とオフライン更新準備.md"
+  "11.1": [
+   "20_オフラインRPM取得実務/解説_オフラインRPM適用の考え方.md"
+  ],
+  "11.2": [
+   "20_オフラインRPM取得実務/解説_オフラインRPM適用の考え方.md"
+  ],
+  "11.3": [
+   "20_オフラインRPM取得実務/解説_オフラインRPM適用の考え方.md"
   ],
   "127.0.0.1": [
    "08_ネットワーク/ソケットの確認_ss.md"
@@ -31819,10 +32083,17 @@
   ],
   "2.": [
    "06_ストレージとファイルシステム/ddコマンド.md",
-   "20_オフラインRPM取得実務/RHEL7_CVE対応RPM99個_依存関係確認とオフライン更新準備.md",
-   "20_オフラインRPM取得実務/手順書_RHEL7_yum-utilsが無い場合の依存RPM取得.md",
-   "20_オフラインRPM取得実務/手順書_RHEL7_下見ログの読み方.md",
-   "20_オフラインRPM取得実務/手順書_RHEL7_対象サーバーでの適用前確認.md"
+   "20_オフラインRPM取得実務/解説_オフラインRPM適用の考え方.md",
+   "20_オフラインRPM取得実務/解説_下見ログの読み方.md"
+  ],
+  "2.1": [
+   "20_オフラインRPM取得実務/解説_オフラインRPM適用の考え方.md"
+  ],
+  "2.2": [
+   "20_オフラインRPM取得実務/解説_オフラインRPM適用の考え方.md"
+  ],
+  "2.3": [
+   "20_オフラインRPM取得実務/解説_オフラインRPM適用の考え方.md"
   ],
   "2026-10-13": [
    "20_オフラインRPM取得実務/ローカルリポジトリの仕組み.md"
@@ -31852,19 +32123,8 @@
   ],
   "3.": [
    "06_ストレージとファイルシステム/ddコマンド.md",
-   "20_オフラインRPM取得実務/RHEL7_CVE対応RPM99個_依存関係確認とオフライン更新準備.md",
-   "20_オフラインRPM取得実務/手順書_RHEL7_yum-utilsが無い場合の依存RPM取得.md",
-   "20_オフラインRPM取得実務/手順書_RHEL7_下見ログの読み方.md",
-   "20_オフラインRPM取得実務/手順書_RHEL7_対象サーバーでの適用前確認.md"
-  ],
-  "3.1": [
-   "20_オフラインRPM取得実務/手順書_RHEL7_yum-utilsが無い場合の依存RPM取得.md"
-  ],
-  "3.2": [
-   "20_オフラインRPM取得実務/手順書_RHEL7_yum-utilsが無い場合の依存RPM取得.md"
-  ],
-  "3.3": [
-   "20_オフラインRPM取得実務/手順書_RHEL7_yum-utilsが無い場合の依存RPM取得.md"
+   "20_オフラインRPM取得実務/解説_オフラインRPM適用の考え方.md",
+   "20_オフラインRPM取得実務/解説_下見ログの読み方.md"
   ],
   "32bit": [
    "06_ストレージとファイルシステム/hdparmによるディスクパラメータ.md"
@@ -31889,31 +32149,56 @@
   ],
   "4.": [
    "06_ストレージとファイルシステム/ddコマンド.md",
-   "20_オフラインRPM取得実務/RHEL7_CVE対応RPM99個_依存関係確認とオフライン更新準備.md",
-   "20_オフラインRPM取得実務/手順書_RHEL7_yum-utilsが無い場合の依存RPM取得.md",
-   "20_オフラインRPM取得実務/手順書_RHEL7_下見ログの読み方.md",
-   "20_オフラインRPM取得実務/手順書_RHEL7_対象サーバーでの適用前確認.md"
+   "20_オフラインRPM取得実務/解説_オフラインRPM適用の考え方.md",
+   "20_オフラインRPM取得実務/解説_下見ログの読み方.md"
   ],
   "4.1": [
-   "20_オフラインRPM取得実務/手順書_RHEL7_yum-utilsが無い場合の依存RPM取得.md"
+   "20_オフラインRPM取得実務/解説_オフラインRPM適用の考え方.md"
   ],
   "4.2": [
-   "20_オフラインRPM取得実務/手順書_RHEL7_yum-utilsが無い場合の依存RPM取得.md"
+   "20_オフラインRPM取得実務/解説_オフラインRPM適用の考え方.md"
   ],
   "4.3": [
-   "20_オフラインRPM取得実務/手順書_RHEL7_yum-utilsが無い場合の依存RPM取得.md"
-  ],
-  "4.4": [
-   "20_オフラインRPM取得実務/手順書_RHEL7_yum-utilsが無い場合の依存RPM取得.md"
+   "20_オフラインRPM取得実務/解説_オフラインRPM適用の考え方.md"
   ],
   "5.": [
    "06_ストレージとファイルシステム/ddコマンド.md",
-   "20_オフラインRPM取得実務/RHEL7_CVE対応RPM99個_依存関係確認とオフライン更新準備.md",
-   "20_オフラインRPM取得実務/手順書_RHEL7_下見ログの読み方.md"
+   "20_オフラインRPM取得実務/解説_オフラインRPM適用の考え方.md",
+   "20_オフラインRPM取得実務/解説_下見ログの読み方.md"
+  ],
+  "5.1": [
+   "20_オフラインRPM取得実務/解説_オフラインRPM適用の考え方.md"
+  ],
+  "5.2": [
+   "20_オフラインRPM取得実務/解説_オフラインRPM適用の考え方.md"
   ],
   "6.": [
-   "20_オフラインRPM取得実務/RHEL7_CVE対応RPM99個_依存関係確認とオフライン更新準備.md",
-   "20_オフラインRPM取得実務/手順書_RHEL7_下見ログの読み方.md"
+   "20_オフラインRPM取得実務/解説_オフラインRPM適用の考え方.md",
+   "20_オフラインRPM取得実務/解説_下見ログの読み方.md"
+  ],
+  "6.1": [
+   "20_オフラインRPM取得実務/解説_オフラインRPM適用の考え方.md"
+  ],
+  "6.2": [
+   "20_オフラインRPM取得実務/解説_オフラインRPM適用の考え方.md"
+  ],
+  "6.3": [
+   "20_オフラインRPM取得実務/解説_オフラインRPM適用の考え方.md"
+  ],
+  "6.4": [
+   "20_オフラインRPM取得実務/解説_オフラインRPM適用の考え方.md"
+  ],
+  "6.5": [
+   "20_オフラインRPM取得実務/解説_オフラインRPM適用の考え方.md"
+  ],
+  "6.6": [
+   "20_オフラインRPM取得実務/解説_オフラインRPM適用の考え方.md"
+  ],
+  "6.7": [
+   "20_オフラインRPM取得実務/解説_オフラインRPM適用の考え方.md"
+  ],
+  "6.8": [
+   "20_オフラインRPM取得実務/解説_オフラインRPM適用の考え方.md"
   ],
   "64bit": [
    "20_オフラインRPM取得実務/依存チェックスクリプトの読み方.md"
@@ -31939,42 +32224,60 @@
    "20_オフラインRPM取得実務/手順書_RHEL8以降_openssh更新.md"
   ],
   "7.": [
-   "20_オフラインRPM取得実務/RHEL7_CVE対応RPM99個_依存関係確認とオフライン更新準備.md",
-   "20_オフラインRPM取得実務/手順書_RHEL7_下見ログの読み方.md"
+   "20_オフラインRPM取得実務/解説_オフラインRPM適用の考え方.md",
+   "20_オフラインRPM取得実務/解説_下見ログの読み方.md"
   ],
   "7.1": [
-   "20_オフラインRPM取得実務/RHEL7_CVE対応RPM99個_依存関係確認とオフライン更新準備.md"
+   "20_オフラインRPM取得実務/手順書_RHEL7_不足依存RPM取得と適用_yum-utilsあり.md",
+   "20_オフラインRPM取得実務/手順書_RHEL7_不足依存RPM取得と適用_yum-utilsなし.md",
+   "20_オフラインRPM取得実務/解説_オフラインRPM適用の考え方.md"
   ],
   "7.2": [
-   "20_オフラインRPM取得実務/RHEL7_CVE対応RPM99個_依存関係確認とオフライン更新準備.md"
+   "20_オフラインRPM取得実務/手順書_RHEL7_不足依存RPM取得と適用_yum-utilsあり.md",
+   "20_オフラインRPM取得実務/手順書_RHEL7_不足依存RPM取得と適用_yum-utilsなし.md",
+   "20_オフラインRPM取得実務/解説_オフラインRPM適用の考え方.md"
   ],
   "7.3": [
-   "20_オフラインRPM取得実務/RHEL7_CVE対応RPM99個_依存関係確認とオフライン更新準備.md"
+   "20_オフラインRPM取得実務/手順書_RHEL7_不足依存RPM取得と適用_yum-utilsあり.md",
+   "20_オフラインRPM取得実務/手順書_RHEL7_不足依存RPM取得と適用_yum-utilsなし.md",
+   "20_オフラインRPM取得実務/解説_オフラインRPM適用の考え方.md"
   ],
   "7.4": [
-   "20_オフラインRPM取得実務/RHEL7_CVE対応RPM99個_依存関係確認とオフライン更新準備.md"
+   "20_オフラインRPM取得実務/手順書_RHEL7_不足依存RPM取得と適用_yum-utilsあり.md",
+   "20_オフラインRPM取得実務/手順書_RHEL7_不足依存RPM取得と適用_yum-utilsなし.md"
   ],
   "7.5": [
-   "20_オフラインRPM取得実務/RHEL7_CVE対応RPM99個_依存関係確認とオフライン更新準備.md"
-  ],
-  "7.6": [
-   "20_オフラインRPM取得実務/RHEL7_CVE対応RPM99個_依存関係確認とオフライン更新準備.md"
+   "20_オフラインRPM取得実務/手順書_RHEL7_不足依存RPM取得と適用_yum-utilsなし.md"
   ],
   "7.9": [
-   "20_オフラインRPM取得実務/RHEL7_CVE対応RPM99個_依存関係確認とオフライン更新準備.md",
    "20_オフラインRPM取得実務/ローカルリポジトリの仕組み.md",
    "20_オフラインRPM取得実務/手順書_RHEL7_openssh更新.md",
-   "20_オフラインRPM取得実務/手順書_RHEL7_yum-utilsが無い場合の依存RPM取得.md",
-   "20_オフラインRPM取得実務/手順書_RHEL7_下見ログの読み方.md",
+   "20_オフラインRPM取得実務/手順書_RHEL7_不足依存RPM取得と適用_yum-utilsあり.md",
+   "20_オフラインRPM取得実務/手順書_RHEL7_不足依存RPM取得と適用_yum-utilsなし.md",
    "20_オフラインRPM取得実務/手順書_RHEL7_依存不足対応.md",
-   "20_オフラインRPM取得実務/手順書_RHEL7_対象サーバーでの適用前確認.md"
+   "20_オフラインRPM取得実務/解説_オフラインRPM適用の考え方.md",
+   "20_オフラインRPM取得実務/解説_下見ログの読み方.md"
   ],
   "702.work": [
    "01_シェルとコマンドライン/端末とscreenとtmux.md"
   ],
   "8.": [
-   "20_オフラインRPM取得実務/RHEL7_CVE対応RPM99個_依存関係確認とオフライン更新準備.md",
-   "20_オフラインRPM取得実務/手順書_RHEL7_下見ログの読み方.md"
+   "20_オフラインRPM取得実務/解説_オフラインRPM適用の考え方.md",
+   "20_オフラインRPM取得実務/解説_下見ログの読み方.md"
+  ],
+  "8.1": [
+   "20_オフラインRPM取得実務/手順書_RHEL7_不足依存RPM取得と適用_yum-utilsあり.md",
+   "20_オフラインRPM取得実務/手順書_RHEL7_不足依存RPM取得と適用_yum-utilsなし.md",
+   "20_オフラインRPM取得実務/解説_オフラインRPM適用の考え方.md"
+  ],
+  "8.2": [
+   "20_オフラインRPM取得実務/解説_オフラインRPM適用の考え方.md"
+  ],
+  "8.3": [
+   "20_オフラインRPM取得実務/解説_オフラインRPM適用の考え方.md"
+  ],
+  "8.4": [
+   "20_オフラインRPM取得実務/解説_オフラインRPM適用の考え方.md"
   ],
   "802.3ad": [
    "08_ネットワーク/インタフェースの冗長化_bonding.md"
@@ -32003,7 +32306,7 @@
    "20_オフラインRPM取得実務/手順書_RHEL8以降_openssh更新.md"
   ],
   "9.": [
-   "20_オフラインRPM取得実務/RHEL7_CVE対応RPM99個_依存関係確認とオフライン更新準備.md"
+   "20_オフラインRPM取得実務/解説_オフラインRPM適用の考え方.md"
   ],
   "9.7": [
    "20_オフラインRPM取得実務/ローカルリポジトリの仕組み.md"
@@ -32186,17 +32489,23 @@
   "EnvironmentFile=": [
    "05_起動プロセスとカーネル/systemd_Serviceセクションと自作サービス.md"
   ],
+  "Epoch": [
+   "20_オフラインRPM取得実務/解説_オフラインRPM適用の考え方.md"
+  ],
   "Error": [
-   "20_オフラインRPM取得実務/手順書_RHEL7_下見ログの読み方.md"
+   "20_オフラインRPM取得実務/解説_下見ログの読み方.md"
   ],
   "Error:": [
-   "20_オフラインRPM取得実務/手順書_RHEL7_下見ログの読み方.md"
+   "20_オフラインRPM取得実務/解説_下見ログの読み方.md"
   ],
   "Examine": [
    "06_ストレージとファイルシステム/RAIDの監視と保守.md"
   ],
   "Examining": [
-   "20_オフラインRPM取得実務/手順書_RHEL7_下見ログの読み方.md"
+   "20_オフラインRPM取得実務/解説_下見ログの読み方.md"
+  ],
+  "Excluding": [
+   "20_オフラインRPM取得実務/解説_オフラインRPM適用の考え方.md"
   ],
   "ExecStart": [
    "05_起動プロセスとカーネル/systemd_基本とユニットファイル.md"
@@ -32335,8 +32644,8 @@
   "LABEL=myboot": [
    "06_ストレージとファイルシステム/fstabの書き方.md"
   ],
-  "LANG=C": [
-   "20_オフラインRPM取得実務/RHEL7_CVE対応RPM99個_依存関係確認とオフライン更新準備.md"
+  "LC_ALL": [
+   "20_オフラインRPM取得実務/解説_オフラインRPM適用の考え方.md"
   ],
   "LC_ALL=C": [
    "02_テキスト処理と正規表現/sortによる並べ替え.md",
@@ -32401,7 +32710,7 @@
    "20_オフラインRPM取得実務/ローカルリポジトリの仕組み.md"
   ],
   "NEVRA": [
-   "20_オフラインRPM取得実務/RHEL7_CVE対応RPM99個_依存関係確認とオフライン更新準備.md"
+   "20_オフラインRPM取得実務/解説_オフラインRPM適用の考え方.md"
   ],
   "NFS": [
    "04_プロセスとリソース管理/リソース監視_IOとネットワーク.md"
@@ -32488,23 +32797,21 @@
    "07_パッケージ管理/dnf実践①_オンライン環境での更新手順.md",
    "07_パッケージ管理/dnf実践④_オフライン環境での適用と切り戻し.md",
    "07_パッケージ管理/dnf解説⑥_環境の見極めとバージョン差分.md",
-   "20_オフラインRPM取得実務/RHEL7_CVE対応RPM99個_依存関係確認とオフライン更新準備.md",
    "20_オフラインRPM取得実務/ローカルリポジトリの仕組み.md",
    "20_オフラインRPM取得実務/手順書_RHEL7_openssh更新.md",
-   "20_オフラインRPM取得実務/手順書_RHEL7_yum-utilsが無い場合の依存RPM取得.md",
-   "20_オフラインRPM取得実務/手順書_RHEL7_下見ログの読み方.md",
+   "20_オフラインRPM取得実務/手順書_RHEL7_不足依存RPM取得と適用_yum-utilsあり.md",
+   "20_オフラインRPM取得実務/手順書_RHEL7_不足依存RPM取得と適用_yum-utilsなし.md",
    "20_オフラインRPM取得実務/手順書_RHEL7_依存不足対応.md",
-   "20_オフラインRPM取得実務/手順書_RHEL7_対象サーバーでの適用前確認.md",
    "20_オフラインRPM取得実務/手順書_RHEL8以降_openssh更新.md",
-   "20_オフラインRPM取得実務/手順書_RHEL8以降_依存不足対応.md"
+   "20_オフラインRPM取得実務/手順書_RHEL8以降_依存不足対応.md",
+   "20_オフラインRPM取得実務/解説_オフラインRPM適用の考え方.md",
+   "20_オフラインRPM取得実務/解説_下見ログの読み方.md"
   ],
   "RHEL7": [
-   "20_オフラインRPM取得実務/RHEL7_CVE対応RPM99個_依存関係確認とオフライン更新準備.md",
    "20_オフラインRPM取得実務/手順書_RHEL7_openssh更新.md",
-   "20_オフラインRPM取得実務/手順書_RHEL7_yum-utilsが無い場合の依存RPM取得.md",
-   "20_オフラインRPM取得実務/手順書_RHEL7_下見ログの読み方.md",
-   "20_オフラインRPM取得実務/手順書_RHEL7_依存不足対応.md",
-   "20_オフラインRPM取得実務/手順書_RHEL7_対象サーバーでの適用前確認.md"
+   "20_オフラインRPM取得実務/手順書_RHEL7_不足依存RPM取得と適用_yum-utilsあり.md",
+   "20_オフラインRPM取得実務/手順書_RHEL7_不足依存RPM取得と適用_yum-utilsなし.md",
+   "20_オフラインRPM取得実務/手順書_RHEL7_依存不足対応.md"
   ],
   "RHSA-2026:0001": [
    "07_パッケージ管理/dnf実践①_オンライン環境での更新手順.md"
@@ -32516,10 +32823,13 @@
    "20_オフラインRPM取得実務/ローカルリポジトリの仕組み.md",
    "20_オフラインRPM取得実務/依存チェックスクリプトの読み方.md",
    "20_オフラインRPM取得実務/手順書_RHEL7_openssh更新.md",
-   "20_オフラインRPM取得実務/手順書_RHEL7_下見ログの読み方.md",
+   "20_オフラインRPM取得実務/手順書_RHEL7_不足依存RPM取得と適用_yum-utilsあり.md",
+   "20_オフラインRPM取得実務/手順書_RHEL7_不足依存RPM取得と適用_yum-utilsなし.md",
    "20_オフラインRPM取得実務/手順書_RHEL7_依存不足対応.md",
    "20_オフラインRPM取得実務/手順書_RHEL8以降_openssh更新.md",
-   "20_オフラインRPM取得実務/手順書_RHEL8以降_依存不足対応.md"
+   "20_オフラインRPM取得実務/手順書_RHEL8以降_依存不足対応.md",
+   "20_オフラインRPM取得実務/解説_オフラインRPM適用の考え方.md",
+   "20_オフラインRPM取得実務/解説_下見ログの読み方.md"
   ],
   "RSS": [
    "04_プロセスとリソース管理/プロセスの確認_ps.md"
@@ -32533,6 +32843,9 @@
   "Red": [
    "20_オフラインRPM取得実務/ローカルリポジトリの仕組み.md"
   ],
+  "Release": [
+   "20_オフラインRPM取得実務/解説_オフラインRPM適用の考え方.md"
+  ],
   "RemainAfterExit=": [
    "05_起動プロセスとカーネル/systemd_Serviceセクションと自作サービス.md"
   ],
@@ -32543,7 +32856,6 @@
    "07_パッケージ管理/dnf解説②_削除系と調査系コマンド.md"
   ],
   "Requires:": [
-   "20_オフラインRPM取得実務/RHEL7_CVE対応RPM99個_依存関係確認とオフライン更新準備.md",
    "20_オフラインRPM取得実務/ローカルリポジトリの仕組み.md",
    "20_オフラインRPM取得実務/手順書_RHEL7_依存不足対応.md"
   ],
@@ -32734,9 +33046,6 @@
   "a-z": [
    "02_テキスト処理と正規表現/trによる文字の変換と削除.md"
   ],
-  "access.redhat.com/solutions/": [
-   "20_オフラインRPM取得実務/RHEL7_CVE対応RPM99個_依存関係確認とオフライン更新準備.md"
-  ],
   "action": [
    "05_起動プロセスとカーネル/SysVinitの起動スクリプトとランレベル.md"
   ],
@@ -32770,9 +33079,6 @@
   ],
   "always": [
    "05_起動プロセスとカーネル/systemd_Serviceセクションと自作サービス.md"
-  ],
-  "alwaysprompt=0": [
-   "20_オフラインRPM取得実務/RHEL7_CVE対応RPM99個_依存関係確認とオフライン更新準備.md"
   ],
   "anaconda": [
    "05_起動プロセスとカーネル/GRUBの設定と復旧.md"
@@ -33014,6 +33320,9 @@
   "debugfs": [
    "06_ストレージとファイルシステム/ファイルシステム別ユーティリティ.md"
   ],
+  "debuglevel": [
+   "20_オフラインRPM取得実務/解説_オフラインRPM適用の考え方.md"
+  ],
   "declare": [
    "01_シェルとコマンドライン/シェル変数と環境変数.md"
   ],
@@ -33026,9 +33335,6 @@
   ],
   "dep": [
    "05_起動プロセスとカーネル/モジュールの依存関係とDKMS.md"
-  ],
-  "dependency:": [
-   "20_オフラインRPM取得実務/手順書_RHEL7_yum-utilsが無い場合の依存RPM取得.md"
   ],
   "depmod": [
    "05_起動プロセスとカーネル/モジュールの依存関係とDKMS.md"
@@ -33165,8 +33471,12 @@
   "egrep": [
    "02_テキスト処理と正規表現/grepによる検索.md"
   ],
+  "el7_9": [
+   "20_オフラインRPM取得実務/解説_オフラインRPM適用の考え方.md"
+  ],
   "el8": [
-   "20_オフラインRPM取得実務/ローカルリポジトリの仕組み.md"
+   "20_オフラインRPM取得実務/ローカルリポジトリの仕組み.md",
+   "20_オフラインRPM取得実務/解説_オフラインRPM適用の考え方.md"
   ],
   "el9": [
    "20_オフラインRPM取得実務/ローカルリポジトリの仕組み.md"
@@ -33198,6 +33508,10 @@
   ],
   "errors": [
    "08_ネットワーク/アドレスとルーティングの確認.md"
+  ],
+  "errors_01.txt": [
+   "20_オフラインRPM取得実務/手順書_RHEL7_不足依存RPM取得と適用_yum-utilsあり.md",
+   "20_オフラインRPM取得実務/手順書_RHEL7_不足依存RPM取得と適用_yum-utilsなし.md"
   ],
   "etc": [
    "01_シェルとコマンドライン/テキストエディタの選択_nanoとEmacs.md",
@@ -33233,7 +33547,7 @@
   ],
   "exit": [
    "05_起動プロセスとカーネル/GRUBの設定と復旧.md",
-   "20_オフラインRPM取得実務/RHEL7_CVE対応RPM99個_依存関係確認とオフライン更新準備.md"
+   "20_オフラインRPM取得実務/解説_オフラインRPM適用の考え方.md"
   ],
   "exit=0": [
    "07_パッケージ管理/dnf実践④_オフライン環境での適用と切り戻し.md"
@@ -33243,7 +33557,8 @@
   ],
   "export": [
    "01_シェルとコマンドライン/シェル変数と環境変数.md",
-   "01_シェルとコマンドライン/テキストエディタの選択_nanoとEmacs.md"
+   "01_シェルとコマンドライン/テキストエディタの選択_nanoとEmacs.md",
+   "20_オフラインRPM取得実務/解説_オフラインRPM適用の考え方.md"
   ],
   "ext2": [
    "06_ストレージとファイルシステム/Btrfsとサブボリューム.md",
@@ -33523,7 +33838,7 @@
    "05_起動プロセスとカーネル/カーネルのビルドとインストール.md",
    "07_パッケージ管理/dnf解説①_基本とインストール系コマンド.md",
    "07_パッケージ管理/ソースからのビルドとインストール.md",
-   "20_オフラインRPM取得実務/手順書_RHEL7_下見ログの読み方.md"
+   "20_オフラインRPM取得実務/解説_下見ログの読み方.md"
   ],
   "installed": [
    "20_オフラインRPM取得実務/依存チェックスクリプトの読み方.md"
@@ -34154,13 +34469,18 @@
    "07_パッケージ管理/dnf解説④_リポジトリとキャッシュの管理.md"
   ],
   "repoquery": [
-   "07_パッケージ管理/dnf解説⑤_依存関係とセキュリティ更新の調べ方.md"
+   "07_パッケージ管理/dnf解説⑤_依存関係とセキュリティ更新の調べ方.md",
+   "20_オフラインRPM取得実務/手順書_RHEL7_不足依存RPM取得と適用_yum-utilsあり.md"
   ],
   "reposync": [
    "07_パッケージ管理/dnf実践③_オフライン環境でのパッケージの集め方.md"
   ],
   "requires": [
    "07_パッケージ管理/dnf解説⑤_依存関係とセキュリティ更新の調べ方.md"
+  ],
+  "requires_01.txt": [
+   "20_オフラインRPM取得実務/手順書_RHEL7_不足依存RPM取得と適用_yum-utilsあり.md",
+   "20_オフラインRPM取得実務/手順書_RHEL7_不足依存RPM取得と適用_yum-utilsなし.md"
   ],
   "rescue": [
    "17_運用管理/ユーザへの通知_wallとwriteとtalk.md"
@@ -34415,7 +34735,8 @@
   ],
   "sudo": [
    "01_シェルとコマンドライン/パイプとフィルタ.md",
-   "07_パッケージ管理/dnf実践④_オフライン環境での適用と切り戻し.md"
+   "07_パッケージ管理/dnf実践④_オフライン環境での適用と切り戻し.md",
+   "20_オフラインRPM取得実務/解説_オフラインRPM適用の考え方.md"
   ],
   "swap": [
    "04_プロセスとリソース管理/リソース監視_システム全体.md",
@@ -34514,8 +34835,7 @@
    "08_ネットワーク/ソケットの確認_ss.md"
   ],
   "tmp": [
-   "07_パッケージ管理/YUMとDNFによるパッケージ管理.md",
-   "20_オフラインRPM取得実務/RHEL7_CVE対応RPM99個_依存関係確認とオフライン更新準備.md"
+   "07_パッケージ管理/YUMとDNFによるパッケージ管理.md"
   ],
   "tmpfs": [
    "06_ストレージとファイルシステム/ファイルシステムの種類と作成.md"
@@ -34547,6 +34867,12 @@
   ],
   "tree": [
    "04_プロセスとリソース管理/プロセスの確認_ps.md"
+  ],
+  "tsflags": [
+   "20_オフラインRPM取得実務/解説_オフラインRPM適用の考え方.md"
+  ],
+  "tsflags=test": [
+   "20_オフラインRPM取得実務/解説_オフラインRPM適用の考え方.md"
   ],
   "ttl": [
    "08_ネットワーク/疎通確認_pingとtraceroute.md"
@@ -34784,9 +35110,10 @@
    "07_パッケージ管理/dnf解説①_基本とインストール系コマンド.md",
    "20_オフラインRPM取得実務/ローカルリポジトリの仕組み.md",
    "20_オフラインRPM取得実務/依存チェックスクリプトの読み方.md",
-   "20_オフラインRPM取得実務/手順書_RHEL7_yum-utilsが無い場合の依存RPM取得.md",
-   "20_オフラインRPM取得実務/手順書_RHEL7_下見ログの読み方.md",
-   "20_オフラインRPM取得実務/手順書_RHEL7_依存不足対応.md"
+   "20_オフラインRPM取得実務/手順書_RHEL7_不足依存RPM取得と適用_yum-utilsあり.md",
+   "20_オフラインRPM取得実務/手順書_RHEL7_不足依存RPM取得と適用_yum-utilsなし.md",
+   "20_オフラインRPM取得実務/手順書_RHEL7_依存不足対応.md",
+   "20_オフラインRPM取得実務/解説_下見ログの読み方.md"
   ],
   "yum-3": [
    "07_パッケージ管理/dnf実践①_オンライン環境での更新手順.md"
@@ -34794,13 +35121,17 @@
   "yum-utils": [
    "07_パッケージ管理/YUMとDNFによるパッケージ管理.md",
    "07_パッケージ管理/dnf解説①_基本とインストール系コマンド.md",
-   "20_オフラインRPM取得実務/手順書_RHEL7_yum-utilsが無い場合の依存RPM取得.md"
+   "20_オフラインRPM取得実務/手順書_RHEL7_不足依存RPM取得と適用_yum-utilsあり.md",
+   "20_オフラインRPM取得実務/手順書_RHEL7_不足依存RPM取得と適用_yum-utilsなし.md"
   ],
   "yum.conf": [
    "07_パッケージ管理/YUMとDNFによるパッケージ管理.md"
   ],
   "yum.repos.d": [
    "07_パッケージ管理/YUMとDNFによるパッケージ管理.md"
+  ],
+  "yumdownloader": [
+   "20_オフラインRPM取得実務/手順書_RHEL7_不足依存RPM取得と適用_yum-utilsあり.md"
   ],
   "yw": [
    "01_シェルとコマンドライン/viエディタの編集操作.md"
