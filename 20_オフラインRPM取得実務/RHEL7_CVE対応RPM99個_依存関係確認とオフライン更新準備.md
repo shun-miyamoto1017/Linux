@@ -16,6 +16,9 @@
 > | 手順書 | [手順書 RHEL 7.9 依存RPMの不足対応](./手順書_RHEL7_依存不足対応.md) | `yum` で「確認 → 不足RPMを追加」を繰り返して依存を閉じる。手動とスクリプトの両方 |
 > | 手順書 | [手順書 RHEL 8 以降 依存RPMの不足対応](./手順書_RHEL8以降_依存不足対応.md) | `dnf` で「確認 → 不足RPMを追加」を繰り返して依存を閉じる。手動とスクリプトの両方 |
 > | **手順書** | **このノート（社内リポジトリ接続機で不足依存RPMを集めて持ち帰る）** | **TeraTerm と WinSCP を使った実作業の通し手順。**別システムへ RPM を送る → 足りない依存を下見する → 取得する → 持ち帰る → 対象サーバーであてる前の確認 |
+> | 手順書 | [yum-utils が無い別システムで不足依存RPMを取得する](./手順書_RHEL7_yum-utilsが無い場合の依存RPM取得.md) | **本ノートの第8・9章の差し替え。**`yumdownloader` / `repoquery` が無いときに、`yum provides` → `yum --showduplicates list` → `yum install --downloadonly` で調べて取得する |
+> | 解説 | [下見ログの読み方](./手順書_RHEL7_下見ログの読み方.md) | **`yum install --assumeno` のログの読み方。**行の形ごとの意味、`Error:` の塊の読み方、計画の表と `Transaction Summary` の読み方、よくある読み違い |
+> | 手順書 | [対象サーバーでの適用前確認](./手順書_RHEL7_対象サーバーでの適用前確認.md) | **本ノートの続き。**持ち帰った RPM を対象サーバーで確認する（ハッシュ照合 → 下見 → トランザクションテスト → 前後比較）。**実際にあてる手順は含まない** |
 > | 解説 | [依存チェックスクリプトの読み方](./依存チェックスクリプトの読み方.md) | `check_deps.sh` を 1 ブロックずつ解説。**元版にあった不具合と、実機で確かめた修正内容** |
 >
 > **`dnf` / `yum` そのもののコマンド解説**は [07_パッケージ管理](../07_パッケージ管理/dnf解説①_基本とインストール系コマンド.md) にあります。
@@ -36,24 +39,25 @@
 - [1. 手元のWindowsでRPMをまとめる](#1-手元のwindowsでrpmをまとめる)
 - [2. TeraTermで別システムにログインする](#2-teratermで別システムにログインする)
 - [3. 作業フォルダと変数を用意する](#3-作業フォルダと変数を用意する)
+  - [LANG=C は exit したら元に戻るのか](#lang=c-は-exit-したら元に戻るのか)
 - [4. WinSCPでアーカイブを送る](#4-winscpでアーカイブを送る)
 - [5. アーカイブを展開する](#5-アーカイブを展開する)
 - [6. 社内リポジトリを確認する](#6-社内リポジトリを確認する)
 - [7. 足りない依存を下見する](#7-足りない依存を下見する)
-  - [結果の読み方](#結果の読み方)
-  - [黙って外されたRPMがないか確認する](#黙って外されたrpmがないか確認する)
-  - [/tmp に残るファイルの注意](#tmp-に残るファイルの注意)
+  - [7.1 持ち込んだRPMだけで足りるか見る](#71-持ち込んだrpmだけで足りるか見る)
+  - [7.2 社内リポジトリで何を足せばよいか調べる](#72-社内リポジトリで何を足せばよいか調べる)
+  - [7.3 ログの読み方](#73-ログの読み方)
+  - [7.4 確認用のまとめログを作って持ち帰る](#74-確認用のまとめログを作って持ち帰る)
+  - [7.5 黙って外されたRPMがないか確認する](#75-黙って外されたrpmがないか確認する)
+  - [7.6 /tmp に残るファイルの注意](#76-tmp-に残るファイルの注意)
 - [8. 足りないRPMの正体を調べる](#8-足りないrpmの正体を調べる)
-  - [カッコ付きの記号は外して調べる](#カッコ付きの記号は外して調べる)
+  - [見つからないときはグロブで探す](#見つからないときはグロブで探す)
 - [9. 足りないRPMを取得する](#9-足りないrpmを取得する)
   - [取得したら必ず7に戻る](#取得したら必ず7に戻る)
   - [参考 --resolve でまとめて取る場合](#参考---resolve-でまとめて取る場合)
 - [10. 持ち帰り用にまとめる](#10-持ち帰り用にまとめる)
 - [11. WinSCPで持ち帰る](#11-winscpで持ち帰る)
-- [12. 対象サーバーであてる前の確認](#12-対象サーバーであてる前の確認)
-  - [12.1 下見する](#121-下見する)
-  - [12.2 トランザクションテストをする](#122-トランザクションテストをする)
-  - [12.3 ここで確認できないこと](#123-ここで確認できないこと)
+- [12. 対象サーバーへ渡す](#12-対象サーバーへ渡す)
 - [よく出るメッセージ早見表](#よく出るメッセージ早見表)
 - [やってはいけないこと](#やってはいけないこと)
 - [記録表](#記録表)
@@ -93,7 +97,7 @@
   ◀──[WinSCP で持ち帰る]───┘
   │  ⑦ ハッシュ値を照合して保管する
   └──[承認された方法で送る]──▶ 対象サーバー
-                                ⑧ あてる前の確認（下見 → トランザクションテスト）
+                                ⑧ あてる前の確認 → 別ノート「対象サーバーでの適用前確認」
 ```
 
 **人が判断するのは ④ だけ**です。ほかは決まったコマンドを打つだけです。
@@ -163,10 +167,9 @@ Get-FileHash -Algorithm SHA256 rpm.tar.gz   # ハッシュ値を控える
 
 **期待値**：`rpm.tar.gz` ができてサイズが 0 ではない。**`Hash` 欄の値をメモしておく**（転送後の照合に使います）。
 
-> **`tar` が使えないと言われたら**、7-Zip などで `tar.gz` を作ってください。
+> **`tar` が使えないと言われたら**、7-Zip などで `tar.gz` を作ってください（tar にしてから gzip にする2段階です）。
 > **`.zip` は避けたほうが安全**です。展開に `unzip` が必要で、RHEL 7 に入っていないことがあります。
-> **RPM は圧縮済みなので小さくはなりません。**小さくするためではなく、
-> **1ファイルにまとめて転送の抜けを防ぐ**ためにやっています。
+> **RPM は圧縮済みなので小さくはなりません。**1ファイルにまとめて**転送の抜けを防ぐ**ためにやっています。
 
 ---
 
@@ -180,6 +183,7 @@ Get-FileHash -Algorithm SHA256 rpm.tar.gz   # ハッシュ値を控える
 ログインできたら、**まず自分がどこにいるかを確認します。**
 
 ```bash
+$ export LANG=C                  # この接続だけメッセージを英語にそろえる（第3章で解説）
 $ whoami                         # 今のユーザー名
 $ hostname                       # 今いるサーバー名
 $ cat /etc/redhat-release        # OS の版
@@ -199,18 +203,35 @@ $ echo $HOME                     # 自分のホームディレクトリ
 
 > **いちばん多い事故が「サーバーを間違える」ことです。`hostname` を必ず見てから**先に進んでください。
 
-次に、必要な道具がそろっているか確認します。
+> **コードブロックの先頭の `$ ` は入力しません。**プロンプトの印として書いてあるだけです。
+> `$ ` ごと貼り付けると `$: command not found` になります。
+
+次に、必要な道具がそろっているか確認します。**ここで手順が2つに分かれます。**
 
 ```bash
-$ rpm -q yum yum-utils           # yum と yum-utils が入っているか
-$ which yumdownloader repoquery  # 取得と検索のコマンドがあるか
-$ which tar sha256sum            # まとめる・ハッシュを取る道具があるか
+$ which tar sha256sum                        # まとめる・ハッシュを取る道具があるか
+$ rpm -q yum-utils                           # yum-utils が入っているか
+$ which yumdownloader repoquery              # 取得と検索のコマンドがあるか
+$ yumdownloader --help > /dev/null 2>&1      # 実際に起動するか試す
+$ echo "yumdownloader rc=$?"                 # 起動したら 0
+$ repoquery --help > /dev/null 2>&1          # 実際に起動するか試す
+$ echo "repoquery rc=$?"                     # 起動したら 0
 ```
 
-**期待値**：すべてパスかパッケージ名が表示される
+**期待値**：`tar` と `sha256sum` のパスが出ること。出なければ管理者に相談します。
 
-❌ `yum-utils` が `not installed` → **`yumdownloader` と `repoquery` が使えません。**管理者へ導入を依頼してください。
-　**この手順書では道具の導入はしません。**
+| `yum-utils` の判定結果 | パターン | 第8・9章でやること |
+|:--|:--|:--|
+| パスが出て、`rc=0` が2つ出る | **A：`yumdownloader` が使える** | **このノートのまま**進める |
+| `package yum-utils is not installed` | **B：使えない** | **[yum-utils が無い場合の依存RPM取得](./手順書_RHEL7_yum-utilsが無い場合の依存RPM取得.md)** に差し替える |
+| パスは出るが `rc=0` 以外 | **B 扱い**（壊れている可能性） | 管理者に状況を伝えてから同上 |
+
+> **パスの有無だけで判断せず、実際に起動するところまで確認**してください。
+> `which` でパスが出るのに `--help` が失敗することがあります（Python の依存が壊れている場合など）。
+
+> **いちばん簡単な解決は `sudo yum install yum-utils` で入れてもらうことです。**
+> 別システムは社内リポジトリにつながっているので通常は入りますが、
+> **別システムへのパッケージ導入は構成変更**なので、**必ず管理者の承認を取ってください。**
 
 ---
 
@@ -236,28 +257,92 @@ $ ls -ld $RPM_DIR $LOG_DIR                   # 2つできたか確認する
 
 > **SSH を切って入り直したら、この `export` を全部もう一度実行してください。**
 > `export` の値は**その接続の中だけ**で有効です。面倒なら `$HOME/rpm` とフルで打っても結果は同じです。
-> **`LANG=C`** は、RHEL 7 の日本語環境だと **yum のメッセージが日本語になる**ためです。
-> 本書やネット上の情報は英語前提なので、**英語にそろえたほうが調べやすく `grep` もしやすい**です。
+
+変数が空のまま次へ進むと、`$RPM_DIR/...` が `/...` に化けます。**値が入っていることを必ず見てください。**
+
+```bash
+$ echo "RPM_DIR=$RPM_DIR LOG_DIR=$LOG_DIR REPO_ID=$REPO_ID"   # 3つとも値が入っているか
+```
+
+**期待値**：3つとも `/home/ユーザー名/...` や `internal-rhel7` が表示される（空が1つでもあれば `export` からやり直す）
+
+### LANG=C は exit したら元に戻るのか
+
+**戻ります。** `export LANG=C` が効くのは**そのログインセッション（そのシェルと、そこから起動したコマンド）の中だけ**で、
+**ディスク上のファイルは一切書き換えません。**TeraTerm の接続を閉じればシェルごと消えます。
+
+次にログインしたときに `ja_JP.UTF-8` に戻るのは、**ログインのたびにロケールの設定が読み直される**からです。RHEL 7 では次の順で決まります。
+
+| 場所 | 役割 |
+|:--|:--|
+| `/etc/locale.conf` | **システム全体**のロケール設定 |
+| `$HOME/.i18n` | **ユーザーごと**のロケール設定 |
+| `/etc/profile.d/lang.sh` | 対話シェルの起動時に、上の2つを（この順で）読み込んで `LANG` を設定する |
+
+> **ただし `LANG` がすでに設定されている場合、`lang.sh` はその値をそのまま残します。**
+> SSH クライアント側がロケールを送ってくる構成だと、ログイン直後から別の値になっていることがあります。
+> 根拠：[Red Hat：How to change system locale on RHEL7?](https://access.redhat.com/node/974273)
+
+**今どうなっているかを見るコマンド**（どれも表示するだけで、何も変えません）
+
+```bash
+$ echo $LANG                                 # 今のシェルの LANG
+$ locale                                     # LANG と LC_* の一覧
+$ cat /etc/locale.conf                       # システム全体の設定（書き換えない）
+$ ls -l $HOME/.i18n                          # 個人設定の有無（無ければ No such file）
+$ localectl status                           # systemd が見ているロケール
+```
+
+**日本語に戻したいとき**は、次のどれかです。
+
+| やり方 | 内容 |
+|:--|:--|
+| **`exit` して入り直す** | いちばん確実。`lang.sh` が読み直される |
+| `export LANG=ja_JP.UTF-8` | その場のシェルだけ戻す |
+| TeraTerm をもう1本開く | 日本語の窓と英語の窓を並べて使える |
+
+> **`~/.bashrc` や `~/.bash_profile` に `export LANG=C` を書かないでください。**
+> 恒久的な変更になり、あなたの他の作業にも影響します。
+> **`localectl set-locale` や `/etc/locale.conf` の書き換えは、別システム全体の構成変更**です。承認なしに行わないでください。
+
+> **`LC_ALL` が設定されていると `LANG=C` は効きません。**
+> 優先順位は **`LC_ALL` > `LC_MESSAGES` などの個別の `LC_*` > `LANG`** です。
+> `locale` の表示で `LC_ALL` に値が入っていたら、`export LC_ALL=C` のほうを使ってください。
+
+> **`sudo` の先に引き継がれるかは環境によります。**本書の `yum` は `sudo` 越しに動くので、ここが効かないと英語になりません。
+
+```bash
+$ sudo printenv LANG                         # sudo 先の LANG を確認する
+```
+
+> `C` 以外が表示されたら、`sudo -E yum ...` のように `-E` を付けるか、
+> `sudo env LANG=C yum ...` のようにコマンドごとに指定してください。
 
 ---
 
 ## 4. WinSCPでアーカイブを送る
 
-1. WinSCP を起動して「新しいセッション」
-2. **転送プロトコル**を **SFTP**、**ホスト名**に別システムの IP かホスト名
+1. WinSCP を起動して、接続先（サイト）を新規に作る
+2. **ファイルプロトコル**を **SFTP**、**ホスト名**に別システムの IP かホスト名
 3. ユーザー名とパスワード（または鍵）を入れて「ログイン」
 4. 画面が左右に分かれる。**左が手元の Windows、右が別システム**
-5. **右側のパス欄に `/home/ユーザー名/rpm` を入れて移動**する
+5. **右側のパス欄に `/home/ユーザー名` を入れて移動**する（**`/rpm` は付けません**）
 6. 左側で `C:\work\rpm.tar.gz` を選び、**右へドラッグする**
 
-> **転送モードは「バイナリ」にしてください。**「オプション」→「環境」→「転送」で**「バイナリ」**を選びます。
-> **「テキスト」で転送すると改行コードが書き換えられて、RPM やアーカイブが壊れます。**
+> **送り先は `$HOME` です。`$HOME/rpm` ではありません。**
+> アーカイブの中身が `rpm/` というフォルダなので、**`$HOME` で展開すると `$HOME/rpm/` ができます**（第5章）。
+> `$HOME/rpm` に送って展開すると `$HOME/rpm/rpm/` という余計な入れ子ができます。
+
+> **転送モードは「バイナリ」にしてください。**
+> 既定は「自動」で、拡張子で判定します。`.rpm` や `.tar.gz` は通常バイナリ扱いですが、
+> **「テキスト」で転送されると改行コードが書き換えられて壊れます。**転送設定で明示的に「バイナリ」を選ぶのが確実です。
+> 画面の項目名は WinSCP の版や日本語化の有無で変わるので、**実際の画面の表記に読み替えてください。**
 
 転送が終わったら、**TeraTerm 側で届いたことを確認します。**
 
 ```bash
-$ ls -l $RPM_DIR                             # 届いたファイルを見る
-$ sha256sum $RPM_DIR/rpm.tar.gz              # ハッシュ値を計算する
+$ ls -l $HOME/rpm.tar.gz                     # 届いたファイルを見る
+$ sha256sum $HOME/rpm.tar.gz                 # ハッシュ値を計算する
 ```
 
 **期待値**：サイズが手元の `dir` と同じで、**ハッシュ値が第1章でメモした値と一致する**
@@ -268,31 +353,42 @@ $ sha256sum $RPM_DIR/rpm.tar.gz              # ハッシュ値を計算する
 
 ## 5. アーカイブを展開する
 
+**まず中身を見ます。ここで止まれるように、展開とはブロックを分けています。**
+
 ```bash
-$ cd $RPM_DIR                                # RPM 置き場へ移動する
+$ cd $HOME                                   # ホームへ移動する
 $ tar -tzf rpm.tar.gz                        # 中身を一覧する（まだ展開しない）
-$ tar -xzf rpm.tar.gz                        # 展開する
-$ ls -l                                      # 何ができたかを見る
+$ tar -tzf rpm.tar.gz | wc -l                # 中身の数（rpm/ の行も1行入る）
 ```
 
 `tar` のオプションは **`-t` が一覧、`-x` が展開、`-c` が作成、`-z` が gzip、`-f` がファイル名の指定**です。
 
-> **展開する前に必ず `-tzf` で中身を見てください。**
-> **絶対パス（先頭が `/`）や `../` が入っていたら展開しないでください。**想定外の場所にファイルが置かれます。
+**期待値**：すべての行が **`rpm/` で始まっている**こと
 
-第1章のやり方だと `rpm` というフォルダの中に展開されます。**RPM を `$HOME/rpm` の直下に移します。**
+> **絶対パス（先頭が `/`）や `../` が入っていたら、ここで止めてください。**想定外の場所にファイルが置かれます。
+> **確認してから、次のブロックを実行します。**
 
 ```bash
-$ ls $RPM_DIR/rpm/*.rpm | wc -l              # 展開されたフォルダの中の RPM の数
-$ mv $RPM_DIR/rpm/*.rpm $RPM_DIR/            # 直下へ移す
-$ rmdir $RPM_DIR/rpm                         # 空になったフォルダを消す
-$ rm -f $RPM_DIR/rpm.tar.gz                  # 送ってきたアーカイブを消す
-$ ls $RPM_DIR/*.rpm | wc -l                  # 直下の RPM の数を数える
+$ cd $HOME                                   # ホームへ移動する
+$ tar -xzf rpm.tar.gz                        # 展開する（$HOME/rpm/ ができる）
+$ ls $RPM_DIR/*.rpm | wc -l                  # RPM の数を数える
+$ ls $RPM_DIR | grep -v '\.rpm$'             # RPM 以外が混ざっていないか
 ```
 
-**期待値**：最後の数が、**手元で用意した RPM の数と一致する**
+**期待値**：RPM の数が**手元で用意した数と一致**し、最後の `grep` が**何も表示しない**
+
+> **アーカイブの中身は `rpm/` なので、`$HOME` で展開すると `$HOME/rpm/`（＝`$RPM_DIR`）に入ります。**
+> 第3章で `mkdir -p $RPM_DIR` を済ませていても問題ありません。`tar` が同じ場所に重ねて展開します。
 
 ❌ **数が合わない** → 転送の抜けか、`tar` の作り方が違います。第1章からやり直してください。
+❌ **`$HOME/rpm/rpm` ができた** → アーカイブを `$HOME/rpm` に送ってしまっています。第4章の送り先を確認してください。
+
+送ってきたアーカイブは、展開を確認してから消します。
+
+```bash
+$ rm -f $HOME/rpm.tar.gz                     # 送ってきたアーカイブを消す
+$ ls $HOME                                   # ホームの中身を確認する
+```
 
 **RPM の中身を一覧にして、ログ側に記録しておきます。**
 
@@ -348,8 +444,6 @@ $ grep -E 'Repo-id|Repo-name|Repo-baseurl|Repo-pkgs|Repo-status' $LOG_DIR/repoli
 **`--disablerepo='*'` は「その呼び出しだけ全リポジトリを無効にする」、`--enablerepo=ID` は「指定した ID だけ有効に戻す」**指定です。
 
 > **`'*'` をシングルクォートで囲む理由**：囲まないと**シェルが `*` をカレントディレクトリのファイル名に展開**してしまいます。
-> `yum` に `*` という文字をそのまま渡すために囲みます。
-
 > **設定ファイルは書き換えません。**`--disablerepo` / `--enablerepo` は**その1回のコマンドにだけ効く**指定で、
 > 恒久的な `.repo` の作成や `createrepo` も、この手順では不要です。
 
@@ -363,10 +457,25 @@ $ grep -E 'Repo-id|Repo-name|Repo-baseurl|Repo-pkgs|Repo-status' $LOG_DIR/repoli
 ## 7. 足りない依存を下見する
 
 **ここが本体です。**`--assumeno` を付けて、**「もし入れたらどうなるか」だけを表示させます。**
+**下見は2回に分けます。役割が違うので、必ず両方やってください。**
+
+| | 社内リポジトリ | 何が分かるか |
+|:--|:--|:--|
+| **7.1** | **使わない**（`--disablerepo='*'`） | **持ち込んだ RPM だけで依存が閉じるか。**対象サーバーに近い条件 |
+| **7.2** | 使う（`--enablerepo=$REPO_ID`） | **リポジトリから何を足せば閉じるか。**ここに出たものが取得対象 |
+
+> **7.2 だけで判断してはいけません。**
+> 社内リポジトリを有効にすると、Yum は足りない依存を**リポジトリから自動で補って**計画を作ります。
+> その結果 `Error: ... Requires:` は出ず、**`Exiting on user command` で正常終了します。**
+> これを「依存がそろった」と読むと、**補われた RPM を持ち帰らないまま先へ進んでしまいます。**
+> 根拠：`yum.8` の localinstall の項に「*If required the enabled repositories will be used to resolve dependencies*」とあります。
+
+### 7.1 持ち込んだRPMだけで足りるか見る
 
 ```bash
-$ sudo yum --disablerepo='*' --enablerepo=$REPO_ID install --assumeno $RPM_DIR/*.rpm \
-    > $LOG_DIR/dryrun_01.txt 2>&1            # 下見の結果をログに保存する
+$ sudo yum --noplugins --disablerepo='*' --setopt=alwaysprompt=1 \
+    install --assumeno ${RPM_DIR:?}/*.rpm \
+    > $LOG_DIR/dryrun_01.txt 2>&1            # リポジトリを使わずに下見する
 $ echo "exit code: $?"                       # 終了コードを見る
 $ tail -n 20 $LOG_DIR/dryrun_01.txt          # ログの最後を見る
 ```
@@ -378,76 +487,171 @@ $ tail -n 20 $LOG_DIR/dryrun_01.txt          # ログの最後を見る
 | `install` に**ファイルパス**を渡す | `yum` は**ファイル名を渡されるとローカルインストールとして扱う**（`yum.8` に明記）。`localinstall` は公式に「互換のため残しているだけ」とされているので `install` を使う |
 | **1個ずつでなく全部まとめて**渡す | 1個ずつ試すと、**同時に入れる別の RPM が条件を満たす関係を「不足」と誤判定**する |
 | `--assumeno` | 確認に自動で「いいえ」と答える。**実更新を絶対にしない** |
-| `--enablerepo=$REPO_ID` | **社内リポジトリを使って依存を解決させる。**ここが「足りないものを埋める候補」になる |
+| `--setopt=alwaysprompt=1` | **確認を必ず出させる。**`alwaysprompt=0` の環境では、確認が出ない計画で `--assumeno` が働かないため（保険） |
+| `--disablerepo='*'` | **外部リポジトリを一切使わない。**持ち込んだ RPM と別システムの導入済みパッケージだけで判定する |
+| `--noplugins` | versionlock などプラグイン由来の制約を外す。**`yum.conf` の `exclude` は外れない** |
+| `${RPM_DIR:?}` | 変数が空のときに `/*.rpm` へ化けるのを防ぐ。**未設定ならその場でエラーになる** |
 | `> ファイル 2>&1` | 出力が長く画面では読めない。`2>&1` で**エラー出力も同じファイルへ**送る |
-| `sudo` | yum は**下見でも root 権限が必要**（ロックやキャッシュを触るため） |
+| `sudo` | `yum install` は **root でないと実行できない**（`You need to be root to perform this command.`） |
 
-### 結果の読み方
+**結果の読み方**
 
 | 最後に出ている文 | 意味 | 次にやること |
 |:--|:--|:--|
-| **`Exiting on user command`** | ✅ **依存はそろっている**（`--assumeno` で中止した正常終了） | 第10章へ |
-| **`Error: Package: ...` ＋ `Requires: xxx`** | ❌ **依存が足りない** | 第8章へ |
-| **`Protected multilib versions`** | ❌ **32bit 版と 64bit 版の版ずれ** | **i686 版も同じ版で取得する** |
-| **`Nothing to do`** | ⚠️ **やることが無い** | RPM の取り違え、`el7` 以外の混入、別システムに同版が入っている |
-| **`Cannot find a valid baseurl`** | ❌ リポジトリへの接続・認証の問題 | 第6章に戻る |
+| **`Error: Package: ...` ＋ `Requires: xxx`** | **足りない依存がある**（想定どおり） | そのまま 7.2 へ |
+| **`Exiting on user command`** | 持ち込んだ RPM と**別システムの導入済み**だけで閉じた | **それでも 7.2 をやる**（別システムに入っているせいで隠れている分がある） |
+| **`Protected multilib versions`** | 32bit 版と 64bit 版の版ずれ | **i686 版も同じ版で取得する** |
+| **`Nothing to do`** | やることが無い | RPM の取り違え、`el7` 以外の混入、別システムに同版が入っている |
 
-> **`Exiting on user command` は「成功」です。**
-> `--assumeno` で確認を「いいえ」にしたので、**Yum が「ユーザーの指示で終了した」と言っているだけ**です。
-> **このとき終了コードは 1 になります。**終了コードだけ見て「失敗した」と思わないでください。
+> **`Exiting on user command` は「成功」です。**`--assumeno` で「いいえ」と答えた正常な中止で、**終了コードは 1** になります。
 > **`Operation aborted.` は RHEL 8 以降の `dnf` の表示で、RHEL 7 の `yum` では出ません。**
-
-💡 `This system is not registered with an entitlement server.` は**無視してよい**です。
+> 検索するときは版による大文字小文字の違いを避けて `grep -i 'exiting on user'` が確実です。
+> `This system is not registered with an entitlement server.` は**無視してよい**です。
 
 **足りないものの一覧を出します。**
 
 ```bash
 $ grep 'Requires:' $LOG_DIR/dryrun_01.txt | sort -u   # 足りない条件を重複なしで並べる
-$ grep -A2 'Error: Package:' $LOG_DIR/dryrun_01.txt   # 要求元と条件をセットで見る
+$ grep -A6 'Error: Package:' $LOG_DIR/dryrun_01.txt   # 要求元・導入済み・候補をセットで見る
 ```
+
+**`Requires:` の右側が「足りないもの」**、**`Error: Package:` の行が「欲しがっている RPM」**です。
+`Installed:` / `Available:` の読み方は [下見ログの読み方](./手順書_RHEL7_下見ログの読み方.md) にあります。
+
+### 7.2 社内リポジトリで何を足せばよいか調べる
+
+```bash
+$ sudo yum --disablerepo='*' --enablerepo=$REPO_ID --setopt=alwaysprompt=1 \
+    install --assumeno ${RPM_DIR:?}/*.rpm \
+    > $LOG_DIR/dryrun_01_repo.txt 2>&1       # 社内リポジトリを使って下見する
+$ echo "exit code: $?"                       # 終了コードを見る
+$ grep -n -E '^(Installing|Updating|Removing) for dependencies:' $LOG_DIR/dryrun_01_repo.txt   # 自動で足された節を探す
+$ tail -n 30 $LOG_DIR/dryrun_01_repo.txt     # 計画の末尾を見る
+```
+
+**`... for dependencies:` の下に並ぶ RPM が「取得する対象」です。**
 
 **表示例**（説明用です）
 
 ```text
-Error: Package: openssh-server-7.4p1-23.el7_9.x86_64 (/openssh-server-7.4p1-23.el7_9.x86_64)
-           Requires: openssl-libs >= 1:1.0.2k-26
+Installing for dependencies:
+ openssl-libs    x86_64    1:1.0.2k-26.el7_9    internal-rhel7    1.2 M
 ```
 
-**`Requires:` の右側が「足りないもの」**、**`Error: Package:` の行が「欲しがっている RPM」**です。
+左から **パッケージ名／アーキテクチャ／`Epoch:Version-Release`／リポジトリID／サイズ**です。
+これを **`名前-Epoch:Version-Release.アーキテクチャ`** の形につなぐと、第9章でそのまま使える NEVRA になります
+（上の例なら **`openssl-libs-1:1.0.2k-26.el7_9.x86_64`**）。
 
-### 黙って外されたRPMがないか確認する
+| 7.2 の結果 | 意味 | 次にやること |
+|:--|:--|:--|
+| `... for dependencies:` が出た | **リポジトリから補われた。**その RPM を取得する必要がある | **第9章へ**（名前と版が分かっているので `repoquery` は不要） |
+| `... for dependencies:` が無く `Exiting on user command` | 追加は不要 | **第10章へ** |
+| `Error: ... Requires:` が残る | **リポジトリにも無い** | **第8章へ**（提供元を自分で探す） |
+| `Removing for dependencies:` が出た | **何かが削除される計画になっている** | **中断して管理者に確認**。想定外の削除は危険 |
 
-**ここが一番見落としやすい落とし穴です。**`yum` は次の場合、**警告を1行出すだけでその RPM を計画から外します。**
+> **`Removing for dependencies:` は特に注意してください。**依存の都合で既存パッケージが消える計画です。
+> 対象サーバーで同じことが起きるとサービスが止まる可能性があります。
 
-| ログに出る文字列 | 起きていること |
-|:--|:--|
-| `Cannot open: ... Skipping.` | RPM ファイルを読めなかった（壊れ・権限） |
-| `... does not update installed package.` | **別システムに同じ版か新しい版が入っている**ので更新にならない |
-| `Not a compatible architecture` | アーキテクチャが合わない |
-| `It is obsoleted by installed package` | 入っているパッケージに置き換えられている |
-| `Excluding ...` | `/etc/yum.conf` の `exclude` に該当した |
+### 7.3 ログの読み方
 
-**外された RPM を除いた残りだけで依存が閉じると、ログの最後は `Exiting on user command` になります。**
+**ログの読み方は [下見ログの読み方](./手順書_RHEL7_下見ログの読み方.md) にまとめてあります。**
+`Examining` と `Marking`、`--> Processing Dependency:`、`Error:` の塊（`Requires:` / `Installed:` / `Available:`）、
+計画の表と `Transaction Summary` を、**1行ずつ**解説しています。
+
+**最低限、この5つだけは毎回見てください。**
+
+- [ ] **① 外された RPM はないか** … `Examining` と `Marking` の数が一致するか（7.5）
+- [ ] **② `Error:` の塊はあるか** … あれば `Requires:` の右側が「足りないもの」
+- [ ] **③ `... for dependencies:` はあるか** … あればそれが**取得対象**（7.2）
+- [ ] **④ 消えるものはないか** … `Removing` / `Removing for dependencies` / 行中の `replacing`
+- [ ] **⑤ 終わり方** … `Exiting on user command` か、`Error:` か、`Nothing to do` か
+
+### 7.4 確認用のまとめログを作って持ち帰る
+
+**下見のログは長いので、要点だけを1つのファイルにまとめて、WinSCP で持ち帰って落ち着いて読みます。**
+
+```bash
+$ cd $LOG_DIR                                                      # ログ置き場へ移動する
+$ echo "=== 1. いつ・どこで ===" > summary_01.txt                   # 新規作成（以降は >> で追記）
+$ date >> summary_01.txt                                           # 日時
+$ hostname >> summary_01.txt                                       # サーバー名
+$ echo "=== 2. 持ち込んだRPMの数 ===" >> summary_01.txt   # 見出しを追記する
+$ ls $RPM_DIR/*.rpm | wc -l >> summary_01.txt                      # 件数
+$ echo "=== 3. 読み込みと計画入りの数（一致するのが正常） ===" >> summary_01.txt   # 見出しを追記する
+$ grep -c 'Examining ' dryrun_01.txt >> summary_01.txt             # 読み込まれた数
+$ grep -c 'Marking '   dryrun_01.txt >> summary_01.txt             # 計画に入った数
+$ echo "=== 4. 計画から外されたRPMの警告（空が正常） ===" >> summary_01.txt   # 見出しを追記する
+$ grep -E 'Cannot open|Skipping|does not update installed package|Not a compatible architecture|obsoleted by installed package' \
+    dryrun_01.txt dryrun_01_repo.txt >> summary_01.txt             # 警告を集める
+$ echo "=== 5. 7.1 の結論（リポジトリ無し） ===" >> summary_01.txt   # 見出しを追記する
+$ tail -n 5 dryrun_01.txt >> summary_01.txt                        # 末尾だけ
+$ echo "=== 6. 足りない条件 ===" >> summary_01.txt   # 見出しを追記する
+$ grep 'Requires:' dryrun_01.txt | sort -u >> summary_01.txt       # 条件の一覧
+$ echo "=== 7. 要求元とセット ===" >> summary_01.txt   # 見出しを追記する
+$ grep -A6 'Error: Package:' dryrun_01.txt >> summary_01.txt       # 要求元・導入済み・候補
+$ echo "=== 8. 7.2 でリポジトリから補われたもの（＝取得対象） ===" >> summary_01.txt   # 見出しを追記する
+$ grep -A20 -E '^(Installing|Updating|Removing) for dependencies:' dryrun_01_repo.txt >> summary_01.txt   # 取得対象の節
+$ echo "=== 9. 7.2 の件数まとめ ===" >> summary_01.txt   # 見出しを追記する
+$ grep -A12 'Transaction Summary' dryrun_01_repo.txt >> summary_01.txt   # 件数のまとめ
+$ echo "=== ここまで ===" >> summary_01.txt   # 終わりの目印
+$ wc -l summary_01.txt                                             # 行数を確認する
+$ cat summary_01.txt                                               # 内容を確認する
+```
+
+**期待値**：9つの見出しがそろっていて、**4 の節が空**であること
+
+> **最初の1行だけ `>`（上書き）で、あとは `>>`（追記）**です。
+> ここを間違えると前の節が消えます。**回ごとに `summary_02.txt` のように番号を変えてください。**
+
+> **`grep` が何も見つけないと、その節は見出しだけになります。**これは正常です。
+> **4 の節が見出しだけ＝外された RPM なし**で、これが期待する状態です。
+
+**WinSCP で手元に持ち帰ります。**
+
+1. WinSCP で別システムに接続する
+2. **右側のパス欄に `/home/ユーザー名/depcheck_log` を入れて移動**する
+3. `summary_01.txt` を選び、**左（手元の Windows）へドラッグする**
+4. メモ帳やエディタで開いて、[下見ログの読み方](./手順書_RHEL7_下見ログの読み方.md) を見ながら読む
+
+> **元のログ（`dryrun_01.txt` など）も最後にまとめて持ち帰ります**（第10章）。
+> **まとめログは「その場で判断するため」、元のログは「証跡として残すため」**です。両方必要です。
+
+### 7.5 黙って外されたRPMがないか確認する
+
+**ここが一番見落としやすい落とし穴です。**`yum` は、RPM ファイルを読めなかったとき、
+同じ版が入っているとき、アーキテクチャが合わないときなどに、**警告を1行出すだけでその RPM を計画から外します。**
+**外された分を除いた残りで依存が閉じると、ログの最後は `Exiting on user command` になります。**
 つまり**「依存OK」に見えるのに、CVE 対応 RPM の一部は何も確認されていない**状態が起こります。
 
 ```bash
-$ grep -n -E 'Cannot open|Skipping|does not update installed package|Not a compatible architecture|obsoleted by installed package|^Excluding ' \
-    $LOG_DIR/dryrun_01.txt                   # 計画から外された RPM の警告を探す
+$ grep -c 'Examining ' $LOG_DIR/dryrun_01.txt        # 読み込まれた RPM の数
+$ grep -c 'Marking '   $LOG_DIR/dryrun_01.txt        # 計画に入った RPM の数
+$ grep -n 'Skipped (dependency problems)' $LOG_DIR/dryrun_01.txt $LOG_DIR/dryrun_01_repo.txt   # skip_broken による除外
 ```
 
-**期待値**：**何も表示されない**
+**期待値**：`Examining` と `Marking` の数が**一致**し、`Skipped` が**出ない**こと
 
-❌ 表示された → **その RPM は計画に入っていません。**管理者と次のどちらかを決めてください。
+❌ 数が合わない → 7.4 の「4 の節」に出ている警告が手がかりです。文字列ごとの意味は
+[下見ログの読み方](./手順書_RHEL7_下見ログの読み方.md) にあります。管理者と次のどちらかを決めてください。
 
 - **別システムに同版が入っているだけ**なら、対象サーバーでは必要なので**そのまま持ち帰る**
 - **ファイルが壊れている・アーキテクチャ違い**なら、**取り直す**
 
-> **`does not update installed package.` は別システムではよく出ます。**
-> **別システムの事情**なので、**対象サーバーで必要かどうかは第12章で判断します。ここで RPM を捨てないでください。**
+> **`Excluding ...` は既定の出力レベルでは出力されないので、grep では見つかりません。**設定のほうを先に見ます。
 
-### /tmp に残るファイルの注意
+```bash
+$ grep -H -E '^[[:space:]]*(exclude|includepkgs|alwaysprompt|assumeyes|assumeno|skip_broken|localpkg_gpgcheck|tsflags)' \
+    /etc/yum.conf /etc/yum.repos.d/*.repo    # 除外や自動応答の設定を確認する
+```
 
-`--assumeno` で中止すると、Yum は**解決した計画をファイルに自動保存**して、こう案内してきます。
+**期待値**：`exclude` と `includepkgs` が無い。`alwaysprompt` が `0` でない。`assumeyes` が `1` でない。
+
+❌ `exclude` があった → 下見に `-d 3` を足して実行し、`Excluding` が出ないか確認します。
+❌ `assumeyes=1` / `alwaysprompt=0` があった → **`--assumeno` が効かない構成**です。管理者に報告してください。
+
+### 7.6 /tmp に残るファイルの注意
+
+`--assumeno` で中止したとき、**依存解決まで進めた回**は、Yum が計画をファイルに自動保存して案内してきます。
 
 ```text
 Your transaction was saved, rerun it with:
@@ -460,11 +664,19 @@ Your transaction was saved, rerun it with:
 $ ls -l /tmp/yum_save_tx.*.yumtx             # 自動保存されたファイルを確認する
 ```
 
-**期待値**：下見した回数ぶんのファイルがある（**消さなくてよい。承認後に片付ける**）
+**期待値**：**依存解決まで進んだ回ぶん**のファイルがある（`Error: ... Requires:` で終わった回は作られません）。
+**消さなくてよい。承認後に片付けます。**
 
 ---
 
 ## 8. 足りないRPMの正体を調べる
+
+> **7.2 で `... for dependencies:` に名前と版が出ていれば、この章は飛ばして第9章へ進めます。**
+> この章は、**7.2 でも `Error: ... Requires:` が残った**とき（社内リポジトリにも無いとき）に、
+> 条件を提供する RPM を自分で探すためのものです。
+
+> **この章と第9章は `yumdownloader` / `repoquery` が使える前提（パターンA）です。**
+> 第2章の判定がBだった場合は、[yum-utils が無い場合の依存RPM取得](./手順書_RHEL7_yum-utilsが無い場合の依存RPM取得.md) に差し替えてください。
 
 **`Requires:` に出た条件を、そのままの文字列で検索します。**
 
@@ -473,40 +685,33 @@ $ repoquery --disablerepo='*' --enablerepo=$REPO_ID --show-duplicates \
     --whatprovides 'openssl-libs >= 1:1.0.2k-26'   # 条件を提供する RPM を探す
 ```
 
-**表示例**（説明用です）
-
-```text
-1:openssl-libs-1.0.2k-26.el7_9.x86_64
-1:openssl-libs-1.0.2k-27.el7_9.x86_64
-```
+**表示例**（説明用です）：`openssl-libs-1:1.0.2k-26.el7_9.x86_64` のように、条件を満たす NEVRA が並びます。
 
 **`--whatprovides '条件'` が「その条件を提供している RPM を探す」、`--show-duplicates` が「最新版だけに絞らず複数の版を表示する」**指定です。
 
-> **`Requires:` というラベル自体は入れません。**右側の条件だけを、**クォートで囲んで**渡します。
-> 条件には空白や `>=` が入るので、**囲まないとシェルが別々の引数として渡してしまいます。**
+> **`Requires:` というラベル自体は入れません。**右側の条件だけを、**必ずクォートで囲んで**渡します。
+> **囲まないと `>=` の `>` がリダイレクトとして解釈され**、カレントディレクトリに `=` というファイルができ、版の条件が渡りません。
+> **名前だけに削るのもいけません。**`openssl-libs` だけだと**版の条件を満たさないものまで出ます。**
 
-> **名前だけに削って検索しないでください。**
-> `openssl-libs` だけだと、**版の条件（`>= 1:1.0.2k-26`）を満たさないものまで出てきます。**
+**複数出たときは**、対象サーバーと同じ **`el7`**、条件が `()(64bit)` なら **`x86_64` 版**、
+**要求を満たす版で今回の CVE と同じ時期のもの**を選びます。
+**同じエラータ（RHSA）の仲間（`openssl` と `openssl-libs` など）はまとめて取る**と、やり直し回数が減ります。
 
-**複数出たときの選び方**
-
-- ファイル名に **対象サーバーと同じ `el7`** が入っているもの
-- 条件が `()(64bit)` 付きなら **`x86_64` 版**
-- **要求を満たす版で、今回の CVE と同じ時期のもの**
-- **同じエラータ（RHSA）に入っている仲間はまとめて取る**（`openssl` と `openssl-libs` のように
-  **仲間どうしは同じ版を要求し合うことが多い**ため、やり直し回数が減ります）
-
-### カッコ付きの記号は外して調べる
+### 見つからないときはグロブで探す
 
 ```bash
 $ repoquery --disablerepo='*' --enablerepo=$REPO_ID \
-    --whatprovides 'libcrypto.so.10()(64bit)'      # そのままの条件で探す
+    --whatprovides 'libcrypto.so.10()(64bit)'      # そのままの条件で探す（これが基本）
 $ repoquery --disablerepo='*' --enablerepo=$REPO_ID \
-    --whatprovides 'libcrypto.so.10'               # カッコを外して探す
+    --whatprovides 'libcrypto.so.10*'              # 見つからなければ末尾を * にする
+$ repoquery --disablerepo='*' --enablerepo=$REPO_ID \
+    --whatprovides 'libc.so.6()(64bit)'            # 真ん中のカッコの中身だけ外す
 ```
 
-> **`()(64bit)` は「64bit 版である」という印**です。
-> そのままで見つからないときは**外して検索**し、見つかった RPM の**アーキテクチャが `x86_64` であること**を確認します。
+> **`libcrypto.so.10()(64bit)` は、カッコまで含めて1つの「提供する機能の名前」**です。検索は完全一致なので、
+> **カッコを外した `libcrypto.so.10` では一致しません。**見つからないときは `*` を付けます。
+> ただし **`libc.so.6(GLIBC_2.14)(64bit)` のように真ん中のカッコに版が入っている形は別**で、
+> **版の部分だけ外した `libc.so.6()(64bit)`** で提供元が見つかります。**末尾の `()(64bit)` は残します。**
 
 **よくある対応表（RHEL 7）**
 
@@ -516,63 +721,74 @@ $ repoquery --disablerepo='*' --enablerepo=$REPO_ID \
 | `libk5crypto.so.3()(64bit)` / `libkrb5.so.3()(64bit)` | `krb5-libs` |
 | `libz.so.1()(64bit)` | `zlib` |
 | `libselinux.so.1()(64bit)` | `libselinux` |
-| `libpam.so.0()(64bit)` | `pam` |
+| `libc.so.6()(64bit)` / `libpthread.so.0()(64bit)` | `glibc` |
 
 > **この表は目安です。**必ず `repoquery --whatprovides` で**実際のリポジトリの中身**を確認してください。
-> **対象サーバーで今その機能を提供しているパッケージ**は `rpm -q --whatprovides 'libcrypto.so.10'` で調べられます。
+> **対象サーバーで今その機能を提供しているパッケージ**は `rpm -q --whatprovides 'libcrypto.so.10()(64bit)'` で調べられます。
 > **`rpm -q` は「サーバーに入っているもの」、`repoquery` は「リポジトリにあるもの」**で、調べる相手が違います。
 
 ---
 
 ## 9. 足りないRPMを取得する
 
-**第8章で決めた NEVRA を指定して、`$HOME/rpm` にダウンロードします。**
+**7.2（または第8章）で決めた NEVRA を指定してダウンロードします。**
+**`$HOME/rpm` には直接落としません。**別のフォルダに落として、中身を見てから採用分だけ移します。
 
 ```bash
+$ mkdir -p $HOME/rpm_dl                      # 取得用の一時フォルダを作る
 $ yumdownloader --disablerepo='*' --enablerepo=$REPO_ID \
-    --destdir $RPM_DIR 'openssl-libs-1:1.0.2k-26.el7_9.x86_64'   # 版まで指定して取得する
+    --destdir $HOME/rpm_dl 'openssl-libs-1:1.0.2k-26.el7_9.x86_64'   # 版まで指定して取得する
 $ echo "exit code: $?"                       # 終了コードを見る
-$ ls -lt $RPM_DIR/*.rpm | head -n 5          # 新しく増えたファイルを確認する
+$ ls -l $HOME/rpm_dl                         # 落ちたファイルを見る
 ```
 
-**期待値**：終了コードが 0 で、**指定した NEVRA のファイルが実際に増えている**
+**期待値**：終了コードが 0 で、**指定した NEVRA のファイルが `$HOME/rpm_dl` にある**
 
 > **`yumdownloader` は「取るだけ」です。別システムにインストールしません。**
 > **`--destdir` を指定しないとカレントディレクトリに落ちます。**
 
-> **終了コードが 0 でも、ファイルが増えていないことがあります。必ず `ls -lt` で目で確認してください。**
+> **終了コードが 0 でも、ファイルが増えていないことがあります。必ず `ls` で目で確認してください。**
 
 > **パッケージ名だけを渡さないでください。**
 > `yumdownloader openssl-libs` のように名前だけだと**リポジトリの最新版**が取れて、意図した版と違うものが混ざります。
 
-**取ったものの中身も確認しておきます。**
+**中身を確認してから、採用するものだけ移します。**
 
 ```bash
-$ rpm -qp --qf '%{NAME}\t%{EPOCH}\t%{VERSION}\t%{RELEASE}\t%{ARCH}\n' \
-    $RPM_DIR/openssl-libs-1.0.2k-26.el7_9.x86_64.rpm   # 版とアーキテクチャの確認
-$ rpm -qp --provides $RPM_DIR/openssl-libs-1.0.2k-26.el7_9.x86_64.rpm   # 何を提供するか
-$ rpm -qpR $RPM_DIR/openssl-libs-1.0.2k-26.el7_9.x86_64.rpm   # 何を要求するか
+$ rpm -qp --qf '%{NAME}\t%{EPOCH}\t%{VERSION}\t%{RELEASE}\t%{ARCH}\n' $HOME/rpm_dl/*.rpm   # 版とアーキテクチャの確認
+$ rpm -qp --provides $HOME/rpm_dl/openssl-libs-1.0.2k-26.el7_9.x86_64.rpm   # 何を提供するか
+$ rpm -qpR $HOME/rpm_dl/openssl-libs-1.0.2k-26.el7_9.x86_64.rpm   # 何を要求するか
+$ mv -i $HOME/rpm_dl/openssl-libs-1.0.2k-26.el7_9.x86_64.rpm ${RPM_DIR:?}/   # 採用するものだけ移す
+$ ls $RPM_DIR/*.rpm | wc -l                  # 持ち帰る RPM の件数
 ```
 
 **`--provides` が「その RPM が与える機能」、`-R / --requires` が「その RPM が欲しがる機能」**です。
+
+> **`mv -i` にしているのは、同じ名前のファイルを黙って上書きしないためです。**
+> **「上書きしますか」と聞かれたら `n` で止めて**、自分が持ち込んだ RPM と同じ名前でないか確認してください。
+> **`mv $HOME/rpm_dl/*.rpm $RPM_DIR/` とまとめて移さないでください。**意図しない依存まで持ち帰ることになります。
 
 > **追加した RPM が、さらに別の RPM を要求することがあります。だから下見をやり直す必要があります。**
 
 ### 取得したら必ず7に戻る
 
 ```bash
-$ sudo yum --disablerepo='*' --enablerepo=$REPO_ID install --assumeno $RPM_DIR/*.rpm \
-    > $LOG_DIR/dryrun_02.txt 2>&1            # 2回目の下見（ファイル名の番号を変える）
-$ echo "exit code: $?"                       # 終了コードを見る
-$ tail -n 20 $LOG_DIR/dryrun_02.txt          # 結果を見る
+$ sudo yum --noplugins --disablerepo='*' --setopt=alwaysprompt=1 \
+    install --assumeno ${RPM_DIR:?}/*.rpm \
+    > $LOG_DIR/dryrun_02.txt 2>&1            # 2回目の 7.1（ファイル名の番号を変える）
+$ sudo yum --disablerepo='*' --enablerepo=$REPO_ID --setopt=alwaysprompt=1 \
+    install --assumeno ${RPM_DIR:?}/*.rpm \
+    > $LOG_DIR/dryrun_02_repo.txt 2>&1       # 2回目の 7.2
+$ tail -n 20 $LOG_DIR/dryrun_02.txt          # 7.1 の結果を見る
+$ grep -n -E '^(Installing|Updating|Removing) for dependencies:' $LOG_DIR/dryrun_02_repo.txt   # 7.2 の追加分を見る
 ```
 
 > **ログのファイル名の番号（`_01`, `_02`, `_03` …）を必ず変えてください。**
 > 同じ名前にすると**前回の記録が上書きされて消えます。**
 > **「何回目で何が足りなかったか」が作業の証跡になります。**
 
-**`Exiting on user command` になるまで、第7章 → 第8章 → 第9章を繰り返します。**
-**往復が数回になるのは普通**です。1回で終わらなくても異常ではありません。追加した理由は記録表の台帳に書きます。
+**7.1 が `Exiting on user command` で終わり、かつ 7.2 に `... for dependencies:` が出なくなるまで繰り返します。**
+**往復が数回になるのは普通**です。追加した理由は記録表の台帳に書きます。
 
 ### 参考 --resolve でまとめて取る場合
 
@@ -581,11 +797,9 @@ $ yumdownloader --disablerepo='*' --enablerepo=$REPO_ID --resolve \
     --destdir $HOME/resolve_test 'openssh-server'   # 依存ごとまとめて取る（別フォルダへ）
 ```
 
-> **`--resolve` の結果をそのまま信用しないでください。**
 > **`--resolve` は「別システムに入っていないもの」だけを取ります。**
-> 別システムに入っていて対象サーバーに無いものは**取られません。**
-> だから **`$HOME/rpm` とは別のフォルダに落として、中身を確認してから選ぶ**のが安全です。
-> **本書の主手順は `--resolve` に依存しません。**第7〜9章の繰り返しが基本です。
+> 別システムに入っていて対象サーバーに無いものは**取られないので、結果をそのまま信用しないでください。**
+> 同じ弱点の詳しい説明は [yum-utils が無い場合の依存RPM取得](./手順書_RHEL7_yum-utilsが無い場合の依存RPM取得.md) の「この方法の弱点」にあります。
 
 ---
 
@@ -617,7 +831,8 @@ $ ls -l rpm_final.tar.gz rpm_final.tar.gz.sha256 depcheck_log.tar.gz   # 3つで
 
 **期待値**：3ファイルができていて、`tar -tzf` の中身が**すべて `rpm/` の下**（絶対パスや `../` が無い）
 
-> **ログは証跡です。**「何回下見して、何が足りなくて、何を追加したか」が残ります。**審査や引き継ぎで必ず聞かれます。**
+> **ログは証跡です**（何回下見して、何が足りなくて、何を追加したか）。**審査や引き継ぎで必ず聞かれます。**
+> `$HOME/rpm_dl` に残した「採用しなかった RPM」も、判断の記録として一緒に残しておくと説明しやすくなります。
 
 ---
 
@@ -643,136 +858,29 @@ type rpm_final.tar.gz.sha256                         # 別システムでのハ�
 ❌ **一致しない** → 転送で壊れています。**もう一度持ち帰ってください。**
 
 > **ハッシュの一致は「転送で壊れていない」ことの確認だけ**です。
-> **「正しい Red Hat の修正版である」ことの確認にはなりません。**それは **RHSA と NEVRA の突き合わせ**で別に確認します。
-
-> **別システムの `$HOME/rpm` と `$HOME/depcheck_log` は、照合が終わるまで消さないでください。**
-> **削除は社内の承認後**に行います。ホームディレクトリは自動では消えないので、**作業完了後に自分で片付ける**必要があります。
-> 本書に一括削除コマンドは載せません。
+> **「正しい Red Hat の修正版である」ことの確認にはなりません**（それは **RHSA と NEVRA の突き合わせ**で別に行います）。
+> **別システムの `$HOME/rpm`・`$HOME/rpm_dl`・`$HOME/depcheck_log` は、照合が終わるまで消さないでください。**
+> **削除は社内の承認後**です。ホームは自動では消えないので、作業完了後に自分で片付けます。本書に一括削除コマンドは載せません。
 
 ---
 
-## 12. 対象サーバーであてる前の確認
+## 12. 対象サーバーへ渡す
 
-**ここからは対象サーバー（オフラインの本番機）での作業です。作業承認を得てから実施してください。**
-**別システムでの結果は参考値で、最終判断は対象サーバーの結果を使います。**入っているパッケージが違うからです。
+**ここからは対象サーバー（オフラインの本番機）での作業です。**
+**分量があるので別ノートにしています。**
 
-社内で承認された方法で `rpm_final.tar.gz` と `.sha256` を送り、展開して現状を記録します。
+**→ [対象サーバーでの適用前確認](./手順書_RHEL7_対象サーバーでの適用前確認.md)**
 
-```bash
-$ export LANG=C                              # 出力を英語にする
-$ export RPM_DIR=$HOME/rpm                   # RPM 置き場
-$ export LOG_DIR=$HOME/depcheck_log          # ログ置き場
-$ mkdir -p $LOG_DIR                          # ログ置き場を作る
-$ cd $HOME                                   # ホームへ移動する
-$ sha256sum -c rpm_final.tar.gz.sha256       # ハッシュ値を照合する
-$ tar -tzf rpm_final.tar.gz | head -n 5      # 中身を確認する
-$ tar -xzf rpm_final.tar.gz                  # 展開する
-$ ls $RPM_DIR/*.rpm | wc -l                  # RPM の数を数える
-$ rpm -qa --qf '%{NAME}\t%{EPOCH}\t%{VERSION}\t%{RELEASE}\t%{ARCH}\n' | sort \
-    > $LOG_DIR/installed-before.tsv          # 導入済み一覧を記録する
-$ df -h / /var /boot > $LOG_DIR/disk-space.txt   # 空き容量を記録する
-$ sudo yum --noplugins --disablerepo='*' check > $LOG_DIR/yum-check-before.log 2>&1   # 既存の不整合を調べる
-$ echo "check exit code: $?"                 # 終了コードを見る
-```
+社内で承認された方法で `rpm_final.tar.gz` と `rpm_final.tar.gz.sha256` を渡し、
+そのノートの手順で **ハッシュ照合 → 現状の記録 → 下見 → トランザクションテスト → 前後比較** まで行います。
 
-**期待値**：`sha256sum -c` が **`rpm_final.tar.gz: OK`**、RPM の数が別システムでの最終件数と一致、`check` の終了コードが 0
+> **別システムでの結果は参考値で、最終判断は対象サーバーの結果を使います。**入っているパッケージが違うからです。
+> **別システムで「足りないものなし」でも、対象サーバーでは足りないことがあります。**
+> 対象サーバーで `Requires:` が出たら、その条件を持ってこの本編の第7〜9章に戻ります。
 
-❌ `check` が 0 以外 → **もともと不整合があります。**管理者に確認してください。**今回の RPM が原因だと決めつけないでください。**
-
-> **この記録はバックアップではありません。**`installed-before.tsv` からシステムを復元することはできません。
-
-### 12.1 下見する
-
-```bash
-$ sudo yum --noplugins --disablerepo='*' install --assumeno $RPM_DIR/*.rpm \
-    > $LOG_DIR/offline-dryrun.txt 2>&1       # 外部リポジトリ無しで下見する
-$ echo "exit code: $?"                       # 終了コードを見る
-$ tail -n 30 $LOG_DIR/offline-dryrun.txt     # 結果を見る
-$ grep -n -E 'Cannot open|Skipping|does not update installed package|Not a compatible architecture|obsoleted by installed package|^Excluding ' \
-    $LOG_DIR/offline-dryrun.txt              # 計画から外された RPM の警告を探す
-```
-
-**`--noplugins` は versionlock などプラグイン由来の制約を外す指定**で、**`yum.conf` の `exclude` は外れません。**
-**`--disablerepo='*'` で外部リポジトリを一切使わず**、持ち込んだ RPM だけで依存が閉じるかを見ます。
-
-| 計画に出る表示 | 読み方・確認すること |
-|:--|:--|
-| `Installing` | **新規導入。**追加して良いものか承認を確認する |
-| `Updating` | 既存パッケージの更新。**意図した版か** |
-| `Removing` と行中の `replacing` | 削除・置換。**想定外なら中断** |
-| カーネルの追加・旧版削除 | **起動と復旧用カーネルへの影響**を個別に確認 |
-| `Requires:` / `Error:` | **依存不足。**第8・9章に戻って別システムで取り直す |
-| `Nothing to do` | 対象なし。**目的達成とは限らない** |
-| `Exiting on user command` | `--assumeno` による正常な中止。**終了コードは1** |
-
-**期待値**：最後の `grep` が**何も表示しない**こと（計画から外された RPM が無いこと）
-
-> **`Obsoleting` は Yum 3 の計画表の見出しではありません。**
-> 置き換えは **`Removing` と、各行に続く `replacing`** で表示されます。
-
-> **「渡したのに計画に出てこない RPM」が、いちばん危険な見落としです。**
-> 気になるパッケージは `grep -o 'openssh[^ ]*' $LOG_DIR/offline-dryrun.txt | sort -u` のように**名前で探して**確かめてください。
-
-### 12.2 トランザクションテストをする
-
-**実行条件**：計画の内容と、versionlock・exclude などの運用条件を管理者が確認済みであること。
-
-> **`--setopt=tsflags=test` が実更新を防ぐ重要な指定です。削除・省略しないでください。**
-> **`-y` は付けません。**確認画面で計画をもう一度見ます。
-
-```bash
-$ sudo yum --noplugins --disablerepo='*' --setopt=tsflags=test install $RPM_DIR/*.rpm \
-    > $LOG_DIR/offline-test.txt 2>&1         # ファイルを書き換えないテストをする
-$ echo "exit code: $?"                       # 終了コードを見る
-$ tail -n 30 $LOG_DIR/offline-test.txt       # 結果を見る
-```
-
-**確認画面が出たら、`tsflags=test` を打ったことと計画を確認し、進める場合だけ `y` を入力します。**
-
-**期待値**：ログの中に次の3つが順に出ていること
-
-```text
-Running transaction check
-Running transaction test
-Transaction test succeeded
-```
-
-> **`Transaction test succeeded` の後に `Running transaction` と出ても、ファイルは更新されません。**`tsflags=test` が付いているためです。
-> **このテストは `yum history` に記録されません。**`tsflags` に `test` が入っていると Yum は履歴の記録自体を行いません。
-> **実施記録はこのログファイルで残してください。**
-
-**テストの前後でパッケージ一覧が変わっていないことを確認します。**
-
-```bash
-$ rpm -qa --qf '%{NAME}\t%{EPOCH}\t%{VERSION}\t%{RELEASE}\t%{ARCH}\n' | sort \
-    > $LOG_DIR/installed-after.tsv           # テスト後の一覧を取る
-$ diff -u $LOG_DIR/installed-before.tsv $LOG_DIR/installed-after.tsv   # 前後を比べる
-$ echo "diff exit code: $?"                  # 差分があれば 1 になる
-```
-
-**期待値**：**差分なし**（終了コードが 0）
-
-❌ 差分があった → **完了にしないでください。**ほかの管理処理が同時に動いていないかも含めて調査します。
-
-> **一覧が一致したことは「ファイルシステムへの書き込みが一切なかった」証明ではありません。**ログやキャッシュは作られます。
-
-### 12.3 ここで確認できないこと
-
-| 確認できたこと | まだ確認できていないこと |
-|:--|:--|
-| 対象サーバーの現状に対する依存解決 | 更新後のアプリケーション動作 |
-| 計画の内容（追加・更新・削除・置換） | インストールスクリプトの実行成功 |
-| トランザクションテストが通ること | サービスの正常再起動、OS の起動 |
-| ファイルの整合性（ハッシュ値） | **目的の CVE が確実に修正されたこと** |
-
-**この手順の結果を「本番更新できた」と報告しないでください。実際にあてる手順は別の作業**です
-（[手順書 RHEL 7.9 openssh の更新](./手順書_RHEL7_openssh更新.md) /
-[手順書 RHEL 7.9 依存RPMの不足対応](./手順書_RHEL7_依存不足対応.md)）。
-
-実更新の前に、**バックアップと復元試験／停止・再起動の計画／対象を再現した環境での実更新試験とアプリケーション確認／
-障害時の連絡先とコンソール接続手段／変更承認**をそろえます。
-**`yum history undo` はバックアップ復元の代わりになりません**（旧版 RPM の入手可否やスクリプトによる変更が関係します）。
-**カーネルを含む場合は、起動先と復旧用カーネルを必ず確認してください。**
+> **この手順の結果を「本番更新できた」と報告しないでください。**実際にあてる手順はさらに別の作業です
+> （[手順書 RHEL 7.9 openssh の更新](./手順書_RHEL7_openssh更新.md) /
+> [手順書 RHEL 7.9 依存RPMの不足対応](./手順書_RHEL7_依存不足対応.md)）。
 
 ---
 
@@ -783,14 +891,10 @@ $ echo "diff exit code: $?"                  # 差分があれば 1 になる
 | `Exiting on user command` | `--assumeno` による正常な中止（終了コード1） | 異常ではない。計画本文を読む |
 | `Error: Package: ...` ＋ `Requires: xxx` | 依存が足りない | 条件全文を `repoquery --whatprovides` で調べる |
 | `Protected multilib versions` | x86_64 と i686 の版ずれ | **両アーキテクチャを同じ版で**取得する |
-| `conflicts with file from package` | ファイルの所有・内容が競合 | 両 RPM の製品・版・提供元を確認 |
 | `does not update installed package.` | 同版・旧版が入っていて更新にならない | **計画から外れている。**持ち帰る／取り直すを判断 |
-| `Cannot open: ... Skipping.` | RPM を読めず計画から外された | ハッシュ・権限・破損を確認し、転送をやり直す |
-| `Not a compatible architecture` / `Excluding ...` | アーキテクチャ違い／`yum.conf` の `exclude` に該当 | アーキテクチャを確認、または管理者に運用条件を確認 |
 | `No package ... available` | 指定版が見えない | リポジトリID・同期内容・版指定・権利を確認 |
 | `Cannot find a valid baseurl` | 取得元・接続・認証の問題 | **依存不足と混同しない。**第6章へ |
 | `Nothing to do` | やることが無い | RPM の取り違え、`el7` 以外の混入、適用済みを確認 |
-| `Existing lock` | 別の yum/rpm が動いている可能性 | 管理者に実行状況を確認。**ロックファイルを消さない** |
 
 ---
 
@@ -799,10 +903,9 @@ $ echo "diff exit code: $?"                  # 差分があれば 1 になる
 | やってはいけないこと | 理由 |
 |:--|:--|
 | **`yum load-transaction` を実行する** | `--assumeno` の案内に従うと**実更新になる** |
-| **`--nodeps` / `--force` / `--ignorearch`** | 依存関係やアーキテクチャの判定を無視してシステムを壊す |
+| **`--nodeps` / `--force` / `--ignorearch`**（`rpm` のオプション） | 依存関係やアーキテクチャの判定を無視してシステムを壊す。**`yum` には無いか意味が違う** |
 | **`--skip-broken`** | 問題のあるパッケージを**黙って計画から外す。**CVE 対応の抜けが隠れる |
 | **`--nogpgcheck`** | 検証を飛ばす。先へ進めるための道具にしない |
-| **`rpm -Uvh *.rpm`（`--test` 無し）** | yum の依存解決・運用設定と評価が違う。**カーネルの installonly 扱いも異なる** |
 | **RPM を1個ずつ下見する** | 同時更新で解決する関係を「不足」と誤判定する |
 | **ログのファイル名を使い回す** | 前回の証跡が消える |
 | **転送モードを「テキスト」にする** | RPM とアーカイブが壊れる |
@@ -816,7 +919,6 @@ $ echo "diff exit code: $?"                  # 差分があれば 1 になる
 | 回 | ログファイル | RPM数 | 結果 | 足りなかった条件 | 追加したNEVRA | 実施日時 | 実施者 |
 |:--|:--|:--|:--|:--|:--|:--|:--|
 | 01 | `dryrun_01.txt` | | | | | | |
-| 02 | `dryrun_02.txt` | | | | | | |
 
 ### 追加したRPMの台帳
 
@@ -828,11 +930,12 @@ $ echo "diff exit code: $?"                  # 差分があれば 1 になる
 
 | 場所 | ファイル | 内容 |
 |:--|:--|:--|
-| `$HOME/rpm` | `*.rpm` | **持ち帰る中身。RPM だけにする** |
-| `$HOME/depcheck_log` | `original-inventory.tsv` / `final-inventory.tsv` / `dryrun_01.txt`, `_02.txt` … | 最初と最後の NEVRA 一覧、各回の下見結果 |
+| `$HOME/rpm` / `$HOME/rpm_dl` | `*.rpm` | **持ち帰る中身（RPM だけにする）／取得したが採用しなかったものも証跡として残す** |
+| `$HOME/depcheck_log` | `original-inventory.tsv` / `final-inventory.tsv` / `dryrun_01.txt` / `dryrun_01_repo.txt` … | 最初と最後の NEVRA 一覧、各回の下見結果（7.1 と 7.2 の2本） |
+| `$HOME/depcheck_log` | `summary_01.txt`, `_02.txt` … | **各回のまとめログ。**WinSCP で持ち帰って読む |
 | `$HOME/depcheck_log` | `repolist.txt` | 社内リポジトリの詳細（**社内URLを含む。社外に出さない**） |
 | `$HOME` | `rpm_final.tar.gz` ＋ `.sha256` / `depcheck_log.tar.gz` | 持ち帰るアーカイブ |
-| 対象サーバー `$HOME/depcheck_log` | `offline-dryrun.txt` / `offline-test.txt` / `installed-before.tsv` / `installed-after.tsv` | 下見・トランザクションテストと、その前後の導入済み一覧 |
+| 対象サーバー | — | [対象サーバーでの適用前確認](./手順書_RHEL7_対象サーバーでの適用前確認.md) を参照 |
 
 > **認証情報が入った設定ファイル（`.repo` など）は転送しないでください。**
 
@@ -840,11 +943,11 @@ $ echo "diff exit code: $?"                  # 差分があれば 1 になる
 
 - [ ] 手元で用意した RPM の数と、別システムに届いた数が一致した
 - [ ] 送り・持ち帰りの両方でハッシュ値が一致した
-- [ ] 別システムでの最後の下見が `Exiting on user command` で終わった
-- [ ] 別システムと対象サーバーの両方で、**除外警告（`Skipping` など）が出ていない**
-- [ ] 持ち込んだ RPM が、対象サーバーの計画に現れている
-- [ ] 対象サーバーで `Transaction test succeeded` になった
-- [ ] テスト前後の導入済み一覧に差分がない
+- [ ] 7.1（リポジトリ無し）の最後の下見が `Exiting on user command` で終わった
+- [ ] 7.2（リポジトリ有り）に `... for dependencies:` が出なくなった
+- [ ] `exclude` / `assumeyes=1` / `alwaysprompt=0` が設定されていないことを確認した
+- [ ] **除外警告（`Skipping` / `does not update installed package` など）が出ていない**
+- [ ] [対象サーバーでの適用前確認](./手順書_RHEL7_対象サーバーでの適用前確認.md) の完了条件をすべて満たした
 - [ ] 各 CVE・RHSA と採用した修正後 RPM の対応を確認した
 - [ ] 追加・除外・置換の理由を台帳に記録した
 - [ ] ログ一式を保管し、サーバー名・日時・実施者を対応付けた
@@ -870,17 +973,15 @@ $ echo "diff exit code: $?"                  # 差分があれば 1 になる
 
 ### この文書の検証範囲
 
-**公式 man と開発元ソースで確認した事項**：`Exiting on user command`（`--assumeno` 時の表示・終了コード1）／
-`install` にファイル名を渡すとローカルインストールになること／`Cannot open: ... Skipping.`・
-`does not update installed package.`・`Not a compatible architecture`・`It is obsoleted by installed package`・
-`Excluding` で **RPM が計画から外れること**／計画表の見出しに **`Obsoleting` は含まれない**こと／
-`Running transaction check` → `Running transaction test` → `Transaction test succeeded` の表示順／
-`tsflags=test` のとき **`yum history` に記録されない**こと／`--assumeno` 中止時に
-`/tmp/yum_save_tx.*.yumtx` が自動保存され `yum load-transaction` が案内されること／
-`localpkg_gpgcheck` の既定が `0` であること。
+**公式 man と開発元ソースで確認した事項**：`install` にファイル名を渡すとローカルインストールになること／
+**社内リポジトリを有効にすると不足依存がリポジトリから補われる**こと／`--assumeno` 時の `Exiting on user command` と終了コード1／
+**`alwaysprompt=0` だと `--assumeno` が働かない計画があり得る**こと／`Cannot open: ... Skipping.` などで
+**RPM が黙って計画から外れる**ことと、**`Excluding` だけは既定の出力レベルで出ない**こと／
+計画表の見出しに **`Obsoleting` は含まれない**こと／`--assumeno` 中止時の `/tmp/yum_save_tx.*.yumtx` の自動保存（**依存解決まで進んだ回だけ**）／
+`localpkg_gpgcheck` の既定が `0` であること／`yum install` が root を要求すること。
+ログの文字列の詳細は [下見ログの読み方](./手順書_RHEL7_下見ログの読み方.md) の検証範囲にまとめています。
 
-**RHEL 7.9 の実機では未実行**です。実際の RPM・社内リポジトリ・対象サーバーでの出力は取得していません。
-**出力例は説明用**で、実機の出力ではありません。
+**RHEL 7.9 の実機では未実行**です。**出力例は説明用**で、実機の出力ではありません。
 TeraTerm と WinSCP の画面の文言は、**版によって表記が異なる場合があります。**
 
 ---
@@ -889,9 +990,9 @@ TeraTerm と WinSCP の画面の文言は、**版によって表記が異なる�
 
 | 日付 | 版 | 内容 |
 |:--|:--|:--|
+| 2026-10-14 | 2.1 | **重大な誤りの修正。**社内リポジトリを有効にしたまま下見すると、Yum が足りない依存を**リポジトリから自動で補って**計画を作るため `Exiting on user command` で正常終了してしまい、**補われた RPM を持ち帰らないまま先へ進む**危険があった。下見を **7.1（リポジトリ無し＝不足の洗い出し）**と**7.2（リポジトリ有り＝取得リスト作り）**の2段に分けた。あわせて **`--setopt=alwaysprompt=1`**（`alwaysprompt=0` だと `--assumeno` が働かない計画がある）、**`${RPM_DIR:?}`**（変数未設定でパスが `/` に化けるのを防ぐ）、**`Excluding` は既定の出力レベルでは出ない**ため設定側を確認する手順、`Skipped (dependency problems)` の確認、`Removing for dependencies` の危険性、取得先を `$HOME/rpm_dl` にして `mv -i` で採用分だけ移す方式、`()(64bit)` は外さずグロブで探すこと、`>=` を囲まないとリダイレクトになること、**`LANG=C` の有効範囲の解説**を追加。アーカイブの送り先を `$HOME` にして `$HOME/rpm/rpm/` の入れ子を解消。第12章は分量が増えたため別ノートへ切り出し |
 | 2026-10-14 | 2.0 | **実作業（TeraTerm でログイン → WinSCP で RPM を送る → 不足依存を取得 → WinSCP で持ち帰る）の流れに沿って全面的に書き直し。**シェルスクリプト風の記述（`mktemp`、サブシェル、配列、`set -e`、`for` ループ）を廃止し、**すべて1行ずつのコマンド**にした。作業場所を `$HOME/rpm` と `$HOME/depcheck_log` に固定。社内リポジトリを `/etc/yum.repos.d/internal-rhel7.repo`（`gpgcheck=0`）前提にして**署名検証の章を削除**（代わりに `localpkg_gpgcheck` も `0` である注意を追記）。初心者向けの用語解説、WinSCP のバイナリ転送、ハッシュ値の照合、TeraTerm でのサーバー取り違え防止を追加 |
-| 2026-10-14 | 1.1 | 誤りの修正。`Operation aborted` → **`Exiting on user command`**、`rpm -Kv` の失敗語、**`install` / `localinstall` が警告だけで RPM を計画から外すこと**の検出手順、`/tmp/yum_save_tx.*.yumtx`、`--assumeno` では `localpkg_gpgcheck` が働かないこと、`tsflags=test` が `yum history` に残らないこと、`repoquery --pkgnarrow` の man と実装の食い違いを反映 |
-| 2026-10-14 | 1.0 | 初版（3システム構成の準備手順として作成） |
+| 2026-10-14 | 1.1 | **`yum-utils` が使えるかの判定と、パターンBノートへの分岐を追加。**誤りの修正：`Operation aborted` → **`Exiting on user command`**、`rpm -Kv` の失敗語、**`install` / `localinstall` が警告だけで RPM を計画から外すこと**の検出手順、`/tmp/yum_save_tx.*.yumtx`、`--assumeno` では `localpkg_gpgcheck` が働かないこと、`tsflags=test` が `yum history` に残らないこと、`repoquery --pkgnarrow` の man と実装の食い違いを反映 |
 
 ---
 
