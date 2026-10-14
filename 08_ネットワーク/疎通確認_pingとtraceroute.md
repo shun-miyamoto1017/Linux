@@ -404,7 +404,7 @@ $ sudo traceroute -T -p 443 -n example.com   # HTTPS のポートで経路を調
 |:--|:--|:--|
 | **`traceroute`** | **最も一般的**。プロトコルを選べる | `-I` / `-T` は **root 権限が必要** |
 | **`tracepath`** | **経路と同時に MTU も調べる**。オプションが少なく手軽 | **一般ユーザで実行できる** |
-| **`mtr`** | **`ping` と `traceroute` を合わせたもの。**各ホップの損失率を継続表示 | ディストリによる |
+| **`mtr`** | **`ping` と `traceroute` を合わせたもの。**各ホップの損失率を継続表示。**出力の読み方と落とし穴は [mtrによる経路品質の調査](./mtrによる経路品質の調査.md)** | ディストリによる |
 
 **`tracepath`**
 
@@ -464,7 +464,7 @@ $ nc -zv example.com 443             # -z は接続だけして送信しない�
 Connection to example.com 443 port [tcp/https] succeeded!
 
 $ nc -zv -w 2 10.0.0.5 3306          # 2秒で諦める
-nc: connect to 10.0.0.5 port 3306 (tcp) failed: Connection timed out
+nc: connect to 10.0.0.5 port 3306 (tcp) timed out: Operation now in progress
 ```
 
 **エラーの読み分け**
@@ -473,8 +473,14 @@ nc: connect to 10.0.0.5 port 3306 (tcp) failed: Connection timed out
 |:--|:--|:--|
 | **`succeeded!`** | **そのポートは開いている** | 疎通は問題なし |
 | **`Connection refused`** | **届いているが、誰も待ち受けていない** | **サービスが落ちている**（ネットワークは正常） |
-| **`Connection timed out`** | **何も返ってこない** | **ファイアウォール／SG で破棄**されている |
-| `No route to host` | 経路が無い | ルーティング、相手が落ちている |
+| **`timed out: Operation now in progress`** | **`-w` の秒数まで待って何も返らなかった** | **ファイアウォール／SG で破棄**されている |
+| **`failed: Connection timed out`** | **`-w` を付けず、OS が諦めた**（2 分前後） | 同上 |
+| **`No route to host`** | **ICMP の到達不能が返った** | **経路上のファイアウォール**（`REJECT --reject-with icmp-admin-prohibited` など）。`firewalld` の既定はこれ |
+| `Network is unreachable` | 自サーバに経路が無い | 自サーバのルーティング（`ip route`） |
+
+> **タイムアウトの文言は `-w` の有無で変わります。**（実測）
+> **詳しい読み分けは
+> [ポートスキャンと疎通_nmapとnc](../10_セキュリティ/ポートスキャンと疎通_nmapとnc.md) にあります。**
 
 > **`refused` と `timed out` の違いは決定的です。**
 > **`refused` ならパケットは相手まで届いている**ので、ネットワークは正常。サービス側を見ます。

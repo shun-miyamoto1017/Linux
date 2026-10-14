@@ -6,6 +6,18 @@
 | **Ping-t の範囲** | Linux1 / Linuxのインストールとパッケージ管理(主題102) — RPMとYUMパッケージ管理 |
 | **業務での使いどころ** | **セキュリティパッチ適用そのもの**。`yum update` を打つ前に `yum check-update` で影響範囲を出せるかが、本番作業の分かれ目 |
 
+> **このノートは Ping-t の出題範囲（`yum` を中心にした基本）**です。
+> **RHEL 8 以降の実務で `dnf` を使うなら、このフォルダの dnf ノートのほうが詳しく書いてあります。**
+>
+> | 知りたいこと | 読むノート |
+> |:--|:--|
+> | **`install` / `localinstall` / `update` / `upgrade` の違い** | [dnf解説① 基本とインストール系コマンド](./dnf解説①_基本とインストール系コマンド.md) |
+> | **`remove` で何が一緒に消えるか、`list` / `info` / `provides` / `history`** | [dnf解説② 削除系と調査系コマンド](./dnf解説②_削除系と調査系コマンド.md) |
+> | **オプションと終了ステータス** | [dnf解説③ オプションの使い分け](./dnf解説③_オプションの使い分け.md) |
+> | **`.repo` の書式、GPG、プロキシ、キャッシュ** | [dnf解説④ リポジトリとキャッシュの管理](./dnf解説④_リポジトリとキャッシュの管理.md) |
+> | **依存関係とセキュリティ更新の調べ方** | [dnf解説⑤ 依存関係とセキュリティ更新の調べ方](./dnf解説⑤_依存関係とセキュリティ更新の調べ方.md) |
+> | **実際の作業手順（オンライン／オフライン）** | [dnf実践① オンライン環境での更新手順](./dnf実践①_オンライン環境での更新手順.md) ほか |
+>
 > **パッケージファイルそのものを扱う下位ツール**は
 > [RPMによるパッケージ管理](./RPMによるパッケージ管理.md) にまとめています。
 > パッケージファイル名の読み方や `rpm -q` 系の調査コマンドはそちらです。
@@ -558,7 +570,8 @@ Package xxx.rpm is not signed
 
 ## 参考リンク
 
-- [man 8 yum（yum 3 の man。man7 の `yum.8.html` は DNF へ転送されるので注意）](https://manpages.ubuntu.com/manpages/xenial/man8/yum.8.html)
+- [man 8 yum（yum 3 の man。man7 の `yum.8.html` は DNF へ転送されるので注意）](https://manpages.ubuntu.com/manpages/xenial/man8/yum.8.html)（**yum プロジェクトの man ページ本文。Red Hat の製品ドキュメントではありません**）
+- [man 8 yum（同じ yum 3 の man の別ミラー）](https://dyn.manpages.debian.org/wheezy/yum/yum.8.en.html)
 - [man 5 dnf.conf（man7 の `yum.conf.5.html` はこの内容）](https://man7.org/linux/man-pages/man5/yum.conf.5.html)
 - [DNF 公式ドキュメント](https://dnf.readthedocs.io/en/latest/)
 - [Red Hat: Managing software with the DNF tool](https://docs.redhat.com/en/documentation/red_hat_enterprise_linux/9/html/managing_software_with_the_dnf_tool/index)

@@ -7,6 +7,16 @@
 | **業務での使いどころ** | **サービスを止めずに容量を増やす。**「`/var` が溢れた」に対して、ディスクを足して `lvextend` するだけで済む。オンプレでもクラウドでもここは変わらない |
 
 > **このノートは LVM の考え方と、作る側のコマンド**です。
+> **通しの作業手順と、実際に出るエラーの対処**は
+> [LVM_作業手順とトラブル対応](./LVM_作業手順とトラブル対応.md) に分けてあります。
+
+> **このノートの検証状況**
+> **`pvcreate` / `vgcreate` / `lvcreate` / `lvdisplay` / `pvs` / `vgs` / `lvs` の出力と
+> エラーメッセージは、loop デバイス上の LVM 2.03.16 で実測**したものです
+> （作業環境に device-mapper が無いため `--driverloaded n` を付けて
+> **メタデータ操作だけ**を実行しています。マウントまでは確認できていません）。
+> **PE サイズの既定、RHEL 9 の devices file、容量上限は Red Hat 公式ドキュメントで確認**しています。
+> **`mkfs` 以降（ファイルシステムの作成・マウント・fstab）は実測できていません。**
 > **サイズ変更・削除・スナップショット・lvm.conf** は
 > [LVM_サイズ変更とスナップショット](./LVM_サイズ変更とスナップショット.md)、
 > **物理ディスクの追加手順**は [ディスクを追加する手順](./ディスクを追加する手順.md)、
@@ -25,6 +35,7 @@
   - [pvcreate 物理ボリュームを作る](#pvcreate-物理ボリュームを作る)
   - [vgcreate ボリュームグループを作る](#vgcreate-ボリュームグループを作る)
   - [lvcreate 論理ボリュームを作る](#lvcreate-論理ボリュームを作る)
+  - [サイズ指定は -L と -l の2通り](#サイズ指定は--l-と--l-の2通り)
 - [LVのデバイスファイル](#lvのデバイスファイル)
 - [情報を見る display系](#情報を見る-display系)
 - [参考リンク](#参考リンク)
@@ -84,8 +95,22 @@
   両方使うこともある： 物理ディスク → RAID → PV → VG → LV
 ```
 
-**LVM 自体は冗長化しません。** ディスクが 1 本壊れれば、その PV を含む VG は壊れます。
+**通常の（linear な）LV は冗長化しません。**
+**ディスクが 1 本壊れると、その PV 上にある LV と、その PV にまたがる LV が使えなくなります。**
 冗長化は [RAIDの基礎とレベル](./RAIDの基礎とレベル.md) の担当です。
+
+> **ただし LVM 自身で RAID を組むこともできます。**
+> **`lvcreate --type raid1` / `raid5` / `raid10` などが使えます**（`lvcreate --help` で確認）。
+> **内部では md と同じカーネルドライバを使い、`mdadm` コマンドは使いません。**
+>
+> ```bash
+> $ sudo lvcreate --type raid1 -m1 -L 100G -n lv_safe vg1   # LVM だけで RAID1 を組む
+> $ sudo lvcreate -i2 -L 200G -n lv_fast vg1                # ストライプ（RAID0 相当）
+> ```
+>
+> **`-i`（`--stripes`）でストライプ化すれば速くもなります。**
+> **「LVM は冗長化も高速化もしない」というのは、
+> 何も指定しない既定の linear な LV の話**だと理解してください。
 
 **「LVM のメリットはどれか」への答え**
 
@@ -104,7 +129,7 @@
 | **論理ボリュームは、物理エクステントを最小単位として切り出される** | **○** | **PE が LVM における領域の最小単位**。LV は「PE 1000 個分」のように切り出される |
 | ボリュームグループは、複数の論理ボリューム領域から構成される | ✕ | **VG を構成するのは LV ではなく PV**。LV は VG の一部を使って作る仮想的なパーティション |
 | 論理ボリュームと物理ボリュームの間には、一対一対応の関係がある | ✕ | **LVM は PE 単位で管理する**ので**対応関係は決まっていない**。1 つの PV に複数の LV が入ることも、1 つの LV が複数の PV にまたがることもある |
-| 物理ボリュームは、後から自由にリサイズすることができる | ✕ | **PV はハードディスクやパーティションそのもの**なので、**ハードウェア上の制限内でしか扱えない**。自由にリサイズはできない |
+| 物理ボリュームは、後から自由にリサイズすることができる | ✕ | **PV はハードディスクやパーティションそのもの**なので、**ハードウェア上の制限内でしか扱えない**。「自由に」はできない（ただし下記の `pvresize` はある） |
 | 物理エクステントは、物理的な記憶デバイスの領域のことである | ✕ | **PE は LVM による領域管理の最小単位**。**物理的な記憶デバイスの領域は物理ボリューム（PV）** |
 
 ```text
@@ -133,12 +158,22 @@
 ```
 
 **既定の PE サイズは 4MiB**（実機で確認）です。
-**`lvcreate -L 100M` と指定しても、PE の倍数に切り上げられます。**
+**指定したサイズが PE の倍数でないときは、PE の倍数に切り上げられます。**
 
 ```bash
-$ sudo lvcreate -L 100M -n lv1 vg1     # 100M と指定しても
-  Rounding up size to full physical extent 128.00 MB   ← PE の倍数に切り上がる
-  Logical volume "lv1" created
+$ sudo lvcreate -L 101M -n lv1 vg1     # 101M は 4MiB の倍数ではない
+```
+
+```text
+  Rounding up size to full physical extent 104.00 MiB   ← 26 PE 分に切り上がった
+  Logical volume "lv1" created.
+```
+
+**切り上げられない場合は、このメッセージは出ません。**（実測）
+
+```text
+  -L 100M   100 ÷ 4 = 25 PE ちょうど  → メッセージは出ない
+  -L 101M   101 ÷ 4 = 25.25          → 26 PE（104 MiB）に切り上げ
 ```
 
 **PE 関連の用語**
@@ -170,6 +205,47 @@ $ sudo vgdisplay vg1                   # VG の PE 情報を見る
 
 ---
 
+**PE サイズは VG を作るときに決める**
+
+**PE サイズは `vgcreate -s`（`--physicalextentsize`）で指定します。**
+**既定は 4 MiB** です（Red Hat の公式ドキュメント：
+"Physical extents (PE) and logical extents (LE) has the default size of 4 MiB that you can configure."）。
+
+```bash
+$ sudo vgcreate -s 16M vg1 /dev/sdb1 /dev/sdc1   # PE を16MiBにして VG を作る
+$ sudo vgdisplay vg1 | grep "PE Size"            # 設定されたか確認する
+```
+
+| PE サイズ | 向いている場面 |
+|:--|:--|
+| **小さい（4MiB など）** | **細かくサイズ調整したい**。PE 数が増えるので管理情報も増える |
+| **大きい（16MiB〜）** | **数 TB 以上の大きな VG**。PE の個数を抑えられる |
+
+> **PE サイズは、原則として VG を作るときに決めます。**
+> Red Hat の公式ドキュメント（RHEL 9）は **変更するには VG の作り直しが必要**としています。
+> `vgcreate` の man の表現は
+> **"difficult to change without recreating the VG unless no extents need moving"**
+> （extent の移動が不要な場合を除き、VG を作り直さずに変えるのは難しい）です。
+>
+> **実際には `vgchange -s`（`--physicalextentsize`）で変えられる場合があります。**
+> 手元の LVM 2.03.16 では、LV がある VG に対して `vgchange -s 2M vgt` が成功しました（実測）。
+>
+> ```bash
+> $ sudo vgchange -s 2M vg1              # PE サイズを変更する（成功しない場合もある）
+> $ sudo vgs -o vg_name,vg_extent_size   # 変わったか確認する
+> ```
+>
+> **ただし本番では公式の手順（作り直し）に従ってください。**
+> **「できる場合がある」に頼る操作ではありません。**
+>
+> **判断に迷うなら既定の 4 MiB のままで問題ありません。**
+> **LVM2 では PE 数による実用上の容量制限はほぼ問題になりません**
+> （RHEL 7 のドキュメントに "The maximum device size with LVM is 8 Exabytes on 64-bit CPUs." とあります）。
+> **なお「PE サイズが LV の最大サイズを決める」という古い説明は LVM1 時代の話**で、
+> LVM2 でも同じかどうかは公式ドキュメントで確認できていません。
+
+---
+
 ## コマンドの命名規則
 
 **LVM のコマンドは「対象 ＋ 動詞」で機械的にできています。**
@@ -197,8 +273,8 @@ $ sudo vgdisplay vg1                   # VG の PE 情報を見る
 | 見かける名前 | 実際は |
 |:--|:--|
 | **`lvexpand`** / **`vgexpand`** / **`pvexpand`** | **存在しない**。**正しくは `expand` ではなく `extend`** |
-| **`pvextend`** | **存在しない**（PV は「伸ばす」対象ではない） |
-| **`pvreduce`** | **存在しない** |
+| **`pvextend`** | **存在しない**。**下のディスクが大きくなったことを反映させるのは `pvresize`** |
+| **`pvreduce`** | **存在しない**（`pvresize --setphysicalvolumesize` で縮める指定はある） |
 | **`rvcreate`** / **`rvdisplay`** | **存在しない**（`r` で始まる層は無い） |
 | **`pvstat`** / **`vgstat`** / **`lvstat`** | **存在しない**（情報表示は `display`） |
 | **`pvinfo`** / **`vginfo`** / **`lvinfo`** | **存在しない**（同上） |
@@ -221,6 +297,7 @@ $ sudo vgdisplay vg1                   # VG の PE 情報を見る
 | やりたいこと | コマンド |
 |:--|:--|
 | **指定したデバイスを PV として初期化する** | **`pvcreate`** |
+| **下のディスクが大きくなったのを PV に反映させる** | **`pvresize`** |
 | **指定したデバイスから、物理ボリュームとしてのデータ構造を削除する** | **`pvremove`** |
 | **PV から VG を作成する** | **`vgcreate`** |
 | **作成済みの VG に PV を追加する** | **`vgextend`** |
@@ -305,6 +382,35 @@ $ sudo vgcreate vg1 /dev/loop0 /dev/loop1   # 2つの PV を束ねて vg1 を作
   Volume group "vg1" successfully created
 ```
 
+**クラウドでディスクそのものが大きくなった場合**
+
+**EBS や Persistent Disk はボリュームを無停止で拡張できます。**
+**ただしディスクが大きくなっただけでは、PV・LV・ファイルシステムは広がりません。**
+
+```text
+  ① クラウド側でボリュームを拡張する     （AWS コンソール / gcloud など）
+        ▼
+  ② growpart /dev/nvme0n1 1              パーティションを広げる
+        ▼
+  ③ pvresize /dev/nvme0n1p1              PV に反映させる   ★ここを忘れやすい
+        ▼
+  ④ lvextend -r -l +100%FREE /dev/vg/lv  LV と FS を広げる
+```
+
+```bash
+$ lsblk                                # ディスクが大きくなったか確認する
+$ sudo growpart /dev/nvme0n1 1         # パーティションを広げる
+$ sudo pvresize /dev/nvme0n1p1         # PV のサイズを再認識させる
+$ sudo pvs -o pv_name,pv_size,pv_free  # PFree が増えたことを確認する
+$ sudo lvextend -r -l +100%FREE /dev/vg_data/lv_data   # LV と FS を広げる
+$ df -h /data                          # 反映を確認する
+```
+
+> **`pvresize` を飛ばすと `vgs` の `VFree` が増えません。**
+> **「EBS を広げたのに容量が増えない」の原因はほぼこれ**です。
+> **パーティションを切らずにディスク全体を PV にしている場合は ② が不要**で、
+> `pvresize /dev/nvme0n1` だけで済みます。
+
 **あとから PV を足したいときは `vgextend`** です。
 
 ```bash
@@ -329,10 +435,14 @@ lvcreate [オプション] ボリュームグループ名
 | `-l` | PE の個数でサイズを指定する |
 
 ```bash
-$ sudo lvcreate -L 100M -n lv1 vg1     # サイズ100MB、名前 lv1 の LV を vg1 から作る
-  Rounding up size to full physical extent 128.00 MB
-  Logical volume "lv1" created
+$ sudo lvcreate -L 100M -n lv1 vg1     # サイズ100MiB、名前 lv1 の LV を vg1 から作る
 ```
+
+```text
+  Logical volume "lv1" created.
+```
+
+（PE が 4MiB なら 100MiB は 25 PE ちょうどなので、切り上げは起きません）
 
 **`-L` はサイズ、`-n` は名前**——この 2 つを取り違えるのが典型的な誤答です。
 
@@ -350,6 +460,75 @@ $ sudo lvcreate -L 100M -n lv1 vg1     # サイズ100MB、名前 lv1 の LV を 
 ```bash
 $ sudo mkfs -t ext4 /dev/vg1/lv1       # LV は仮想的なパーティションなので mkfs できる
 $ sudo mount /dev/vg1/lv1 /data        # 普通にマウントできる
+```
+
+---
+
+### サイズ指定は -L と -l の2通り
+
+**`-L` はサイズ、`-l` は PE の個数**です。
+**`-L` の単位を省くと MiB** になります（`-L 8` で 8.00m。実測）。
+**`M` / `G` は 1000 ではなく 1024 基準（MiB / GiB）**なので、
+`-L 1G` は 1024 MiB です。
+**実務でいちばん使うのは `-l` のパーセント指定**なので、ここを押さえておくと楽になります。
+
+| 指定 | 意味 |
+|:--|:--|
+| **`-L 100M`** | **100MB**（PE の倍数に切り上げられる） |
+| **`-L 10G`** | **10GB** |
+| **`-l 50`** | **PE 50 個分**（PE が 4MiB なら 200MiB） |
+| **`-l 100%FREE`** | **VG の空き容量を全部使う** |
+| **`-l 50%FREE`** | **VG の空き容量の半分** |
+| **`-l 100%VG`** | **VG の全容量**。**空きが足りなければ空き分に切り詰められる**（下記） |
+| **`-l 80%PVS`** | **指定した PV の空き容量の 80%**（PV はコマンドの末尾に並べる） |
+
+```bash
+$ sudo lvcreate -l 50%FREE -n lv_data vg1    # ① まず空きの半分を使う
+$ sudo lvcreate -l 100%FREE -n lv_log vg1    # ② 残りを全部使う
+```
+
+**順番が逆だと 2 本目が作れません。**
+**`-l 100%FREE` を先に打つと空きがゼロになる**ので、
+次の `-l 50%FREE` は「0 エクステント」になって失敗します。
+
+**`%FREE` と `%VG` の違い**
+
+```text
+  VG 全体 392MiB、すでに LV が 212MiB 使っている状態で
+
+  -l 100%FREE   残りの 180MiB を使う
+  -l 100%VG     392MiB を要求するが、空き分に切り詰められる
+```
+
+**`lvcreate` では `%VG` でもエラーになりません。**（実測）
+
+```text
+  Reducing 100%VG to remaining free space 180.00 MiB in VG.
+  Logical volume "vg100" created.
+```
+
+> **`lvcreate` で使う分には `%VG` と `%FREE` はほぼ同じ結果**になります。
+> ただし **`lvextend` では意味が変わります**（`%VG` は VG 全体を基準にした絶対指定）。
+> **迷ったら `%FREE` を使う**のが安全です。
+
+**空きが 1 つも無い状態で `%FREE` を指定すると、こうなります。**（実測）
+
+```text
+  Calculated size of logical volume is 0 extents. Needs to be larger.
+```
+
+> **`-l 100%FREE` を使うときは「あとで別の LV を作る余地が無くなる」**点に注意してください。
+> **スナップショット用の空きを残しておきたい**なら、
+> **`-l 80%FREE` のように余裕を残す**のが実務での作法です
+> （[LVM_サイズ変更とスナップショット](./LVM_サイズ変更とスナップショット.md)）。
+
+**`-L` と `-l` を同時に指定するとどうなるか**
+
+**両方は指定できません。**（実測）
+
+```text
+  Please specify either size or extents (not both).
+  Run `lvcreate --help' for more information.
 ```
 
 ---
@@ -390,7 +569,7 @@ $ sudo mount /dev/VolGroup00/LogVol02 /home   # VG名/LV名 の順に書く
 | 形式 | どういう名前か |
 |:--|:--|
 | **`/dev/VG名/LV名`** | **LVM が用意する名前**。試験で問われるのは基本これ |
-| **`/dev/mapper/VG名-LV名`** | **デバイスマッパーが用意する名前**。`/etc/fstab` でよく見る |
+| **`/dev/mapper/VG名-LV名`** | **デバイスマッパーが用意する名前**。`/etc/fstab` でよく見る。**VG 名や LV 名にハイフンが含まれると `--` に二重化される**（`my-vg` / `my-lv` → `/dev/mapper/my--vg-my--lv`） |
 | **`/dev/dm-`数字** | **カーネル内で扱われる名前**。**数字部分が変動する**ので、通常ユーザが直接使うことはない |
 
 ```text
@@ -485,20 +664,35 @@ $ sudo vgdisplay vg1                   # VG 全体の情報を見る
 
 **`lvdisplay` の出力**
 
+**LVM 2.03 系（RHEL 8 / 9）の出力**（実測）
+
 ```text
   --- Logical volume ---
-  LV Name                /dev/VolGroup00/LogVol01
-  VG Name                VolGroup00
-  LV UUID                DSDZea-R4IO-ZXKv-X8iP-3w65-ILXg-5pQA3E
+  LV Path                /dev/vgt/p80
+  LV Name                p80
+  VG Name                vgt
+  LV UUID                dS3Pyc-IXfX-GkfB-SHaq-5mIC-U5w4-XUyqbs
   LV Write Access        read/write
-  LV Status              available
+  LV Creation host, time vm, 2026-10-08 15:45:14 +0000
+  LV Size                52.00 MiB
 ```
 
 | 欄 | 意味 |
 |:--|:--|
-| **`LV Name`** | **LV のデバイスファイル**（`/dev/VG名/LV名`） |
+| **`LV Path`** | **LV のデバイスファイル**（`/dev/VG名/LV名`） |
+| **`LV Name`** | **LV の名前だけ**（パスではない） |
 | **`LV Status`** | **`available` なら使える状態** |
 | `LV Write Access` | 読み書き可か読み込み専用か |
+
+> **古い LVM（2.02 系。RHEL 6 / 7）では `LV Path` が無く、
+> `LV Name` にパスが入っていました。**
+>
+> ```text
+>   LV Name                /dev/VolGroup00/LogVol01      ← 2.02 系
+> ```
+>
+> **「パスはどの欄か」は LVM のバージョンで変わります。**
+> 試験で古い形式が出ることもあるので、両方知っておくと安心です。
 
 **短くまとめて見る `s` 系**
 
@@ -520,3 +714,6 @@ $ sudo lvs                             # LV を1行ずつ
 - [man 8 vgcreate](https://man7.org/linux/man-pages/man8/vgcreate.8.html)
 - [man 8 lvcreate](https://man7.org/linux/man-pages/man8/lvcreate.8.html)
 - [man 8 pvdisplay](https://man7.org/linux/man-pages/man8/pvdisplay.8.html)
+- [man 8 lvmdevices](https://man7.org/linux/man-pages/man8/lvmdevices.8.html)
+- [Red Hat — Managing LVM volume groups (RHEL 9)](https://docs.redhat.com/en/documentation/red_hat_enterprise_linux/9/html/configuring_and_managing_logical_volumes/managing-lvm-volume-groups_configuring-and-managing-logical-volumes)
+- [Red Hat — Limiting LVM device visibility and usage (RHEL 9)](https://docs.redhat.com/en/documentation/red_hat_enterprise_linux/9/html/configuring_and_managing_logical_volumes/limiting-lvm-device-visibility-and-usage_configuring-and-managing-logical-volumes)
